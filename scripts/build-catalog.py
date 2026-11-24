@@ -49,13 +49,37 @@ def check(mods, summaries, strings):
         # Missing translations fall back to the English description in catalog().
 
 
+def local_manifest(name):
+    """Return the built-in localised copy's manifest when this repo holds one."""
+    path = ROOT / "mods" / name / ".claude-plugin" / "plugin.json"
+    if not path.is_file():
+        return None
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
 def build_market(mods):
     market = json.loads(MARKET.read_text(encoding="utf-8"))
-    market["plugins"] = [{
-        "name": m["name"], "source": source_of(m), "description": m["description"],
-        "version": m["version"], "author": {"name": m["repo"].split("/")[0]},
-        "homepage": homepage(m), "license": m["license"], "category": m["category"],
-    } for m in mods]
+    plugins = []
+    for m in mods:
+        manifest = local_manifest(m["name"])
+        if manifest is None:
+            entry = {
+                "name": m["name"], "source": source_of(m), "description": m["description"],
+                "version": m["version"], "author": {"name": m["repo"].split("/")[0]},
+                "homepage": homepage(m), "license": m["license"], "category": m["category"],
+            }
+        else:
+            entry = {
+                "name": manifest.get("name", m["name"]),
+                "source": f"./mods/{m['name']}",
+                "description": m["description"],
+                "version": manifest.get("version", "0.0.0"),
+                "author": {"name": m["repo"].split("/")[0]},
+                "homepage": f"https://github.com/{m['repo']}",
+                "license": m["license"], "category": m["category"],
+            }
+        plugins.append(entry)
+    market["plugins"] = plugins
     write(MARKET, json.dumps(market, indent=2, ensure_ascii=False) + "\n")
 
 

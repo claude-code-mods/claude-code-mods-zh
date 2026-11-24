@@ -27,10 +27,6 @@
   "en": "A live map beside the chat: memory, files, shell, web, model, agents, skills and hooks light up as they are used.",
   "zh-CN": "聊天旁的实时地图：记忆、文件、Shell、网络、模型、agent、技能与 hooks 被使用时点亮。"
  },
- "claude-council": {
-  "en": "Consult several AI agents at once for diverse perspectives, with a streaming pane and an optional heads-up side check.",
-  "zh-CN": "同时咨询多个 AI agent 获取多种视角，带流式面板和可选的额外复查提示。"
- },
  "codex-attachment-manager": {
   "en": "Sends earlier images as short placeholders and fetches originals back by ID, so long image sessions keep the prompt cache.",
   "zh-CN": "较早的图片以占位符发送、按 ID 取回原图，让长图片会话保住 prompt 缓存。"
@@ -95,10 +91,6 @@
   "en": "Durable project and user memory for agent-driven development.",
   "zh-CN": "面向 agent 开发的持久项目与用户记忆。"
  },
- "claude-carbon": {
-  "en": "Tracks the carbon footprint of your Claude Code sessions in the terminal and desktop app.",
-  "zh-CN": "在终端和桌面应用中追踪 Claude Code 会话的碳足迹。"
- },
  "agentctl": {
   "en": "An agent control plane for a session: task scope, evidence and hand-over.",
   "zh-CN": "会话级 agent 控制面板：任务范围、证据与交接。"
@@ -162,5 +154,13 @@
  "agent-usage-guard": {
   "en": "Holds subagent fan-out, heavy-context prompts and retry loops before they spend your usage window.",
   "zh-CN": "在子 agent 扩散、重上下文提示和重试循环消耗你的用量窗口之前将其拦下。"
+ },
+ "council": {
+  "en": "Consult several AI agents at once for diverse perspectives, with a streaming pane and an optional heads-up side check.",
+  "zh-CN": "同时咨询多个 AI agent 获取多种视角，带流式面板和可选的额外复查提示。"
+ },
+ "carbon": {
+  "en": "Tracks the carbon footprint of your Claude Code sessions in the terminal and desktop app.",
+  "zh-CN": "在终端和桌面应用中追踪 Claude Code 会话的碳足迹。"
  }
 }

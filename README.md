@@ -1,8 +1,8 @@
 # Claude Code 模组精选
 
-**逐个挑选、校验、固定版本。添加一次，41 个模组随装随用。**
+**逐个挑选、校验、固定版本。添加一次，40 个模组随装随用。**
 
-> **全部 41 个模组已完整汉化。** 界面文字、命令、面板、提示与说明文档均为简体中文；插件源码已内置在本仓库，安装后即显示中文，无需额外设置。仅代码标识符、hook 事件名、技能（skills）与模型调用说明保留英文，以保证功能不变。
+> **全部 40 个模组已完整汉化。** 界面文字、命令、面板、提示与说明文档均为简体中文；插件源码已内置在本仓库，安装后即显示中文，无需额外设置。仅代码标识符、hook 事件名、技能（skills）与模型调用说明保留英文，以保证功能不变。
 
 模组是用函数钩子写成的 Claude Code 插件：可以观察、修改或接管 Claude Code 的行为，也能绘制自己的界面。这个市场收录了社区里最好的模组。每一个都用 `claude plugin validate` 校验过，并固定在校验时的 commit 上，作者之后的改动不会未经审核就到你这里。
 
@@ -37,15 +37,15 @@
 
 ---
 
-[![claude-council](https://github.com/hex/claude-council/raw/main/assets/desktop-code-tab.png)](https://github.com/hex/claude-council/tree/f2f7f42122b288599cef8cea97dcc490acea98a5)
+[![council](https://github.com/hex/claude-council/raw/main/assets/desktop-code-tab.png)](https://github.com/hex/claude-council/tree/f2f7f42122b288599cef8cea97dcc490acea98a5)
 
-#### [`claude-council`](https://github.com/hex/claude-council/tree/f2f7f42122b288599cef8cea97dcc490acea98a5)
+#### [`council`](https://github.com/hex/claude-council/tree/f2f7f42122b288599cef8cea97dcc490acea98a5)
 
 *作者 hex* · 同时咨询多个 AI agent 获取多种视角，带流式面板和可选的额外复查提示。
 
 **权限:** 运行命令, 调用模型, 读写文件
 
-`/plugin install claude-council@claude-code-mods-zh`
+`/plugin install council@claude-code-mods-zh`
 
 ---
 
@@ -130,18 +130,6 @@
 **权限:** 调用模型, 读写文件
 
 `/plugin install ctx-handoff@claude-code-mods-zh`
-
----
-
-[![great-cto](docs/assets/great_cto.png)](https://github.com/avelikiy/great_cto/tree/12dfd86e99627cd6dd1ed394de4786f4ba08499b)
-
-#### [`great-cto`](https://github.com/avelikiy/great_cto/tree/12dfd86e99627cd6dd1ed394de4786f4ba08499b)
-
-*作者 avelikiy* · 把 Claude Code 当作 73 个专家 agent 的流水线运行，每个阶段由独立模型复核。
-
-**权限:** 联网
-
-`/plugin install great-cto@claude-code-mods-zh`
 
 ---
 
@@ -339,15 +327,15 @@
 
 ---
 
-[![claude-carbon](https://github.com/gwittebolle/claude-carbon/raw/main/docs/desktop-pane.png)](https://github.com/gwittebolle/claude-carbon/tree/9ad53f1dd07fb0e11fcdb94d294ed794d660cf4b)
+[![carbon](https://github.com/gwittebolle/claude-carbon/raw/main/docs/desktop-pane.png)](https://github.com/gwittebolle/claude-carbon/tree/9ad53f1dd07fb0e11fcdb94d294ed794d660cf4b)
 
-#### [`claude-carbon`](https://github.com/gwittebolle/claude-carbon/tree/9ad53f1dd07fb0e11fcdb94d294ed794d660cf4b)
+#### [`carbon`](https://github.com/gwittebolle/claude-carbon/tree/9ad53f1dd07fb0e11fcdb94d294ed794d660cf4b)
 
 *作者 gwittebolle* · 在终端和桌面应用中追踪 Claude Code 会话的碳足迹。
 
 **权限:** 读写文件
 
-`/plugin install claude-carbon@claude-code-mods-zh`
+`/plugin install carbon@claude-code-mods-zh`
 
 ---
 
