@@ -1,7 +1,7 @@
 {
   "name": "just-do-it",
   "version": "0.1.0",
-  "description": "Continue authorized work through verification and delivery; surface and repair actionable setup issues.",
+  "description": "持续推进已授权的工作直至验证与交付；发现可修复的环境问题就顺手修好。",
   "types": "./types/index.d.ts",
   "userConfig": {
     "fleetConfigPath": {

@@ -1,7 +1,7 @@
 {
   "name": "work-mode",
   "version": "0.8.0",
-  "description": "/work-mode session modes for Claude Code: auto (no mid-task questions), out (delegate batch work), wrap (converge and finish), plus a delegation nudge",
+  "description": "Claude Code 的 /work-mode 会话模式：auto（中途不提问）、out（委派批量工作）、wrap（收敛收尾），另有委派提醒。",
   "types": "./types/index.d.ts",
   "author": { "name": "Dustin Yuchen Teng" },
   "license": "MIT"

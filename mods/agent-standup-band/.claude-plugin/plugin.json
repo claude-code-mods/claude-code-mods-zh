@@ -1,7 +1,7 @@
 {
   "name": "agent-standup-band",
   "version": "1.47.1",
-  "description": "A line above your Claude Code prompt when another Claude Code session on this computer needs you (an approval, an answer), and a toast when one finishes its turn. Reads only the status files Claude Code keeps for its sessions; sends nothing.",
+  "description": "本机其他 Claude Code 会话需要你处理（审批或回答）时，在提示上方显示一行；某个会话完成一轮时弹出提醒。只读取 Claude Code 为各会话保存的状态文件，不向外发送任何内容。",
   "author": {
     "name": "Double Geste",
     "url": "https://github.com/Atoll92"

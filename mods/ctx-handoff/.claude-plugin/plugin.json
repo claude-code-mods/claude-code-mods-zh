@@ -1,7 +1,7 @@
 {
   "name": "ctx-handoff",
   "version": "0.8.2",
-  "description": "Turns what you teach Claude into project notes, catches its usual slips, keeps the cache warm while you're away, and picks long sessions back up",
+  "description": "把你教会 Claude 的东西沉淀为项目笔记，抓住它常犯的疏漏，在你离开时保持缓存温热，并能接续长会话。",
   "author": {
     "name": "CabLate",
     "url": "https://github.com/cablate"

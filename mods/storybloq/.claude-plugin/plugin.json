@@ -3,7 +3,7 @@
   "name": "storybloq",
   "displayName": "Storybloq",
   "version": "1.16.0",
-  "description": "Project memory for Claude Code and Codex. Storybloq stores tickets, issues, handovers, and lessons in a .story/ folder inside your repo.",
+  "description": "Claude Code 与 Codex 的项目记忆。Storybloq 把工单、issue、交接和教训存进仓库内的 .story/ 目录。",
   "author": {
     "name": "Amir Shayegh",
     "url": "https://storybloq.com"

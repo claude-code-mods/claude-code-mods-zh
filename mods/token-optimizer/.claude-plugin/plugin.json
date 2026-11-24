@@ -1,6 +1,6 @@
 {
   "name": "token-optimizer",
-  "description": "The Token Optimizer status bar on its own, for its tests. It ships inside the token-optimizer plugin.",
+  "description": "独立的 Token Optimizer 状态栏（含自带测试）。它随 token-optimizer 插件一同发布。",
   "author": {
     "name": "Alex Greenshpun",
     "url": "https://linkedin.com/in/alexgreensh"

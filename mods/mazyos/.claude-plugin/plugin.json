@@ -3,7 +3,7 @@
   "name": "mazyos",
   "displayName": "MazyOS",
   "version": "1.0.0",
-  "description": "O sistema operacional do seu negócio no Claude Code. Plugin em português: a memória da sua empresa entra em toda sessão, a identidade visual sai em tudo que o Claude gera, e 17 skills cuidam de marketing, SEO, Google Ads, carrossel pro Instagram e prospecção de clientes pelo Google Maps. Com painel do lado do chat, linha de status e freio em comandos git destrutivos.",
+  "description": "你的业务在 Claude Code 里的操作系统：企业记忆进入每个会话，视觉识别贯穿 Claude 的所有产出，17 项技能覆盖营销、SEO、Google Ads、Instagram 轮播图和 Google Maps 客户开发。带聊天侧面板、状态行，并拦截危险的 git 命令。",
   "author": {
     "name": "Mazzeo",
     "url": "https://mazyos.com.br"

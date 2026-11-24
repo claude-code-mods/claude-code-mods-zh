@@ -1,5 +1,5 @@
 {
   "name": "multi-core",
-  "description": "在一个 Claude Code 会话中使用 ChatGPT、Cursor、OpenCode 和 Antigravity 模型，用 /model 切换。",
+  "description": "在一个 Claude Code 会话中使用 ChatGPT、Cursor、OpenCode 和 Antigravity 模型，用 /model 切换，可把任务委派给具名的原生 worker，各提供商保留自己的登录与权限。",
   "version": "0.0.0"
 }

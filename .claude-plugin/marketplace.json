@@ -8,7 +8,7 @@
     {
       "name": "fm",
       "source": "./mods/fm",
-      "description": "The sailboat working animation and a conversation-only transcript, sharing a calm-mode preference across sessions.",
+      "description": "帆船工作动画与会话专用转录显示，跨会话共享 calm 模式偏好。",
       "version": "1.0.0",
       "author": {
         "name": "kunchenguid"
@@ -20,7 +20,7 @@
     {
       "name": "terminal-browser",
       "source": "./mods/terminal-browser",
-      "description": "A browser inside Claude Code: preview sites and HTML, and let the agent drive the built-in browser.",
+      "description": "内置在 Claude Code 里的浏览器：预览网站和 HTML，并可让 agent 操作这个浏览器。",
       "version": "0.0.2",
       "author": {
         "name": "zenbu-labs"
@@ -32,7 +32,7 @@
     {
       "name": "pebrel-prompt-suggestions",
       "source": "./mods/pebrel-prompt-suggestions",
-      "description": "Native empty-composer prompt predictions through the Pebrel session bridge.",
+      "description": "通过 Pebrel 会话桥在空输入框里给出原生提示预测。",
       "version": "0.1.0",
       "author": {
         "name": "Kuddev"
@@ -44,7 +44,7 @@
     {
       "name": "token-optimizer",
       "source": "./mods/token-optimizer",
-      "description": "A token-optimizer status bar that shows where tokens go and how to spend less.",
+      "description": "token 优化状态栏，显示 token 去向并给出更省钱的调整。",
       "version": "0.0.0",
       "author": {
         "name": "alexgreensh"
@@ -56,7 +56,7 @@
     {
       "name": "lcu-approve",
       "source": "./mods/lcu-approve",
-      "description": "Per-app approval for computer use: allow this conversation, always allow, or deny, plus a panel of approved apps.",
+      "description": "电脑使用的按应用授权：本次允许、始终允许或拒绝，并有已授权应用面板。",
       "version": "0.6.0",
       "author": {
         "name": "amontlabs"
@@ -68,7 +68,7 @@
     {
       "name": "fast-jev-compaction",
       "source": "./mods/fast-jev-compaction",
-      "description": "Verbatim Jev-guided compaction for Claude Code sessions.",
+      "description": "为 Claude Code 会话提供逐字保留的 Jev 压缩。",
       "version": "0.3.0",
       "author": {
         "name": "tamaratran"
@@ -80,7 +80,7 @@
     {
       "name": "lot-map",
       "source": "./mods/lot-map",
-      "description": "A live map beside the chat: memory, files, shell, web, model, agents, skills and hooks light up as they are used.",
+      "description": "聊天旁的实时地图：记忆、文件、Shell、网络、模型、agent、技能与 hooks 被使用时点亮。",
       "version": "0.12.1",
       "author": {
         "name": "alexeyw"
@@ -92,7 +92,7 @@
     {
       "name": "council",
       "source": "./mods/council",
-      "description": "Consult several AI agents at once for diverse perspectives, with a streaming pane and an optional heads-up side check.",
+      "description": "同时咨询多个 AI agent 获取多种视角，带流式面板和可选的额外复查提示。",
       "version": "2026.11.2",
       "author": {
         "name": "hex"
@@ -104,7 +104,7 @@
     {
       "name": "codex-attachment-manager",
       "source": "./mods/codex-attachment-manager",
-      "description": "Sends earlier images as short placeholders and fetches originals back by ID, so long image sessions keep the prompt cache.",
+      "description": "较早的图片以占位符发送、按 ID 取回原图，让长图片会话保住 prompt 缓存。",
       "version": "0.11.5",
       "author": {
         "name": "chipfighter"
@@ -116,7 +116,7 @@
     {
       "name": "storybloq",
       "source": "./mods/storybloq",
-      "description": "Project memory: tickets, issues, handovers and lessons kept in a .story/ folder in your repo.",
+      "description": "项目记忆：把工单、问题、交接和经验存进仓库里的 .story/ 目录。",
       "version": "1.16.0",
       "author": {
         "name": "Storybloq"
@@ -128,7 +128,7 @@
     {
       "name": "shared-session",
       "source": "./mods/shared-session",
-      "description": "Share a session with a link or your team; teammates join from their own Claude Code and watch every turn live.",
+      "description": "用链接或团队共享会话；队友用自己的 Claude Code 加入并实时看到每一轮。",
       "version": "0.11.53",
       "author": {
         "name": "Paradigm-Study"
@@ -140,7 +140,7 @@
     {
       "name": "just-do-it",
       "source": "./mods/just-do-it",
-      "description": "Continues authorized work through verification and delivery, and surfaces setup issues to repair.",
+      "description": "把已授权的工作推进到验证与交付，并暴露需要修复的配置问题。",
       "version": "0.1.0",
       "author": {
         "name": "Lifecycle-Innovations-Limited"
@@ -152,7 +152,7 @@
     {
       "name": "prismantis",
       "source": "./mods/prismantis",
-      "description": "Colorful, themeable rendering for replies: tables, headings, code, numbers, paths and links.",
+      "description": "为回复提供可换主题的彩色渲染：表格、标题、代码、数字、路径与链接。",
       "version": "0.49.3",
       "author": {
         "name": "NahumLitvin"
@@ -164,7 +164,7 @@
     {
       "name": "filetree",
       "source": "./mods/filetree",
-      "description": "An IDE-style file tree that shows what Claude is doing and where in your files.",
+      "description": "IDE 风格的目录树，显示 Claude 正在做什么、改到哪个文件。",
       "version": "0.8.5",
       "author": {
         "name": "data-goblin"
@@ -176,7 +176,7 @@
     {
       "name": "jev-auto-compact",
       "source": "./mods/jev-auto-compact",
-      "description": "At 60% context, prunes stale tool calls with zero generation; skips instead of falling back to an LLM summary.",
+      "description": "上下文到 60% 时以零生成裁剪陈旧工具调用；无可裁剪时跳过而非退化为 LLM 摘要。",
       "version": "1.6.1",
       "author": {
         "name": "notque"
@@ -188,7 +188,7 @@
     {
       "name": "cache-tax",
       "source": "./mods/cache-tax",
-      "description": "Keeps the one-hour prompt cache warm during breaks, asking before a cold send and showing the rewrite cost.",
+      "description": "在休息时保持一小时 prompt 缓存温热，冷启动前先询问并显示重写成本。",
       "version": "2.4.2",
       "author": {
         "name": "karanb192"
@@ -200,7 +200,7 @@
     {
       "name": "turbo",
       "source": "./mods/turbo",
-      "description": "A human-gated agentic software factory: you decide what to build and judge the result, skills build and ship it.",
+      "description": "人工把关的 agent 软件工厂：你决定做什么并验收，技能负责构建与发布。",
       "version": "0.0.0",
       "author": {
         "name": "tobihagemann"
@@ -212,7 +212,7 @@
     {
       "name": "agent-standup-band",
       "source": "./mods/agent-standup-band",
-      "description": "A line above the prompt when another local session needs you, and a toast when one finishes.",
+      "description": "本机其他会话需要你时在提示上方显示一行，结束时给一个提醒。",
       "version": "1.47.1",
       "author": {
         "name": "Atoll92"
@@ -224,7 +224,7 @@
     {
       "name": "flightdeck",
       "source": "./mods/flightdeck",
-      "description": "A live agent dashboard: model vitals, an on-call architect, permission checks, subagent cards and a session log.",
+      "description": "实时 agent 仪表盘：模型体征、值班架构师、权限检查、子 agent 卡片与会话日志。",
       "version": "0.6.2",
       "author": {
         "name": "scasella"
@@ -236,7 +236,7 @@
     {
       "name": "caliber-jev-compaction",
       "source": "./mods/caliber-jev-compaction",
-      "description": "Verbatim Jev-guided compaction for Claude Code sessions.",
+      "description": "为 Claude Code 会话提供逐字保留的 Jev 压缩。",
       "version": "0.3.0",
       "author": {
         "name": "caliber-ai-org"
@@ -248,7 +248,7 @@
     {
       "name": "mazyos",
       "source": "./mods/mazyos",
-      "description": "A Portuguese business OS plugin: your company memory in every session, brand identity on outputs, and 17 marketing/SEO skills.",
+      "description": "葡语商业操作插件：每次会话带入公司记忆、输出带品牌形象，并提供 17 个营销/SEO 技能。",
       "version": "1.0.0",
       "author": {
         "name": "Mazzeo-Marketing"
@@ -260,7 +260,7 @@
     {
       "name": "start",
       "source": "./mods/start",
-      "description": "Workflow orchestration commands for agentic software development.",
+      "description": "面向 agent 软件开发的流程编排命令。",
       "version": "4.0.0",
       "author": {
         "name": "rsmdt"
@@ -272,7 +272,7 @@
     {
       "name": "shunt",
       "source": "./mods/shunt",
-      "description": "A usage band for the shunt gateway: each window's spend and reset time, plus a full /shunt:usage breakdown.",
+      "description": "shunt 网关的用量条：各窗口花费与重置时间，以及完整的 /shunt:usage 明细。",
       "version": "0.1.0",
       "author": {
         "name": "pleaseai"
@@ -284,7 +284,7 @@
     {
       "name": "operator",
       "source": "./mods/operator",
-      "description": "Durable project and user memory for agent-driven development.",
+      "description": "面向 agent 开发的持久项目与用户记忆。",
       "version": "0.2.0",
       "author": {
         "name": "aerovato"
@@ -296,7 +296,7 @@
     {
       "name": "carbon",
       "source": "./mods/carbon",
-      "description": "Tracks the carbon footprint of your Claude Code sessions in the terminal and desktop app.",
+      "description": "在终端和桌面应用中追踪 Claude Code 会话的碳足迹。",
       "version": "1.20.1",
       "author": {
         "name": "gwittebolle"
@@ -308,7 +308,7 @@
     {
       "name": "agentctl",
       "source": "./mods/agentctl",
-      "description": "An agent control plane for a session: task scope, evidence and hand-over.",
+      "description": "会话级 agent 控制面板：任务范围、证据与交接。",
       "version": "0.3.1",
       "author": {
         "name": "sd0xdev"
@@ -320,7 +320,7 @@
     {
       "name": "multi-core",
       "source": "./mods/multi-core",
-      "description": "Use ChatGPT, Cursor, OpenCode and Antigravity models inside one session, switching with /model.",
+      "description": "在单个会话里使用 ChatGPT、Cursor、OpenCode 与 Antigravity 模型，用 /model 切换。",
       "version": "0.0.0",
       "author": {
         "name": "greenpolo"
@@ -332,7 +332,7 @@
     {
       "name": "work-mode",
       "source": "./mods/work-mode",
-      "description": "Session modes: auto (no mid-task questions), out (delegate batch work) and wrap (converge and finish).",
+      "description": "会话模式：auto（不中途提问）、out（委派批量工作）、wrap（收敛并收尾）。",
       "version": "0.8.0",
       "author": {
         "name": "danyuchn"
@@ -344,7 +344,7 @@
     {
       "name": "tokendoctor",
       "source": "./mods/tokendoctor",
-      "description": "Replays your past sessions to show what each change would have saved, then applies only what you pick.",
+      "description": "回放你过去的会话，展示每项改动能省多少，然后只应用你选择的改动。",
       "version": "0.6.1",
       "author": {
         "name": "localixai"
@@ -356,7 +356,7 @@
     {
       "name": "engineer",
       "source": "./mods/engineer",
-      "description": "A disciplined agentic-engineering methodology kit: intake, AC discovery, spec, planning, implementation, verification, hardening.",
+      "description": "严谨的 agent 工程方法套件：需求受理、验收标准探索、规格、计划、实现、验证与加固。",
       "version": "0.40.2",
       "author": {
         "name": "swingerman"
@@ -368,7 +368,7 @@
     {
       "name": "skins",
       "source": "./mods/skins",
-      "description": "Skins and fifteen themes for the transcript, with rich cards and a usage band; /skin swaps them live.",
+      "description": "转录皮肤的十五种主题、丰富卡片与用量条；/skin 实时切换。",
       "version": "0.5.16",
       "author": {
         "name": "hellosverre"
@@ -380,7 +380,7 @@
     {
       "name": "show-your-work",
       "source": "./mods/show-your-work",
-      "description": "Shows finished work in the terminal: screenshots, click-through videos and synced before/after QA.",
+      "description": "在终端里展示成品：截图、操作录屏和前后对比的 QA。",
       "version": "1.1.0",
       "author": {
         "name": "iamumeransari"
@@ -392,7 +392,7 @@
     {
       "name": "jevmem-pane",
       "source": "./mods/jevmem-pane",
-      "description": "A side pane showing what jevmem recalled, what its guard decided and what the last turn saved.",
+      "description": "侧栏显示 jevmem 召回了什么、守卫判定什么、上一轮保存了什么。",
       "version": "0.7.8",
       "author": {
         "name": "Avinash-jetwani"
@@ -404,7 +404,7 @@
     {
       "name": "ctx-handoff",
       "source": "./mods/ctx-handoff",
-      "description": "Turns what you teach Claude into project notes, catches common slips, keeps the cache warm and resumes long sessions.",
+      "description": "把你教给 Claude 的内容沉淀为项目笔记，捕捉常见疏漏，保温缓存并续接长会话。",
       "version": "0.8.2",
       "author": {
         "name": "cablate"
@@ -416,7 +416,7 @@
     {
       "name": "inbox",
       "source": "./mods/inbox",
-      "description": "Gathers the questions, tasks, findings and PRs waiting on you in a session.",
+      "description": "汇总会话中等待你处理的问题、任务、发现与 PR。",
       "version": "0.6.0",
       "author": {
         "name": "petekp"
@@ -428,7 +428,7 @@
     {
       "name": "lane-stack",
       "source": "./mods/lane-stack",
-      "description": "A solo PM conveyor: orchestrator agents, lane playbooks, onboard and resume commands.",
+      "description": "单人 PM 流水线：编排 agent、泳道手册、入职与续接命令。",
       "version": "1.67.4",
       "author": {
         "name": "VKirill"
@@ -440,7 +440,7 @@
     {
       "name": "compact-adviser",
       "source": "./mods/compact-adviser",
-      "description": "Suggests or runs /compact at a completed checkpoint, judged by TypeSafe Jev.",
+      "description": "在完成的检查点建议或执行 /compact，由 TypeSafe Jev 判定。",
       "version": "0.1.14",
       "author": {
         "name": "kunchenguid"
@@ -452,7 +452,7 @@
     {
       "name": "ripple",
       "source": "./mods/ripple",
-      "description": "Picks reasoning effort per prompt and a worker per delegated task, keeps the cache warm and shows where each request went.",
+      "description": "为每条提示选择推理强度、为每个委派任务选择执行者，保温缓存并显示请求去向。",
       "version": "0.7.0",
       "author": {
         "name": "PBJ-2"
@@ -464,7 +464,7 @@
     {
       "name": "tavernweave-agent-skills",
       "source": "./mods/tavernweave-agent-skills",
-      "description": "23 shared skills for rolecards, software work and bounded cloud tasks, plus a Soul mode switch above the prompt.",
+      "description": "23 个共享技能用于角色卡、软件工作和有界云任务，提示上方有 Soul 模式开关。",
       "version": "2.4.0",
       "author": {
         "name": "LiarMTTT"
@@ -476,7 +476,7 @@
     {
       "name": "agent-usage-guard",
       "source": "./mods/agent-usage-guard",
-      "description": "Holds subagent fan-out, heavy-context prompts and retry loops before they spend your usage window.",
+      "description": "在子 agent 扩散、重上下文提示和重试循环消耗你的用量窗口之前将其拦下。",
       "version": "1.2.1",
       "author": {
         "name": "rbartoli"

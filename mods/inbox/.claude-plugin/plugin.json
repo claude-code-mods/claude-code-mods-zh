@@ -1,7 +1,7 @@
 {
   "name": "inbox",
   "version": "0.6.0",
-  "description": "Gathers the questions, tasks, findings and PRs waiting on you in a session",
+  "description": "汇总会话中等着你处理的问题、任务、发现和 PR。",
   "author": { "name": "Pete Petrash" },
   "repository": "https://github.com/petekp/inbox",
   "homepage": "https://github.com/petekp/inbox",

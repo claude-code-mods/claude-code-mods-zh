@@ -1,7 +1,7 @@
 {
   "name": "council",
   "version": "2026.11.2",
-  "description": "Consult multiple AI coding agents (Gemini, OpenAI, Grok, Perplexity, Kimi, any model OpenRouter routes to, plus codex, antigravity, grok, kimi and cursor CLIs when installed, and a local ollama model) to get diverse perspectives on coding problems, with a streaming pane in tmux or inside Claude Code, and, once switched on, a heads-up side-check where one council seat, codex by default, rereads a long turn and shows one line above the prompt about something you may have missed.",
+  "description": "同时咨询多个 AI 编程 agent（Gemini、OpenAI、Grok、Perplexity、Kimi、OpenRouter 路由到的任意模型，以及安装了 codex、antigravity、grok、kimi、cursor 命令行时的本地 CLI，和本地 ollama 模型），从多角度审视编码问题；在 tmux 或 Claude Code 内提供流式面板，开启后还会有一个席位（默认 codex）重读长回合，在提示上方提示你可能漏掉的点。",
   "author": {
     "name": "hex",
     "url": "https://github.com/hex"

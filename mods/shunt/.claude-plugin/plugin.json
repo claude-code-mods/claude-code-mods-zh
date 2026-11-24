@@ -3,7 +3,7 @@
   "name": "shunt",
   "displayName": "shunt · gateway",
   "version": "0.1.0",
-  "description": "A Claude Mod for the shunt gateway: a band above the prompt shows how much of each window is used and the time to reset — the shared account pool's, read from shunt's GET /usage, or the session's own Claude rate limits off shunt — and /shunt:usage prints the pool's full breakdown.",
+  "description": "shunt 网关的 Claude Mod：提示上方的条带显示各窗口已用比例与重置时间（共享账号池的数据读自 shunt 的 GET /usage，或会话自身的 Claude 速率限制），/shunt:usage 打印账号池的完整明细。",
   "author": {
     "name": "Minsu Lee",
     "email": "minsu.lee@pleaseai.dev",

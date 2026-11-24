@@ -2,7 +2,7 @@
   "name": "compact-adviser",
   "version": "0.1.14",
   "license": "MIT",
-  "description": "Suggests (or, opt-in, runs) /compact at a completed checkpoint, judged by TypeSafe Jev. Its hooks module activates only when CLAUDE_CODE_ENABLE_FUNCTION_HOOKS is exactly 1 and is otherwise a complete no-op.",
+  "description": "在已完成的检查点建议（选择开启后则直接执行）/compact，由 TypeSafe Jev 判断。仅当 CLAUDE_CODE_ENABLE_FUNCTION_HOOKS 恰好为 1 时 hooks 模块才生效，否则完全不动作。",
   "author": {
     "name": "Kun Chen"
   },

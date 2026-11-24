@@ -1,7 +1,7 @@
 {
   "name": "lot-map",
   "version": "0.12.1",
-  "description": "A live map beside the chat: memory, files, shell, web, model, agents, skills and hooks light up as they are used",
+  "description": "聊天旁的实时地图：记忆、文件、shell、网络、模型、agents、技能与 hooks 在被使用时依次亮起。",
   "author": {
     "name": "Aleksei Volodin",
     "url": "https://github.com/alexeyw"

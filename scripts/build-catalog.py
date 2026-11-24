@@ -57,7 +57,7 @@ def local_manifest(name):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def build_market(mods):
+def build_market(mods, summaries):
     market = json.loads(MARKET.read_text(encoding="utf-8"))
     plugins = []
     for m in mods:
@@ -72,7 +72,7 @@ def build_market(mods):
             entry = {
                 "name": manifest.get("name", m["name"]),
                 "source": f"./mods/{m['name']}",
-                "description": m["description"],
+                "description": summaries.get(m["name"], {}).get("zh-CN", m["description"]),
                 "version": manifest.get("version", "0.0.0"),
                 "author": {"name": m["repo"].split("/")[0]},
                 "homepage": f"https://github.com/{m['repo']}",
@@ -128,7 +128,7 @@ def main():
     strings = load("readme/strings.json")
     images = load("readme/images.json")
     check(mods, summaries, strings)
-    build_market(mods)
+    build_market(mods, summaries)
     for lang, s in strings.items():
         page = (ROOT / "readme" / "pages" / f"{lang}.md").read_text(encoding="utf-8")
         page = (page.replace("{{languages}}", language_bar(strings, lang))

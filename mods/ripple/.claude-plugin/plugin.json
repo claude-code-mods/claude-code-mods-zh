@@ -2,7 +2,7 @@
   "name": "ripple",
   "displayName": "ClaudeRipple",
   "version": "0.7.0",
-  "description": "Picks the reasoning effort for every prompt and the worker for every delegated task, can keep the prompt cache warm, and shows where ClaudeRipple sent each request.",
+  "description": "为每条提示挑选推理强度、为每个委派任务挑选 worker，可保持 prompt 缓存温热，并显示 ClaudeRipple 把每个请求发到了哪里。",
   "author": { "name": "ClaudeRipple" },
   "license": "GPL-3.0-only",
   "types": "./types/index.d.ts"

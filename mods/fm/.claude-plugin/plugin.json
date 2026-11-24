@@ -1,7 +1,7 @@
 {
   "name": "fm",
   "version": "1.0.0",
-  "description": "Firstmate Calm for Claude Code: the sailboat working animation and conversation-only transcript presentation, sharing the per-home config/calm preference with the Pi Calm extension. Its hooks module may load through CLAUDE_CODE_ENABLE_FUNCTION_HOOKS or Claude Code's tengu_plugin_hooks_modules rollout flag, but the mod activates only when CLAUDE_CODE_ENABLE_FUNCTION_HOOKS is exactly 1 and is otherwise a complete no-op.",
+  "description": "Firstmate Calm：帆船工作动画与会话式转写展示，与 Pi Calm 扩展共用 per-home 的 config/calm 偏好。仅当 CLAUDE_CODE_ENABLE_FUNCTION_HOOKS 恰好为 1 时才生效，否则完全不动作。",
   "author": {
     "name": "Firstmate",
     "url": "https://github.com/kunchenguid/firstmate"

@@ -1,7 +1,7 @@
 {
   "name": "fast-jev-compaction",
   "version": "0.3.0",
-  "description": "Verbatim Jev-guided compaction for Claude Code sessions.",
+  "description": "为 Claude Code 会话提供逐字保留的 Jev 压缩。",
   "license": "MIT",
   "userConfig": {
     "apiKey": {

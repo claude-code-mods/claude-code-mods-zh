@@ -1,7 +1,7 @@
 {
   "name": "skins",
   "version": "0.5.16",
-  "description": "Skins for Claude Code: tool rows that open onto their input and answer, highlighted code, diff, table, math, Mermaid and shell cards, links, folding, a usage band, a calm mode and fifteen themes. /skin swaps them live.",
+  "description": "Claude Code 皮肤：工具行可展开查看输入与回答，高亮的代码、diff、表格、公式、Mermaid 与 shell 卡片，链接、折叠、用量条、专注模式和 15 套主题。/skin 可即时切换。",
   "author": { "name": "hellosverre", "url": "https://github.com/hellosverre" },
   "license": "MIT",
   "keywords": ["claude-code-mods", "claude-mods", "function-hooks", "theme", "skin"],

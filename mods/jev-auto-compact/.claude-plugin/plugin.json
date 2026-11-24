@@ -1,7 +1,7 @@
 {
   "name": "jev-auto-compact",
   "version": "1.6.1",
-  "description": "Jev-powered verbatim compaction: once context reaches 60%, prunes stale tool calls with zero generation. Skips (never falls back to the LLM summarizer) when nothing is prunable; records evidence for learning.db.",
+  "description": "Jev 驱动的逐字压缩：上下文达到 60% 后，在不生成任何内容的前提下清理过期工具调用。无可清理项时直接跳过（绝不回退到 LLM 摘要），并为 learning.db 记录证据。",
   "author": {
     "name": "vexjoy-agent"
   },

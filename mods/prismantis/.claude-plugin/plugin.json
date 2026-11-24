@@ -1,7 +1,7 @@
 {
   "name": "prismantis",
   "version": "0.49.3",
-  "description": "Colorful, themeable rendering for Claude Code replies: tables, headings, code, numbers, paths and links.",
+  "description": "为 Claude Code 回复提供多彩、可换主题的渲染：表格、标题、代码、数字、路径与链接。",
   "author": {
     "name": "Nahum Litvin",
     "url": "https://github.com/NahumLitvin"
