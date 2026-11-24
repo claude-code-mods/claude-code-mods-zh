@@ -12,7 +12,7 @@ export type ModSession = Session & { revision: number }
 
 export const NO_SESSION: ModSession = { ...emptySession(), revision: 0 }
 export const PRESENT: Away = { lastActiveAt: 0, isAway: false, minute: 0 }
-export const READ_FAILED_TEXT = 'Could not read the inbox.'
+export const READ_FAILED_TEXT = '无法读取收件箱。'
 export const AWAY_MS = 15 * 60_000
 /** The conversations whose Status calls run one after another. They do not hold `queue`, so a ledger call never waits for one. */
 export const resultsOrder = orderedKeys()

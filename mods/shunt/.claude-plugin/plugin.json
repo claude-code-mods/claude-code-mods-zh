@@ -25,8 +25,8 @@
   "userConfig": {
     "usageBand": {
       "type": "boolean",
-      "title": "Usage band",
-      "description": "Show usage above the prompt: the shunt pool's, refreshed every minute and after each turn, or the session's own rate limits off shunt. Off, the mod polls nothing and /shunt:usage still answers.",
+      "title": "用量状态带",
+      "description": "在提示行上方显示用量：shunt 池的用量（每分钟和每轮结束后刷新），或不在 shunt 上时显示会话自身的速率限制。关闭后 mod 不进行任何轮询，/shunt:usage 仍会回答。",
       "default": true
     }
   }

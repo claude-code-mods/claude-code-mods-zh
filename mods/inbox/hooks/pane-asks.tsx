@@ -258,7 +258,7 @@ export function paneAskTabs(
           section(
             banner(bannerOf('read-failed', READ_FAILED_TEXT), {
               ...(sessionState.isReadingAgain ? { lead: <Text color={pal.muted}>{READING_TEXT}</Text> } : {}),
-              action: <Button key="read-again" label="Try again" onPress={() => void readAgain()} />,
+              action: <Button key="read-again" label="重试" onPress={() => void readAgain()} />,
             }),
           ),
         ]

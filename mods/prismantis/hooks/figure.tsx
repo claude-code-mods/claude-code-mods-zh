@@ -366,13 +366,13 @@ const drawable = (lines: readonly string[]): FigureDecision => {
 
 const decide = (raw: readonly string[]): FigureDecision => {
   const tooLong = raw.findIndex(line => line.length > RAW_MAX_LINE)
-  if (tooLong >= 0) return { note: `figure line ${tooLong + 1} is ${raw[tooLong]!.length} characters long` }
-  if (raw.length > FIGURE_MAX_LINES * 2) return { note: `figure has ${raw.length} lines, at most ${FIGURE_MAX_LINES}` }
+  if (tooLong >= 0) return { note: `图形第 ${tooLong + 1} 行有 ${raw[tooLong]!.length} 个字符` }
+  if (raw.length > FIGURE_MAX_LINES * 2) return { note: `图形有 ${raw.length} 行，最多 ${FIGURE_MAX_LINES} 行` }
   const first = leadingBlanks(raw)
   const lines = withoutTrailingBlanks(raw.slice(first))
-  if (lines.length > FIGURE_MAX_LINES) return { note: `figure has ${lines.length} lines, at most ${FIGURE_MAX_LINES}` }
+  if (lines.length > FIGURE_MAX_LINES) return { note: `图形有 ${lines.length} 行，最多 ${FIGURE_MAX_LINES} 行` }
   const [finding] = checkFigure(lines, first)
-  return finding ? { note: `figure line ${finding.line}: ${finding.message}` } : drawable(lines)
+  return finding ? { note: `图形第 ${finding.line} 行：${finding.message}` } : drawable(lines)
 }
 
 export const drawFigure = (el: ElementTable, style: Style, block: { lines: readonly string[]; isOpen?: true }, columns: number, key: string): { element?: RenderElement; art?: string; hues?: () => Ink[][]; note?: string } | null => {
@@ -380,7 +380,7 @@ export const drawFigure = (el: ElementTable, style: Style, block: { lines: reado
   const decision = remember(decisions, block.lines.join('\n'), () => decide(block.lines))
   if ('note' in decision) return decision
   if (decision.rows.length === 0) return null
-  if (decision.widest > columns - 2) return { note: `figure is ${decision.widest} cols, ${columns - 2} fit` }
+  if (decision.widest > columns - 2) return { note: `图形宽 ${decision.widest} 列，可用 ${columns - 2} 列` }
   const hues = () => decision.rows.map(row => row.flatMap(run => cells(run.text).map(() => runInk(style, run.role))))
   return { element: figureElement(el, style, decision.rows, key), art: decision.texts.join('\n'), hues }
 }

@@ -77,7 +77,7 @@ const Timeline: ClientModule<Props, State> = (props, surface) => {
           {turn.who}
         </Text>
         <Text dimColor {...steady}>
-          {`turn ${at + 1} of ${props.turns.length}${turn.seconds === null ? ' · running' : ` · ${took(turn.seconds)}`}${turn.seconds !== null && turn.seconds === longest && props.turns.length > 1 ? ' · the longest' : ''}`}
+          {`第 ${at + 1} 轮，共 ${props.turns.length} 轮${turn.seconds === null ? ' · 进行中' : ` · ${took(turn.seconds)}`}${turn.seconds !== null && turn.seconds === longest && props.turns.length > 1 ? ' · 最长' : ''}`}
         </Text>
       </Box>
       <Text wrap="truncate-end">{`“${turn.prompt}”`}</Text>

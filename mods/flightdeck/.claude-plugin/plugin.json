@@ -22,32 +22,32 @@
   "types": "./types/index.d.ts",
   "userConfig": {
     "architectPattern": {
-      "title": "Architect pattern",
-      "description": "Regular expression (case-insensitive) for the agent types and server tools that count as the on-call architect, e.g. advisor|architect|reviewer",
+      "title": "架构师匹配模式",
+      "description": "用于识别值班架构师的代理类型和服务器工具的正则表达式（不区分大小写），例如 advisor|architect|reviewer",
       "type": "string",
       "default": "advisor|architect"
     },
     "architectLabel": {
-      "title": "Architect label",
-      "description": "Name shown for the architect role",
+      "title": "架构师标签",
+      "description": "架构师角色显示的名称",
       "type": "string",
-      "default": "ARCHITECT"
+      "default": "架构师"
     },
     "gateLabel": {
-      "title": "Gate label",
-      "description": "Name shown for the permission panel",
+      "title": "权限关卡标签",
+      "description": "权限面板显示的名称",
       "type": "string",
-      "default": "GATE"
+      "default": "权限关卡"
     },
     "panels": {
-      "title": "Panels",
-      "description": "Comma-separated panels in display order: main, architect, gate, agents, loops, receipt, log. Leave one out to hide it.",
+      "title": "面板",
+      "description": "以逗号分隔的面板及显示顺序：main、architect、gate、agents、loops、receipt、log。省略某项即可隐藏。",
       "type": "string",
       "default": "main,architect,gate,agents,loops,receipt,log"
     },
     "motion": {
-      "title": "Motion",
-      "description": "Animate the connectors while real work flows, or keep them still",
+      "title": "动画效果",
+      "description": "真实工作进行时为连接线添加动画，或保持静止",
       "type": "string",
       "options": [
         "while-active",
@@ -56,32 +56,32 @@
       "default": "while-active"
     },
     "moments": {
-      "title": "Architect moments",
-      "description": "Show the inferred moment of each consult (before a plan, error repeats, before done)",
+      "title": "架构师咨询时机",
+      "description": "显示每次咨询的推断时机（计划前、错误反复、完成前）",
       "type": "boolean",
       "default": true
     },
     "matchDescriptions": {
-      "title": "Match agent descriptions",
-      "description": "Also count an agent type as the architect when its description (not just its name) matches the pattern",
+      "title": "匹配代理描述",
+      "description": "当代理类型的描述（不仅是名称）匹配该模式时，也将其视为架构师",
       "type": "boolean",
       "default": false
     },
     "maxCards": {
-      "title": "Cards before swimlanes",
-      "description": "Agent cards drawn side by side; more agents than this switch to swimlanes (1-6)",
+      "title": "泳道前的卡片数",
+      "description": "并排显示的代理卡片数量；超过该数量的代理会切换为泳道（1-6）",
       "type": "number",
       "default": 3
     },
     "paneColumns": {
-      "title": "Pane width",
-      "description": "Columns the pane asks for when docked beside a fullscreen transcript, 40 or more. Claude Code caps the dock at 45% of the terminal, and a width you dragged it to wins.",
+      "title": "面板宽度",
+      "description": "面板停靠在全屏对话记录旁时请求的列数，至少 40。Claude Code 最多占用终端宽度的 45%，手动拖拽的宽度优先。",
       "type": "number",
       "default": 66
     },
     "layout": {
-      "title": "Layout",
-      "description": "auto: a summary of at most 8 rows when the pane sits inline above the prompt, two columns from 110 columns when docked, one column otherwise",
+      "title": "布局",
+      "description": "auto：面板内嵌在输入框上方时最多显示 8 行摘要，停靠且宽度达到 110 列时为两列，其余情况为一列",
       "type": "string",
       "options": [
         "auto",
@@ -92,8 +92,8 @@
       "default": "auto"
     },
     "palette": {
-      "title": "Palette",
-      "description": "theme follows your Claude Code theme (light, dark, colour-blind); pastel is fixed colours tuned for dark terminals",
+      "title": "配色",
+      "description": "theme 跟随 Claude Code 主题（浅色、深色、色盲友好）；pastel 是为深色终端调校的固定颜色",
       "type": "string",
       "options": [
         "theme",
@@ -102,14 +102,14 @@
       "default": "theme"
     },
     "openOnStart": {
-      "title": "Open on start",
-      "description": "Open the pane when a session starts",
+      "title": "启动时打开",
+      "description": "会话开始时打开面板",
       "type": "boolean",
       "default": true
     },
     "statusLine": {
-      "title": "Status line",
-      "description": "Show context, agents, consults and denials in the status line",
+      "title": "状态行",
+      "description": "在状态行显示上下文、代理、咨询和拒绝次数",
       "type": "boolean",
       "default": true
     }

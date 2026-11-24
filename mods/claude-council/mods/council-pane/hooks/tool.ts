@@ -23,8 +23,8 @@ export const TOOL_SCHEMA = {
 
 const VERBOSITIES = ['brief', 'standard', 'detailed']
 
-export const SEND_LABEL = 'Send to the council'
-export const KEEP_LABEL = "Don't send"
+export const SEND_LABEL = '发送给议事厅'
+export const KEEP_LABEL = '不发送'
 
 // The dialog shows a question of this many characters at most; the run still
 // receives the whole question.
@@ -42,8 +42,8 @@ const DRAWS_NOTHING = /\p{Cf}/gu
 // for the recipients or push them out of view.
 export function confirmQuestion(question: string, seats: string[], verbosity: string): string {
   const line = question.replace(DRAWS_NOTHING, '').replace(NOT_ONE_LINE, ' ').trim()
-  const shown = line.length > SHOWN_MAX ? `${line.slice(0, SHOWN_MAX)}… (the first ${SHOWN_MAX} of ${line.length} characters; the whole question is sent)` : line
-  return `Send to ${seats.length} ${seats.length === 1 ? 'seat' : 'seats'} at ${verbosity} verbosity: ${seats.join(', ')}\nQuestion: ${shown}`
+  const shown = line.length > SHOWN_MAX ? `${line.slice(0, SHOWN_MAX)}…（共 ${line.length} 个字符，此处显示前 ${SHOWN_MAX} 个；将发送完整问题）` : line
+  return `以 ${verbosity} 详细度发送给 ${seats.length} 个席位：${seats.join(', ')}\n问题：${shown}`
 }
 
 // Only the exact send label sends. `answer` is undefined when the dialog
@@ -61,9 +61,9 @@ export function councilResult(file: string): string {
 
 export function confirmOutcome(answer: string | undefined): { send: true } | { deny: string } | { reply: string } {
   if (answer === SEND_LABEL) return { send: true }
-  if (answer === undefined) return { deny: 'The user was not asked (dialog dismissed or no one to ask), so nothing was sent to the council.' }
-  if (answer === KEEP_LABEL) return { deny: 'The user chose not to send this to the council.' }
-  return { reply: `The user did not send this to the council and said: ${answer}` }
+  if (answer === undefined) return { deny: '未询问用户（对话框已关闭或无席位可问），因此未向议事厅发送任何内容。' }
+  if (answer === KEEP_LABEL) return { deny: '用户选择不将此内容发送给议事厅。' }
+  return { reply: `用户未将此内容发送给议事厅，并表示：${answer}` }
 }
 
 export type Choice = 'seats' | 'verbosity'

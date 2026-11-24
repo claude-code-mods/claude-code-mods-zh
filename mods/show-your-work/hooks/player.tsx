@@ -98,11 +98,11 @@ const openArgv = (target: string) => (state.isMac ? ['open', target] : ['sh', '-
 // open's error text. `what` names the kind of thing, as in "no app opens videos".
 export function openFailure(r: { exitCode: number; stderr: string }, what: string, path: string) {
   const said = r.stderr.trim().split('\n')[0]?.trim().slice(0, 100) ?? ''
-  if (r.exitCode === 127) return "Couldn't open it: xdg-open is missing. Install xdg-utils and try again."
-  if (r.exitCode === 2 || /does not exist|no such file/i.test(said)) return `Couldn't open it: nothing is at ${path} any more.`
-  if (r.exitCode === 3 || /no application knows|no application|no method available|no default/i.test(said)) return `Couldn't open it: no app on this computer is set to open ${what}.`
-  if (r.exitCode === 4) return said ? `Couldn't open it: ${said}` : `Couldn't open it: the app for ${what} failed to start.`
-  return said ? `Couldn't open it: ${said}` : `Couldn't open it (error ${r.exitCode}).`
+  if (r.exitCode === 127) return '无法打开：缺少 xdg-open。请安装 xdg-utils 后重试。'
+  if (r.exitCode === 2 || /does not exist|no such file/i.test(said)) return `无法打开：${path} 已不存在。`
+  if (r.exitCode === 3 || /no application knows|no application|no method available|no default/i.test(said)) return `无法打开：此计算机上没有设置为打开${what}的应用。`
+  if (r.exitCode === 4) return said ? `无法打开：${said}` : `无法打开：用于打开${what}的应用启动失败。`
+  return said ? `无法打开：${said}` : `无法打开（错误 ${r.exitCode}）。`
 }
 
 // The narrowest the scrub and button rows get, in columns: room for the play
@@ -230,10 +230,10 @@ export function checkDiff(now: Check[] = [], before: Check[] = []) {
 
 // The play control's word for where the clip is.
 export function playWord(isPlaying: boolean, frame: number, count: number) {
-  if (isPlaying) return '❚❚ Pause'
-  if (count > 1 && frame >= count - 1) return '↺ Replay'
+  if (isPlaying) return '❚❚ 暂停'
+  if (count > 1 && frame >= count - 1) return '↺ 重播'
 
-  return frame > 0 ? '▶ Resume' : '▶ Play'
+  return frame > 0 ? '▶ 继续' : '▶ 播放'
 }
 
 export const sideOf = (shown: Shown, site: string): Shown =>
@@ -375,7 +375,7 @@ function probe($: EngineInterface, site: string, key: string, pic: Pic) {
       state.canImage = false
       state.drawCause = causeOf(state.inTmux, state.terminalName, state.isForced)
       track('cannot_draw', { cause: state.drawCause })
-      $.ui.toast("Pictures can't show here: see the notice in the chat.")
+      $.ui.toast('此处无法显示图片：请参阅聊天中的提示。')
       redraw($)
     }
   }, () => undefined)
@@ -514,7 +514,7 @@ export function draw($: EngineInterface, site: string, media: Shown, shown?: Sho
 export function resultWords(checks: Check[] = []): string {
   const failing = checks.filter(c => !c.ok).length
   if (!checks.length) return ''
-  return failing ? `${failing} ${failing === 1 ? 'check fails' : 'checks fail'}` : `all ${checks.length} checks pass`
+  return failing ? `${failing} 项检查失败` : `全部 ${checks.length} 项检查通过`
 }
 
 // The latest check up to a moment whose result differs between the sides.
@@ -787,7 +787,7 @@ type Box = { columns: number; rows: number }
 // The picture.
 function Picture(ui: Ui, $: EngineInterface, site: string, shown: Shown, media: Shown, box: Box, pic: Pic, frame: Box = box) {
   const { Box, Text, Image } = ui
-  if (!Image) return <Text dimColor>This surface cannot draw images.</Text>
+  if (!Image) return <Text dimColor>此界面无法绘制图片。</Text>
 
   // The picture stands alone: no wrapper, nothing laid over it and no fill
   // behind it. Each of those kept the picture from drawing in the terminal.
@@ -821,9 +821,9 @@ function PageButtons(ui: Ui, $: EngineInterface, site: string, media: Shown) {
     redraw($, site)
   }
   return [
-    pages.count > 1 && <Button key="prev" plain dimColor={at === 0} label="‹ Prev" onPress={() => { act('page_prev'); go(at - 1) }} />,
-    <Text key="page-count" dimColor>{`Page ${at + 1} of ${pages.count}`}</Text>,
-    pages.count > 1 && <Button key="next" plain dimColor={at >= pages.count - 1} label="Next ›" onPress={() => { act('page_next'); go(at + 1) }} />,
+    pages.count > 1 && <Button key="prev" plain dimColor={at === 0} label="‹ 上一页" onPress={() => { act('page_prev'); go(at - 1) }} />,
+    <Text key="page-count" dimColor>{`第 ${at + 1} 页，共 ${pages.count} 页`}</Text>,
+    pages.count > 1 && <Button key="next" plain dimColor={at >= pages.count - 1} label="下一页 ›" onPress={() => { act('page_next'); go(at + 1) }} />,
   ]
 }
 
@@ -844,7 +844,7 @@ function Scrub(ui: Ui, $: EngineInterface, site: string, media: Shown, width: nu
 
   return (
     <Box flexDirection="row" flexWrap="nowrap" width={width}>
-      <Button key="play" variant="primary" label={word} onPress={() => { act(word.includes('Pause') ? 'pause' : 'play'); if (!word.includes('Pause')) tourHeard($, 'play'); toggle($, site, media, shown) }} />
+      <Button key="play" variant="primary" label={word} onPress={() => { act(word.includes('暂停') ? 'pause' : 'play'); if (!word.includes('暂停')) tourHeard($, 'play'); toggle($, site, media, shown) }} />
       <Text dimColor> {elapsed} </Text>
       {chunks.map((c, i) => (
         <Button
@@ -899,7 +899,7 @@ function pickVersion($: EngineInterface, site: string, shown: Shown, to: number)
     if (!one.isCompare) flip($, site, { ...shown, compare: version }, true)
     else draw($, site, version)
     redraw($, site)
-  }).catch(() => $.ui.toast('That version is gone'))
+  }).catch(() => $.ui.toast('该版本已不存在'))
 }
 
 // With history, which version is on screen, in words: "viewing v1 of 3".
@@ -909,7 +909,7 @@ function viewingLabel(shown: Shown, site: string): string {
   if (!history || history.length < 2 || !one.isHistory) return ''
   const total = history.length + 1
   const at = one.isCompare ? (one.step ?? shown.historyAt ?? history.length - 1) + 1 : total
-  return at === total ? `· latest, v${total}` : `· viewing v${at} of ${total}`
+  return at === total ? `· 最新，v${total}` : `· 正在查看 v${at}，共 ${total} 个版本`
 }
 
 // The player's zones, the same in every view:
@@ -944,9 +944,9 @@ function TitleBar(ui: Ui, $: EngineInterface, site: string, shown: Shown, at: { 
 // The tab row's width: each Button draws as "[ label ]", one apart.
 export function tabsWidth(shown: Shown) {
   if (!shown.compare) return 0
-  const labels = [tabLabel(shown.compare.label ?? 'Original'), tabLabel(shown.label ?? 'Updated')]
-  if (shown.frames && shown.pair) labels.push('⧉ Compare')
-  if ((shown.history?.length ?? 0) > 1) labels.push(`History · ${shown.history!.length + 1}`)
+  const labels = [tabLabel(shown.compare.label ?? '原始'), tabLabel(shown.label ?? '更新后')]
+  if (shown.frames && shown.pair) labels.push('⧉ 对比')
+  if ((shown.history?.length ?? 0) > 1) labels.push(`历史记录 · ${shown.history!.length + 1}`)
   return labels.reduce((n, l) => n + l.length + 4, 0) + labels.length - 1
 }
 function Tabs(ui: Ui, $: EngineInterface, site: string, shown: Shown) {
@@ -976,11 +976,11 @@ function Tabs(ui: Ui, $: EngineInterface, site: string, shown: Shown) {
 
   return (
     <Box flexDirection="row" gap={1}>
-      <Button key="side-before" variant={isCompare ? 'primary' : 'secondary'} label={tabLabel(shown.compare.label ?? 'Original')} onPress={() => { act('original'); tourHeard($, 'original'); restore(true) }} />
-      <Button key="side-after" variant={isUpdated ? 'primary' : 'secondary'} label={tabLabel(shown.label ?? 'Updated')} onPress={() => { act('updated'); restore(false) }} />
-      {canBoth && <Button key="side-both" variant={isBoth ? 'primary' : 'secondary'} label="⧉ Compare" onPress={() => { act('compare'); tourHeard($, 'compare'); restore(false); split($, site, shown, true) }} />}
+      <Button key="side-before" variant={isCompare ? 'primary' : 'secondary'} label={tabLabel(shown.compare.label ?? '原始')} onPress={() => { act('original'); tourHeard($, 'original'); restore(true) }} />
+      <Button key="side-after" variant={isUpdated ? 'primary' : 'secondary'} label={tabLabel(shown.label ?? '更新后')} onPress={() => { act('updated'); restore(false) }} />
+      {canBoth && <Button key="side-both" variant={isBoth ? 'primary' : 'secondary'} label="⧉ 对比" onPress={() => { act('compare'); tourHeard($, 'compare'); restore(false); split($, site, shown, true) }} />}
       {hasSteps && (
-        <Button key="history" variant={isHistory ? 'primary' : 'secondary'} label={`History · ${shown.history!.length + 1}`}
+        <Button key="history" variant={isHistory ? 'primary' : 'secondary'} label={`历史记录 · ${shown.history!.length + 1}`}
           onPress={() => { if (isHistory) return restore(false); act('history'); one.isHistory = true; one.changesPage = 0; redraw($, site) }} />
       )}
     </Box>
@@ -1004,8 +1004,8 @@ function Changes(ui: Ui, $: EngineInterface, site: string, shown: Shown, fixed: 
 
   return (
     <Box flexDirection="column">
-      {fixed.map(c => row(c, '✓ fixed'))}
-      {broken.map(c => row(c, '✗ broke'))}
+      {fixed.map(c => row(c, '✓ 已修复'))}
+      {broken.map(c => row(c, '✗ 出现问题'))}
     </Box>
   )
 }
@@ -1088,7 +1088,7 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
   const changed = (
     <Box flexDirection="column" width={column}>
       {label(
-        `${(shown.changesTitle || 'What changed').toUpperCase()} · ${changes.length}`,
+        `${(shown.changesTitle || '变更内容').toUpperCase()} · ${changes.length}`,
         pages.length > 1 ? (
           <Button
             key="changes-more"
@@ -1134,13 +1134,13 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
   // Each version one line, so a long note and a one-word one line up alike.
   // Room for " viewing " (9) beside the label, as TITLE leaves room for a time.
   const VERSION = column - 4 - 1 - 9
-  const listed = versions.map(({ v, i }) => ({ i, lines: [oneLine(v.note || (i === history!.length ? 'This version' : `Version ${i + 1}`), VERSION)] }))
+  const listed = versions.map(({ v, i }) => ({ i, lines: [oneLine(v.note || (i === history!.length ? '当前版本' : `版本 ${i + 1}`), VERSION)] }))
   const versionPages = pagesOf(listed.map((w, k) => ({ item: w, rows: w.lines.length + (k ? 1 : 0) })), room)
   const versionPage = Math.min(one.changesPage ?? 0, versionPages.length - 1)
   const versionList = history && (
     <Box flexDirection="column" width={column}>
       {label(
-        `VERSIONS · ${versions.length}`,
+        `版本 · ${versions.length}`,
         versionPages.length > 1 ? (
           <Button key="versions-more" plain dimColor label={`${versionPage + 1}/${versionPages.length} ${versionPage === versionPages.length - 1 ? '↑' : '↓'}`}
             onPress={() => { one.changesPage = (versionPage + 1) % versionPages.length; redraw($, site) }} />
@@ -1159,7 +1159,7 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
             </Box>
             {(isOn || isLatest) && (
               <Text backgroundColor={isOn ? 'suggestion' : PILL} color={isOn ? 'inverseText' : undefined}>
-                {isOn ? ' viewing ' : ' latest '}
+                {isOn ? ' 正在查看 ' : ' 最新 '}
               </Text>
             )}
           </Box>
@@ -1172,7 +1172,7 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
       {label('QA', <Text bold color={allPass ? 'success' : 'error'}>{passed}/{total}</Text>)}
       <Box flexDirection="column" borderStyle="round" borderColor={allPass ? 'success' : 'error'} borderDimColor paddingX={1}>
         <Text bold color={allPass ? 'success' : 'error'}>
-          {allPass ? '✓ All checks passed' : `✗ ${total - passed} of ${total} checks failed`}
+          {allPass ? '✓ 所有检查均通过' : `✗ ${total} 项检查中有 ${total - passed} 项失败`}
         </Text>
         {summary.map(s => (
           <Box key={`sum-${s.label}`} flexDirection="row" gap={1}>
@@ -1220,27 +1220,27 @@ function Actions(ui: Ui, $: EngineInterface, media: Shown, source: string, isNar
     for (let n = 2; await $.fs.stat(out).then(() => true, () => false); n++) out = `${state.home}/Downloads/${stem} ${n}${ext}`
     if (!state.isMac) await $.process.run(['mkdir', '-p', `${state.home}/Downloads`])
     const r = await $.process.run(['cp', source, out])
-    if (r.exitCode !== 0) return $.ui.toast(`Couldn't save it to Downloads: ${r.stderr.trim().split('\n')[0]?.slice(0, 100) || `error ${r.exitCode}`}`)
+    if (r.exitCode !== 0) return $.ui.toast(`无法保存到“下载”文件夹：${r.stderr.trim().split('\n')[0]?.slice(0, 100) || `错误 ${r.exitCode}`}`)
     // Saved either way; the folder opening is a convenience on top.
     await $.process.run(state.isMac ? ['open', '-R', out] : openArgv(`${state.home}/Downloads`)).catch(() => undefined)
-    $.ui.toast(`Saved to Downloads/${out.split('/').pop()}`)
+    $.ui.toast(`已保存到 下载/${out.split('/').pop()}`)
   }
 
   return (
     <Box flexDirection="row" gap={2}>
       {!source.startsWith(`${state.home}/Downloads/`) ? (
-        <Button key="keep" plain dimColor label="Save to Downloads" onPress={() => { act('save'); void keep() }} />
+        <Button key="keep" plain dimColor label="保存到下载文件夹" onPress={() => { act('save'); void keep() }} />
       ) : (
-        <Button key="reveal" plain dimColor label={state.isMac ? 'Show in Finder' : 'Show in folder'} onPress={() => act('reveal') || void $.process.run(state.isMac ? ['open', '-R', source] : openArgv(source.slice(0, source.lastIndexOf('/')) || '/')).then(r => done(r, state.isMac ? 'Shown in Finder' : 'Opened the folder', 'folders', source))} />
+        <Button key="reveal" plain dimColor label={state.isMac ? '在访达中显示' : '在文件夹中显示'} onPress={() => act('reveal') || void $.process.run(state.isMac ? ['open', '-R', source] : openArgv(source.slice(0, source.lastIndexOf('/')) || '/')).then(r => done(r, state.isMac ? '已在访达中显示' : '已打开文件夹', 'folders', source))} />
       )}
       {!isNarrow && (
         <Button
           key="copy"
           plain
           dimColor
-          label="Copy path"
+          label="复制路径"
           onPress={(press: { surface: 'terminal' }) =>
-            act('copy_path') || void $.ui.copy({ text: source, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? 'Path copied' : 'Could not copy the path'))
+            act('copy_path') || void $.ui.copy({ text: source, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? '路径已复制' : '无法复制路径'))
           }
         />
       )}
@@ -1379,37 +1379,37 @@ export function terminalOf(env: { program: string; term: string; kitty: boolean;
 const TERMINALS = 'https://github.com/iamumeransari/claude-show-your-work#terminals'
 
 export function cantDraw(cause: DrawCause, name: string, kind: 'picture' | 'video' | 'audio' | 'document', id: string) {
-  const what = kind === 'video' ? 'videos' : kind === 'audio' ? 'audio' : kind === 'document' ? 'documents' : 'pictures'
+  const what = kind === 'video' ? '视频' : kind === 'audio' ? '音频' : kind === 'document' ? '文档' : '图片'
   // Claude Code keeps pictures off inside tmux unless FORCE is set at launch;
   // with it, the plugin passes them through (see tmux.ts).
   if (cause === 'tmux') return {
-    title: `Restart Claude Code to show ${what} in tmux`,
-    text: `"${name}" is ready, but Claude Code keeps ${what} off inside tmux until it restarts. Press Copy command, type /exit, and paste it here to reopen this chat with ${what} on. New tmux panes have them on already.`,
-    command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: 'Copy command', action: 'copy_resume_command',
+    title: `重启 Claude Code 以在 tmux 中显示${what}`,
+    text: `“${name}” 已就绪，但 Claude Code 在 tmux 中需要重启后才会显示${what}。请按“复制命令”，输入 /exit，然后在此粘贴，以重新打开并启用${what}的对话。新建的 tmux 窗格已默认启用。`,
+    command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: '复制命令', action: 'copy_resume_command',
     claude: `Claude Code keeps pictures off inside tmux, so the person saw a notice instead of ${name}. They can restart Claude Code with ${FORCE}=1 to see it.`,
   }
   if (cause === 'herdr') return {
-    title: `Herdr isn't passing ${what} through`,
-    text: `"${name}" is ready, but Herdr isn't passing ${what} on to your terminal. Add this to your Herdr config, restart Herdr, and ask Claude to show it again. The terminal around Herdr also has to be Ghostty or kitty.`,
-    command: '[terminal]\nkitty_graphics = true', label: 'Copy setting', action: 'copy_herdr_setting',
+    title: `Herdr 未转发${what}`,
+    text: `“${name}” 已就绪，但 Herdr 未将${what}转发到你的终端。请将以下内容添加到 Herdr 配置，重启 Herdr，然后让 Claude 再次展示。Herdr 外层的终端也必须是 Ghostty 或 kitty。`,
+    command: '[terminal]\nkitty_graphics = true', label: '复制设置', action: 'copy_herdr_setting',
     claude: `Herdr isn't passing pictures through, so the person saw a notice instead of ${name}. They can set kitty_graphics = true under [terminal] in their Herdr config and restart Herdr, inside Ghostty or kitty.`,
   }
   // Claude Code keeps pictures off in a terminal it doesn't recognise; one
   // built on Ghostty or kitty draws them once they're forced on (#23).
   if (cause === 'force') {
     return {
-      title: `Restart Claude Code to show ${what} here`,
-      text: `"${name}" is ready, but Claude Code doesn't recognise this terminal, so it keeps ${what} off. If it's built on Ghostty or kitty, press Copy command, type /exit, and paste it here to reopen this chat with ${what} on.`,
-      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: 'Copy command', action: 'copy_resume_command',
+      title: `重启 Claude Code 以在此显示${what}`,
+      text: `“${name}” 已就绪，但 Claude Code 无法识别此终端，因此关闭了${what}显示。如果它基于 Ghostty 或 kitty，请按“复制命令”，输入 /exit，然后在此粘贴，以重新打开并启用${what}的对话。`,
+      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: '复制命令', action: 'copy_resume_command',
       claude: `Claude Code doesn't recognise this terminal, so it kept pictures off and the person saw a notice instead of ${name}. They can restart Claude Code with ${FORCE}=1 to see it.`,
     }
   }
   // iTerm2 3.5+ draws Claude Code's pictures in its fullscreen view only
   // (the classic renderer would send each one again for every new line).
   if (cause === 'iterm') return {
-    title: `iTerm2 shows ${what} in fullscreen view`,
-    text: `"${name}" is ready. Type /tui fullscreen to switch Claude Code to its fullscreen view (it restarts and resumes this chat), then ask Claude to show it again. Needs iTerm2 3.5 or later.`,
-    command: '/tui fullscreen', label: 'Copy command', action: 'copy_tui_fullscreen',
+    title: `iTerm2 在全屏视图中显示${what}`,
+    text: `“${name}” 已就绪。输入 /tui fullscreen 将 Claude Code 切换到全屏视图（它会重启并恢复当前对话），然后让 Claude 再次展示。需要 iTerm2 3.5 或更高版本。`,
+    command: '/tui fullscreen', label: '复制命令', action: 'copy_tui_fullscreen',
     claude: `iTerm2 only draws pictures in Claude Code's fullscreen view, so the person saw a notice instead of ${name}. They can type /tui fullscreen and ask again.`,
   }
   // Rex paints Claude Code's pictures, but Claude Code only sends them there
@@ -1419,34 +1419,34 @@ export function cantDraw(cause: DrawCause, name: string, kind: 'picture' | 'vide
   if (cause === 'unrecognised') {
     const where = UNRECOGNISED[state.terminalName]?.name ?? 'this terminal'
     return {
-      title: `Turn on pictures in ${where}`,
-      text: `Claude Code doesn't recognise ${where} yet, so it keeps pictures and videos off. Turn on pictures adds one line to your shell profile so they show from now on, and copies a command. Type /exit and paste it here to reopen this chat.`,
-      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: 'Turn on pictures', action: 'turn_on_pictures',
+      title: `在${where}中开启图片显示`,
+      text: `Claude Code 尚不支持识别${where}，因此关闭了图片和视频显示。“开启图片显示”会在你的 shell 配置文件中添加一行，使图片从此可以显示，并复制一条命令。输入 /exit 后在此粘贴即可重新打开对话。`,
+      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: '开启图片显示', action: 'turn_on_pictures',
       claude: `Claude Code keeps pictures off in ${where} unless it starts with ${FORCE}=1, so the person saw a notice instead of ${name}. They can press Turn on pictures on it and reopen the chat to see it.`,
     }
   }
   // The desktop app's Code tab draws the plugin's card but not its pictures
   // (#18): the file opens in the system viewer instead.
   if (cause === 'desktop') return {
-    title: `The desktop app can't show ${what} here`,
-    text: `"${name}" is ready, but the Claude desktop app doesn't draw ${what} inside the chat. Press Open to see it, or run this chat in Ghostty or kitty to see ${what} inline.`,
-    command: '', label: 'Open', action: 'open_file',
+    title: `桌面应用无法在此显示${what}`,
+    text: `“${name}” 已就绪，但 Claude 桌面应用无法在聊天中绘制${what}。请按“打开”查看，或在 Ghostty 或 kitty 中运行此对话以内联显示${what}。`,
+    command: '', label: '打开', action: 'open_file',
     claude: `the Claude desktop app can't draw pictures in the chat, so the person saw a notice instead of ${name}. They can press Open on it to view the file.`,
   }
   const known = NO_PLACEHOLDERS[state.terminalName]
   if (cause === 'terminal') return {
-    title: known ? `${known} can't show Claude Code's ${what} yet` : "Your terminal isn't supported by show-your-work",
+    title: known ? `${known} 目前无法显示 Claude Code 的${what}` : '当前终端不受 show-your-work 支持',
     text: known
-      ? `"${name}" is ready, but ${known} can't draw ${what} the way Claude Code sends them yet. They show in Ghostty and kitty. See the list:`
-      : `"${name}" is ready, but this terminal can't draw ${what}. show-your-work works in Ghostty and kitty. See the list:`,
-    link: { href: TERMINALS, after: 'Then press Copy command and paste it in one of them to open this chat there.' },
-    command: `claude --resume${id ? ` ${id}` : ''}`, label: 'Copy command', action: 'copy_resume_command',
+      ? `“${name}” 已就绪，但 ${known} 目前无法按 Claude Code 的发送方式绘制${what}。Ghostty 和 kitty 可以显示。查看列表：`
+      : `“${name}” 已就绪，但此终端无法绘制${what}。show-your-work 支持 Ghostty 和 kitty。查看列表：`,
+    link: { href: TERMINALS, after: '然后按“复制命令”，粘贴到其中一个终端中以在那里打开此对话。' },
+    command: `claude --resume${id ? ` ${id}` : ''}`, label: '复制命令', action: 'copy_resume_command',
     claude: `${known ?? 'this terminal'} can't draw Claude Code's pictures, so the person saw a notice instead of ${name}. Pictures show in Ghostty or kitty (list at ${TERMINALS}).`,
   }
   return {
-    title: `Can't show ${what} in a background session`,
-    text: `"${name}" is ready, but this chat is running as a background session, and those can't draw ${what} in the terminal. Press Copy command and paste it in a normal terminal tab to reopen it there.`,
-    command: resumeCommand(id), label: 'Copy command', action: 'copy_resume_command',
+    title: `无法在后台会话中显示${what}`,
+    text: `“${name}” 已就绪，但当前对话运行在后台会话中，无法在终端绘制${what}。请按“复制命令”，粘贴到普通终端标签页中以在那里重新打开。`,
+    command: resumeCommand(id), label: '复制命令', action: 'copy_resume_command',
     claude: `this chat runs as a background session, which can't draw pictures, so the person saw a notice instead of ${name}. They can resume the chat in a normal terminal tab to see it.`,
   }
 }
@@ -1455,13 +1455,13 @@ function Warning(ui: Ui, $: EngineInterface, site: string, shown: Shown, width: 
   const n = cantDraw(state.drawCause, shown.title, shown.frames ? 'video' : 'picture', state.sessionId)
   const file = shown.origin ?? shown.source ?? shown.path
   const onPress = state.drawCause === 'desktop'
-    ? () => act(n.action) || void $.process.run(openArgv(file)).then(r => { if (r.exitCode !== 0) $.ui.toast(openFailure(r, shown.frames ? 'videos' : 'pictures', file)) })
+    ? () => act(n.action) || void $.process.run(openArgv(file)).then(r => { if (r.exitCode !== 0) $.ui.toast(openFailure(r, shown.frames ? '视频' : '图片', file)) })
     : state.drawCause === 'unrecognised'
       ? (press: { surface: 'terminal' }) => act(n.action) || void (async () => {
         const profile = await turnOnPictures($)
         const copied = await $.ui.copy({ text: n.command, surface: press.surface }).then(r => r.isCopied, () => false)
-        const where = profile ? `Added to ${profile.replace(state.home, '~')}. ` : ''
-        $.ui.toast(copied ? `${where}Copied: type /exit and paste it.` : `${where}Could not copy the command.`)
+        const where = profile ? `已添加到 ${profile.replace(state.home, '~')}。` : ''
+        $.ui.toast(copied ? `${where}已复制：输入 /exit 并粘贴。` : `${where}无法复制命令。`)
       })()
       : undefined
   return NoticeBox(ui, $, width, { ...n, copy: n.command, onPress })
@@ -1472,13 +1472,13 @@ function Warning(ui: Ui, $: EngineInterface, site: string, shown: Shown, width: 
 export function expiredPrompt(shown: Shown): string {
   const file = shown.origin ?? shown.source ?? shown.path
   const kind = shown.kind === 'audio' ? 'audio' : shown.frames ? 'video' : 'image'
-  return `The ${kind} preview "${shown.title}" expired (${file} is gone). Please regenerate it and show it to me again with show_${kind}${shown.compare ? ', with the same compare' : ''}${shown.changes?.length ? ' and the same list of changes' : ''}.`
+  return `${kind}预览“${shown.title}”已过期（${file} 已不存在）。请重新生成，并用 show_${kind} 再次展示给我${shown.compare ? '，并使用相同的对比版本' : ''}${shown.changes?.length ? '以及相同的变更列表' : ''}。`
 }
 function Expired(ui: Ui, $: EngineInterface, shown: Shown, width: number) {
   return NoticeBox(ui, $, width, {
-    title: 'This preview has expired',
-    text: `Previews are cleared after a while to save space. To see "${shown.title}" again, copy the prompt and paste it to Claude.`,
-    copy: expiredPrompt(shown), label: 'Copy prompt', action: 'copy_expired_prompt', isCalm: true,
+    title: '此预览已过期',
+    text: `为节省空间，预览会在一段时间后清除。要再次查看“${shown.title}”，请复制提示词并粘贴给 Claude。`,
+    copy: expiredPrompt(shown), label: '复制提示词', action: 'copy_expired_prompt', isCalm: true,
   })
 }
 
@@ -1502,7 +1502,7 @@ export function NoticeBox(ui: Ui, $: EngineInterface, width: number, n: { title:
           variant="primary"
           label={n.label}
           onPress={(press: { surface: 'terminal' }) =>
-            n.onPress ? n.onPress(press) : act(n.action) || void $.ui.copy({ text: n.copy, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? (n.command ? 'Copied. Paste it in your terminal.' : 'Copied. Paste it to Claude.') : 'Could not copy'))
+            n.onPress ? n.onPress(press) : act(n.action) || void $.ui.copy({ text: n.copy, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? (n.command ? '已复制。请粘贴到终端中。' : '已复制。请粘贴给 Claude。') : '无法复制'))
           }
         />
       </Box>
@@ -1606,7 +1606,7 @@ export async function Viewer(
       : <Text color="suggestion">{prLabel}</Text>
     : null
   const run = (argv: string[], note: string) => () => {
-    void $.process.run(argv).then(r => $.ui.toast(r.exitCode === 0 ? note : `Could not: ${r.stderr.trim()}`))
+    void $.process.run(argv).then(r => $.ui.toast(r.exitCode === 0 ? note : `无法执行：${r.stderr.trim()}`))
   }
   // The single view with the QA sidebar is the default; side by side is a click away.
   if (!state.canImage) {
@@ -1636,7 +1636,7 @@ export async function Viewer(
     const stands = [swaps.get(`${site}|${viewKey(site)}`)?.last, media.frames && frameFile(media.frames, 0)].filter((f): f is string => !!f)
     let stand = ''
     for (const f of stands) if (!(await isGone($, f))) { stand = f; break }
-    if (!stand) return <Box width={box.columns} height={box.rows} justifyContent="center" alignItems="center"><Text dimColor>Loading…</Text></Box>
+    if (!stand) return <Box width={box.columns} height={box.rows} justifyContent="center" alignItems="center"><Text dimColor>加载中…</Text></Box>
     file = stand
   }
   const pic = await picFor($, file, own)
@@ -1665,7 +1665,7 @@ export async function Viewer(
     <Button
       key="page"
       plain
-      label={rendered ? '↗ Open document' : page ? '↗ Open page' : '↗ View'}
+      label={rendered ? '↗ 打开文档' : page ? '↗ 打开页面' : '↗ 查看'}
       onPress={async () => {
         // Watched elsewhere now: the video here pauses.
         if (one.timer) stop($, site)
@@ -1674,8 +1674,8 @@ export async function Viewer(
         let target = rendered ?? page
         if (rendered) {
           try { target = await documentView($, baseMedia) ?? undefined }
-          catch (error) { $.ui.toast(`Could not open document: ${String(error).slice(0, 160)}`); return }
-          if (!target) { $.ui.toast('Could not prepare the document preview.'); return }
+          catch (error) { $.ui.toast(`无法打开文档：${String(error).slice(0, 160)}`); return }
+          if (!target) { $.ui.toast('无法准备文档预览。'); return }
         }
         // A local page opens in its own small window, the way an image opens
         // in an image viewer: the same engine that rendered the preview, as
@@ -1686,7 +1686,7 @@ export async function Viewer(
           ? ['sh', '-c', OPEN_SH, 'sh', ...htmlOpenArgv(state.chrome, target!)]
           : openArgv(target ?? source)
         void $.process.run(argv).then(r =>
-          $.ui.toast(r.exitCode === 0 ? `Opened ${(target ?? source.split('/').pop()!).slice(0, 60)}` : openFailure(r, target ? 'web pages' : media.kind === 'video' ? 'videos' : media.kind === 'audio' ? 'audio files' : 'pictures', target ?? source)),
+          $.ui.toast(r.exitCode === 0 ? `已打开 ${(target ?? source.split('/').pop()!).slice(0, 60)}` : openFailure(r, target ? '网页' : media.kind === 'video' ? '视频' : media.kind === 'audio' ? '音频文件' : '图片', target ?? source)),
         )
       }}
     />
@@ -1708,10 +1708,10 @@ export async function Viewer(
           {docPages && PageButtons(ui, $, site, media)}
           {/* Audio with no way to be heard (no ffplay, or the session's speakers
               are another room's) plays silently; that must be said, not silent. */}
-          {frames && media.kind === 'audio' && !soundUsable() && <Text dimColor>♪ no sound in this session</Text>}
+          {frames && media.kind === 'audio' && !soundUsable() && <Text dimColor>♪ 本次会话无声音</Text>}
           {frames && <Button key="back" plain dimColor label={`« ${SKIP_SECONDS}s`} onPress={() => act('skip_back') || seek($, site, media, one.frame / frames.fps - SKIP_SECONDS, shown, true)} />}
           {frames && <Button key="forward" plain dimColor label={`${SKIP_SECONDS}s »`} onPress={() => act('skip_forward') || seek($, site, media, one.frame / frames.fps + SKIP_SECONDS, shown, true)} />}
-          {hasSound && <Button key="sound" plain dimColor={!state.isSoundOn} label={state.isSoundOn ? '♪ Mute' : '♪ Unmute'} onPress={() => { act(state.isSoundOn ? 'mute' : 'unmute'); toggleSound($, site, media) }} />}
+          {hasSound && <Button key="sound" plain dimColor={!state.isSoundOn} label={state.isSoundOn ? '♪ 静音' : '♪ 取消静音'} onPress={() => { act(state.isSoundOn ? 'mute' : 'unmute'); toggleSound($, site, media) }} />}
         </Box>
         <Box flexDirection="row" columnGap={2}>
           {opener}
@@ -1786,13 +1786,13 @@ async function SplitView(
       {shown.change && <Text dimColor wrap="truncate-end">{shown.change}</Text>}
       <Box flexDirection="column" alignItems="center" width={width}>
         <Box flexDirection="row" marginTop={1} width={box.columns}>
-          {head(before, 'Original', half)}
-          {head(shown, 'Updated', box.columns - half)}
+          {head(before, '原始', half)}
+          {head(shown, '更新后', box.columns - half)}
         </Box>
         {Image ? (
           <Image key="view-pair" source={'file' in pic.src ? { ...pic.src, generation: boxGenerationOf(site) } : pic.src} columns={box.columns} rows={box.rows} alt="[original and updated, side by side]" />
         ) : (
-          <Text dimColor>This surface cannot draw images.</Text>
+          <Text dimColor>此界面无法绘制图片。</Text>
         )}
       </Box>
       <Box width={width}>
@@ -1801,12 +1801,12 @@ async function SplitView(
             <Text dimColor>{clock(change.check.at ?? 0)} · </Text>
             {change.check.name}
             <Text dimColor> · </Text>
-            <Text color={change.was ? 'success' : 'error'}>{before.label ?? 'Original'} {change.was ? '✓' : '✗'}</Text>
+            <Text color={change.was ? 'success' : 'error'}>{before.label ?? '原始'} {change.was ? '✓' : '✗'}</Text>
             <Text dimColor> → </Text>
-            <Text color={change.check.ok ? 'success' : 'error'}>{shown.label ?? 'Updated'} {change.check.ok ? '✓' : '✗'}</Text>
+            <Text color={change.check.ok ? 'success' : 'error'}>{shown.label ?? '更新后'} {change.check.ok ? '✓' : '✗'}</Text>
           </Text>
         ) : (shown.checks?.length || before.checks?.length) ? (
-          <Text dimColor>Same so far: both sides match up to {clock(seconds)}</Text>
+          <Text dimColor>目前两侧一致：截止 {clock(seconds)} 均匹配</Text>
         ) : null}
       </Box>
       {Scrub(ui, $, site, shown, width, shown)}
@@ -1814,7 +1814,7 @@ async function SplitView(
       <Box width={width} justifyContent="flex-end">{Actions(ui, $, shown, shown.origin ?? shown.source ?? shown.path, width < 60)}</Box>
       {(fixed.length > 0 || broken.length > 0) && (
         <Box flexDirection="column" marginTop={1}>
-          <Text dimColor>{fixed.length} fixed · {broken.length} broke · click one to jump there</Text>
+          <Text dimColor>{fixed.length} 项已修复 · {broken.length} 项出现问题 · 点击可跳转到对应时刻</Text>
           {Changes(ui, $, site, shown, fixed, broken)}
         </Box>
       )}
@@ -1830,7 +1830,7 @@ export function toolLine(tool: string, input: unknown, isRunning: boolean): stri
     i.compare ? `vs ${i.compare_label ?? i.compare.split('/').pop()}` : '',
     i.checks?.length ? `${i.checks.length} checks` : '',
   ].filter(Boolean)
-  const verb = tool.endsWith('video') ? (isRunning ? 'Cutting video' : 'Video') : tool.endsWith('html') ? (isRunning ? 'Rendering page' : 'Page') : tool.endsWith('audio') ? (isRunning ? 'Cutting audio' : 'Audio') : tool.endsWith('document') ? (isRunning ? 'Rasterizing document' : 'Document') : isRunning ? 'Loading image' : 'Image'
+  const verb = tool.endsWith('video') ? (isRunning ? '正在生成视频' : '视频') : tool.endsWith('html') ? (isRunning ? '正在渲染页面' : '页面') : tool.endsWith('audio') ? (isRunning ? '正在生成音频' : '音频') : tool.endsWith('document') ? (isRunning ? '正在栅格化文档' : '文档') : isRunning ? '正在加载图片' : '图片'
 
   return `${tool.endsWith('video') ? '▶' : tool.endsWith('html') ? '▤' : tool.endsWith('audio') ? '♪' : tool.endsWith('document') ? '▦' : '▣'} ${verb} · ${what}${extra.length ? ` · ${extra.join(' · ')}` : ''}`
 }

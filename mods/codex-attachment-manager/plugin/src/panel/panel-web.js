@@ -48,7 +48,7 @@
       return { content: [], structuredContent: { id: image.id, available: image.dataUrl !== null }, _meta: { dataUrl: image.dataUrl } };
     }
     // Codex's setup and new-task binding have no part under Claude Code.
-    return { isError: true, content: [{ type: "text", text: `${name} is not available here` }] };
+    return { isError: true, content: [{ type: "text", text: `${name} 在这里不可用` }] };
   }
   const deliver = (data) => window.dispatchEvent(new MessageEvent("message", { data }));
   window.camHost = {

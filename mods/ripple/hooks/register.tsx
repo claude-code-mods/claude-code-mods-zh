@@ -510,7 +510,7 @@ async function toggleLog($: EngineInterface): Promise<boolean> {
     // The surface may decline to draw the pane; say why rather than doing nothing on a press.
     const opened = await $.ui.open({ id: LOG_PANE, title: t(language, 'commands.logTitle') })
     if (!opened.isPlaced) {
-      const why = 'reason' in opened && opened.reason ? String(opened.reason) : 'not placed'
+      const why = 'reason' in opened && opened.reason ? String(opened.reason) : '未能放置面板'
       $.ui.toast(t(language, 'toasts.logNotPlaced', { reason: why }))
       await report($, 'log pane', why)
     }

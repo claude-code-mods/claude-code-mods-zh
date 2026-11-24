@@ -143,7 +143,7 @@ export function stackSvg(faces: readonly Face[], opts: { size?: number; max?: nu
     .join('')
   const more =
     extra > 0
-      ? `<text class="more" x="${r * 2 + 6 + (shown.length - 1) * step}" y="${cy}" dy=".36em" font-family='${FONT}' font-size="11" font-weight="600"><title>${extra} more</title>+${extra}</text>`
+      ? `<text class="more" x="${r * 2 + 6 + (shown.length - 1) * step}" y="${cy}" dy=".36em" font-family='${FONT}' font-size="11" font-weight="600"><title>另有 ${extra} 人</title>+${extra}</text>`
       : ''
   return {
     source: `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${size}" viewBox="0 0 ${width} ${size}">${MOTION}${dots}${more}</svg>`,
@@ -160,12 +160,12 @@ export function cloverSvg(width = 96): string {
 /** "3m ago" style ages for activity and chat. */
 export function ago(ts: number, now: number): string {
   const s = Math.max(0, Math.round((now - ts) / 1000))
-  if (s < 10) return 'just now'
-  if (s < 60) return `${s}s ago`
+  if (s < 10) return '刚刚'
+  if (s < 60) return `${s} 秒前`
   const m = Math.round(s / 60)
-  if (m < 60) return `${m}m ago`
+  if (m < 60) return `${m} 分钟前`
   const h = Math.round(m / 60)
-  return h < 24 ? `${h}h ago` : `${Math.round(h / 24)}d ago`
+  return h < 24 ? `${h} 小时前` : `${Math.round(h / 24)} 天前`
 }
 
 /** Glyph per tool, for compact lines a guest's transcript shows. */

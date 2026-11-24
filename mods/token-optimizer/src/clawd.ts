@@ -64,20 +64,20 @@ export type ClawdOptions = {
 }
 
 const ALT: Record<Pose, string> = {
-  wake: 'Clawd: waking up',
-  idle: 'Clawd: watching',
-  think: 'Clawd: thinking',
-  read: 'Clawd: reading',
-  type: 'Clawd: typing',
-  lift: 'Clawd: heavy lifting',
-  ask: 'Clawd: needs you',
-  write: 'Clawd: writing',
-  compact: 'Clawd: compacting',
-  done: 'Clawd: done',
-  stop: 'Clawd: stopped',
-  error: 'Clawd: dizzy',
-  cold: 'Clawd: cold',
-  sleep: 'Clawd: napping',
+  wake: 'Clawd：醒来',
+  idle: 'Clawd：观察中',
+  think: 'Clawd：思考中',
+  read: 'Clawd：阅读中',
+  type: 'Clawd：输入中',
+  lift: 'Clawd：重活中',
+  ask: 'Clawd：需要你',
+  write: 'Clawd：书写中',
+  compact: 'Clawd：压缩中',
+  done: 'Clawd：完成',
+  stop: 'Clawd：已停止',
+  error: 'Clawd：晕头转向',
+  cold: 'Clawd：感觉冷',
+  sleep: 'Clawd：打盹中',
 }
 
 export function clawdAlt(pose: Pose): string {

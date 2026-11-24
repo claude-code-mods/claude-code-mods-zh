@@ -14,11 +14,11 @@ const welcome = atom({ plugin: 'show-your-work', key: 'welcome' } as const, 0)
 type Spot = 'play' | 'changes' | 'tabs' | 'history'
 export type Stop = { tag: string; spot?: Spot; goal?: string; media?: 'splash' | 'recording' | 'compare' | 'history' }
 export const STOPS: Stop[] = [
-  { tag: 'Press Play to watch it', spot: 'play', goal: 'play', media: 'splash' },
-  { tag: 'Click a change to jump to that moment', spot: 'changes', goal: 'change_jump', media: 'recording' },
-  { tag: 'Press Original to see it before the change', spot: 'tabs', goal: 'original', media: 'compare' },
-  { tag: 'Open History, then pick a version', spot: 'history', goal: 'version_pick', media: 'history' },
-  { tag: 'Now ask Claude to show you what it builds' },
+  { tag: '按“播放”观看', spot: 'play', goal: 'play', media: 'splash' },
+  { tag: '点击变更项跳转到对应画面', spot: 'changes', goal: 'change_jump', media: 'recording' },
+  { tag: '按“原始”查看修改前的效果', spot: 'tabs', goal: 'original', media: 'compare' },
+  { tag: '打开“历史记录”，然后选择一个版本', spot: 'history', goal: 'version_pick', media: 'history' },
+  { tag: '现在就让 Claude 展示它构建的内容' },
 ]
 
 // A button press, heard: when it is what the stop asked for, it ticks; the

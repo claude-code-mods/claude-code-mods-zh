@@ -100,7 +100,7 @@ async function clearThenImplement($: EngineInterface, plan: PlanContinuation) {
   try {
     await $.command.run({ command: IMPLEMENT_COMMAND, args })
   } catch (error) {
-    $.ui.toast(`${messageOf(error)}: cleared, but the plan did not start. Run ${typed}`, TOAST)
+    $.ui.toast(`${messageOf(error)}：已清理，但计划未启动。请运行 ${typed}`, TOAST)
   }
 }
 
@@ -114,7 +114,7 @@ async function clearThenResume($: EngineInterface, handoff: string) {
   await submitOrToast(
     $,
     handoffPrompt(handoff, 'cleared'),
-    `${handoff}: cleared, but the continue prompt was not sent. Reply "Read the handoff at ${handoff} and continue".`,
+    `${handoff}：已清理，但继续提示未发送。请回复“Read the handoff at ${handoff} and continue”。`,
   )
 }
 
@@ -124,7 +124,7 @@ async function clearOrToast($: EngineInterface, next: string) {
 
     return true
   } catch (error) {
-    $.ui.toast(`${messageOf(error)}: clear failed. Run /clear, then ${next}`, TOAST)
+    $.ui.toast(`${messageOf(error)}：清理失败。请运行 /clear，然后 ${next}`, TOAST)
 
     return false
   }

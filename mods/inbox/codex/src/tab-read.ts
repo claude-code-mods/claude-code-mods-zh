@@ -63,7 +63,7 @@ export async function read() {
     if (isPageOld && !tabState.updateError) void swapPage(tabState.requestedPage)
     tabState.serverNote = next.isPluginFolderGone
       ? {
-          text: 'Quit and reopen Codex to load the installed inbox. Its files were moved or removed, so it still runs the version Codex started with.',
+          text: '请退出并重新打开 Codex 以加载已安装的收件箱。其文件已被移动或删除，因此仍在运行 Codex 启动时的版本。',
           kind: 'server-gone',
         }
       : next.serverLoadError
@@ -72,7 +72,7 @@ export async function read() {
             kind: 'server-load-failed',
           }
         : next.serverBuild !== SERVER_BUILD && !isPageOld
-          ? { text: 'This tab and the inbox server are from different builds.', kind: 'server-builds-differ' }
+          ? { text: '此标签页与收件箱服务器来自不同的构建版本。', kind: 'server-builds-differ' }
           : null
     applyView(next, seq)
   } catch (err) {
@@ -96,7 +96,7 @@ function failureText(err: unknown): string {
         .replace(/\s+/g, ' ')
         .trim(),
       120,
-    ) || 'No reason given'
+    ) || '未给出原因'
 
   return capitalized(/[.!?…]$/.test(reason) ? reason : `${reason}.`)
 }

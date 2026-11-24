@@ -16,15 +16,15 @@ export type HerdrAsk =
 
 export type OpenHerdrAsk = Extract<HerdrAsk, { is: 'asking' }>
 
-const LEAD = "Install the inbox's Herdr mod?"
-const INSTALLING_TEXT = 'Installing the inbox mod in Herdr…'
-const SAVING_TEXT = 'Saving the answer…'
-const INSTALLED_TEXT = '✓ Installed the inbox mod in Herdr.'
+const LEAD = '是否安装收件箱的 Herdr 插件？'
+const INSTALLING_TEXT = '正在 Herdr 中安装收件箱插件…'
+const SAVING_TEXT = '正在保存回答…'
+const INSTALLED_TEXT = '✓ 已在 Herdr 中安装收件箱插件。'
 
 /** The question's buttons, in the order every look draws them. Install is the answer the inbox recommends. */
 export const HERDR_ASK_BUTTONS = [
-  { id: 'herdr-install', label: 'Install', isYes: true },
-  { id: 'herdr-skip', label: "Don't install", isYes: false },
+  { id: 'herdr-install', label: '安装', isYes: true },
+  { id: 'herdr-skip', label: '不安装', isYes: false },
 ] as const
 
 /** The question in a host that found the mod missing, with the home folder written `~` in the folder it names. */
@@ -41,7 +41,7 @@ export function herdrAskBanner(ask: HerdrAsk | null): BannerView | null {
   const isAsking = ask.is === 'asking'
   const lead = ask.is === 'answered' ? ask.text : ask.is === 'asking' ? LEAD : ask.isYes ? INSTALLING_TEXT : SAVING_TEXT
   const body = isAsking
-    ? `It adds the inbox panel to the Herdr app, in ${ask.folder}, and keeps it up to date with the inbox.`
+    ? `它会在 ${ask.folder} 为 Herdr 应用添加收件箱面板，并使其与收件箱保持同步。`
     : null
 
   return { kind: 'herdr-mod-ask', tone: 'ask', lead, body }
@@ -66,7 +66,7 @@ export async function answerHerdrAsk(
   const result = await answerHerdrMod(files, ask.appHome, bundledFolder, isYes, now)
   if (result.is === 'failed') return { ask: null, failure: result.text }
 
-  return { ask: { is: 'answered', text: isYes ? INSTALLED_TEXT : `${later} to install it later.` }, failure: null }
+  return { ask: { is: 'answered', text: isYes ? INSTALLED_TEXT : `${later}以后再安装。` }, failure: null }
 }
 
 /**
@@ -104,14 +104,14 @@ export async function askHerdrAgain(
   appHome: string | null,
   home: string | undefined,
 ): Promise<OpenHerdrAsk | string> {
-  if (!appHome) return 'Run /inbox herdr in a Herdr app terminal to install the inbox mod there.'
+  if (!appHome) return '请在 Herdr 应用终端中运行 /inbox herdr，以在其中安装收件箱插件。'
   const state = await herdrModNow(files, appHome).catch((err: unknown) =>
     err instanceof Error ? err : new Error(String(err)),
   )
-  if (state instanceof Error) return `Could not read the Herdr app's mods folder. ${state.message}`
+  if (state instanceof Error) return `无法读取 Herdr 应用的插件目录。${state.message}`
   const ask = herdrAskOf(appHome, home, state.answeredAt)
-  if (state.installed === 'inbox') return 'The inbox mod is already installed in Herdr.'
-  if (state.installed === 'own') return `${ask.folder} holds another mod, so the inbox leaves it alone.`
+  if (state.installed === 'inbox') return '收件箱插件已安装在 Herdr 中。'
+  if (state.installed === 'own') return `${ask.folder} 中已有其他插件，收件箱不会改动它。`
   if (state.answer === 'newer') return NEWER_ANSWER_TEXT
 
   return ask

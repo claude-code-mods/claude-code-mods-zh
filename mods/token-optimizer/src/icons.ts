@@ -20,18 +20,18 @@ export type IconName = keyof typeof ICONS
 
 /** Default alt text naming each icon, used when the caller passes none. */
 export const ICON_ALT: Record<IconName, string> = {
-  branch: 'Branch',
-  clock: 'Clock',
-  tool: 'Tool calls',
-  compact: 'Compaction',
-  bookmark: 'Checkpoint',
-  cold: 'Cold cache',
-  hourglass: 'Cache countdown',
-  gauge: 'Gauge',
-  check: 'All clear',
-  slip: 'Quality slipping',
-  ask: 'Question',
-  saved: 'Tokens saved',
+  branch: '分支',
+  clock: '时钟',
+  tool: '工具调用',
+  compact: '压缩',
+  bookmark: '检查点',
+  cold: '缓存已冷',
+  hourglass: '缓存倒计时',
+  gauge: '仪表',
+  check: '一切正常',
+  slip: '质量下滑',
+  ask: '提问',
+  saved: '已节省的 token',
 }
 
 function attr(value: string): string {

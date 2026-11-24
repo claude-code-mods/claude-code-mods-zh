@@ -111,7 +111,7 @@ test('only images read repeatedly are reported', () => {
   ]
   const rows = [turn(0, u(0, 100)), ...[1, 2, 3].flatMap((i) => [...read(`p${i}`, '/x/shot.png'), ...read(`t${i}`, '/x/a.ts')])]
   const f = summarize([analyzeSession(rows)]).findings.find((x) => x.id === 'images-read-repeatedly')
-  assert.match(f.detail, /shot\.png \(3x\)/)
+  assert.match(f.title, /1 张图片被读取了 3 次或更多/)
   assert.doesNotMatch(f.detail, /a\.ts/)
 })
 
@@ -181,7 +181,7 @@ test('files read before a compaction and read again right after are counted, by 
   assert.equal(session(false).compactions[0].summary, false)
   const t = summarize([s, session(true), session(true)])
   const f = t.findings.find((x) => x.id === 'rereads-after-compaction')
-  assert.match(f.title, /2\.0 files again/)
+  assert.match(f.title, /2\.0 个文件/)
 })
 
 // A forked or resumed session's transcript starts with a copy of the one it came from: the same

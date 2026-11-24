@@ -73,19 +73,19 @@ export type GoalParts = {
   suggestedGoal: string | null
 }
 
-const AWAITING_TEXT = 'Milestones after the next reply'
+const AWAITING_TEXT = '下次回复后的里程碑'
 /** The heading of the goal's section while no goal is met: the same with a goal or without one. */
-export const GOAL_HEADING = 'Goal'
+export const GOAL_HEADING = '目标'
 /** The dim line under the goal's heading while no goal is set. */
 export const NO_GOAL_TEXT = "No goal yet. The inbox sets one when the work shows where it's headed."
 /** The suggested goal as an offer in the goal text's style, in the line where "No goal yet" would draw, with its buttons after it. */
-export const suggestedGoalOffer = (text: string): string => `Next goal: “${text}”?`
+export const suggestedGoalOffer = (text: string): string => `下一个目标：“${text}”？`
 /** What starts the id of the fold a met goal's milestones start in, apart from row and milestone ids. */
 const MILESTONES_FOLD_PREFIX = 'goal-milestones'
 
 export const isMilestonesFold = (id: string) => id.startsWith(`${MILESTONES_FOLD_PREFIX}-`)
 
-const MET_LABEL = 'Goal met'
+const MET_LABEL = '目标已达成'
 
 /** The milestones a look draws: none while the met goal's milestones fold is shut. */
 export function shownMilestones(g: GoalBlock | null, isUnfolded: (id: string) => boolean): MilestoneRow[] {
@@ -134,7 +134,7 @@ function workCountText(m: Milestone, o: SessionStatus): string | null {
   const done = work.filter(s => s.status === 'done').length
   const isUnsaid = isOpenStatus(m) && m.text.trim() === '' && done < work.length
 
-  return isUnsaid ? `${done} of ${work.length} done` : null
+  return isUnsaid ? `已完成 ${done}/${work.length}` : null
 }
 
 function milestoneRow(step: PathStep, o: SessionStatus, items: readonly Item[]): MilestoneRow {
@@ -194,7 +194,7 @@ export function goalPage(o: SessionStatus | null, items: readonly Item[]): GoalP
       isMet,
       was: isWasShown ? g.was : null,
       // A met goal's head draws in its own section, since the work no longer serves the goal.
-      now: nowText !== null && !isNowSaid && !isMet ? `Now: ${nowText}` : null,
+      now: nowText !== null && !isNowSaid && !isMet ? `当前：${nowText}` : null,
       awaiting: isAwaiting ? AWAITING_TEXT : null,
       milestonesFold: null,
       milestones,

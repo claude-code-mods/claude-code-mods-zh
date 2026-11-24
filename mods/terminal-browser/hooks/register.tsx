@@ -79,8 +79,8 @@ async function startBridge($: EngineInterface): Promise<{ ok: true } | { ok: fal
     return {
       ok: false,
       error: check.installed
-        ? 'Newer terminal-browser version required, run terminal-browser upgrade'
-        : `Please install terminal-browser first - ${INSTALL_URL}`,
+        ? '需要更新版本的 terminal-browser，请运行 terminal-browser upgrade'
+        : `请先安装 terminal-browser - ${INSTALL_URL}`,
     }
   }
   let report: unknown = null
@@ -92,7 +92,7 @@ async function startBridge($: EngineInterface): Promise<{ ok: true } | { ok: fal
     report = { error: String(err), code: 'start' }
   }
   if (!isLaunchReport(report) || !('port' in report)) {
-    const detail = isLaunchReport(report) && 'error' in report ? report.error : 'terminal-browser could not start'
+    const detail = isLaunchReport(report) && 'error' in report ? report.error : 'terminal-browser 无法启动'
     return { ok: false, error: `${detail}` }
   }
   state.port = report.port
@@ -283,10 +283,10 @@ export const register: Register = (on, options) => {
     if (agentToolEnabled) {
       await $.tool.register({
         name: 'open',
-        description: '直接在 Claude Code 内打开终端浏览器，可通过 terminal-browser 动作 CLI 控制当前页面。',
-        inputSchema: { type: 'object', properties: { url: { type: 'string', description: '要打开的页面，填写完整 URL 或主机名' } } },
+        description: 'Open terminal-browser directly inside claude code. Control the open page with the terminal-browser action CLI.',
+        inputSchema: { type: 'object', properties: { url: { type: 'string', description: 'The page to open, as a full url or a host name' } } },
       }).catch(err => $.ui.log(`terminal-browser: open tool not registered: ${err}`))
-      await $.tool.register({ name: 'close', description: '关闭终端浏览器面板。' }).catch(err => $.ui.log(`terminal-browser: close tool not registered: ${err}`))
+      await $.tool.register({ name: 'close', description: 'Close the terminal-browser pane.' }).catch(err => $.ui.log(`terminal-browser: close tool not registered: ${err}`))
     }
     return r
   })
@@ -295,10 +295,10 @@ export const register: Register = (on, options) => {
     const arg = e.args.trim()
     if (arg === 'close' || (!arg && state.open)) {
       await closeBrowser($)
-      return { text: 'Closed terminal-browser' }
+      return { text: '已关闭终端浏览器' }
     }
     const opened = await openBrowser($, arg || null)
-    return { text: opened.ok ? 'Opened terminal-browser' : opened.error }
+    return { text: opened.ok ? '已打开终端浏览器' : opened.error }
   })
 
   on('tool.call', { tool: new RegExp(`^${OPEN_TOOL}$`) }, async ($, e) => {

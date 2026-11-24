@@ -32,7 +32,7 @@ export type StatusKeyTarget = { id: string; keys: StatusKey[] }
 export const GOAL_KEYS_ID = 'goal'
 
 /** The View button's label, by the kind of ask it opens. */
-const VIEW_ASK_LABELS: Record<Item['kind'], string> = { question: 'View question', task: 'View task' }
+const VIEW_ASK_LABELS: Record<Item['kind'], string> = { question: '查看问题', task: '查看任务' }
 
 function viewAsk(ask: { id: string; kind: Item['kind'] }): StatusKey {
   return {
@@ -82,7 +82,7 @@ function milestonesFoldKeyPlan(g: GoalBlock | null): StatusKey[] {
 
 const REMOVE_GOAL: StatusKey = {
   press: { action: 'remove-goal' },
-  label: 'Remove',
+  label: '移除',
   hotkey: 'r',
   kind: 'mark',
   emphasis: 'quiet',
@@ -90,7 +90,7 @@ const REMOVE_GOAL: StatusKey = {
 
 const RESTORE_GOAL: StatusKey = {
   press: { action: 'restore-goal' },
-  label: 'Undo',
+  label: '撤销',
   hotkey: UNDO_KEY,
   kind: 'mark',
   emphasis: 'normal',
@@ -99,7 +99,7 @@ const RESTORE_GOAL: StatusKey = {
 /** New: opens an empty goal field. Its words leave out "goal", since the buttons sit on the Goal heading. */
 const newGoal = (emphasis: StatusKey['emphasis']): StatusKey => ({
   press: { action: 'type-goal', text: '' },
-  label: 'New',
+  label: '新建',
   hotkey: 'n',
   kind: 'view',
   emphasis,
@@ -116,7 +116,7 @@ export function goalKeyPlan(page: StatusPage): StatusKey[] {
   if (g.isMet) return [newGoal('normal'), REMOVE_GOAL]
 
   return [
-    { press: { action: 'type-goal', text: g.text }, label: 'Edit', hotkey: 'e', kind: 'view', emphasis: 'quiet' },
+    { press: { action: 'type-goal', text: g.text }, label: '编辑', hotkey: 'e', kind: 'view', emphasis: 'quiet' },
     REMOVE_GOAL,
   ]
 }
@@ -127,8 +127,8 @@ export function goalKeyPlan(page: StatusPage): StatusKey[] {
  */
 function suggestionKeyPlan(suggested: string): StatusKey[] {
   return [
-    { press: { action: 'take-goal' }, label: 'Set goal', hotkey: 's', kind: 'mark', emphasis: 'quiet' },
-    { press: { action: 'type-goal', text: suggested }, label: 'Edit', hotkey: 'e', kind: 'view', emphasis: 'quiet' },
+    { press: { action: 'take-goal' }, label: '设定目标', hotkey: 's', kind: 'mark', emphasis: 'quiet' },
+    { press: { action: 'type-goal', text: suggested }, label: '编辑', hotkey: 'e', kind: 'view', emphasis: 'quiet' },
   ]
 }
 
@@ -159,7 +159,7 @@ function parentFoldKeys(p: { id: string; foldCount: number }, isCollapsed: IsCol
   return [
     {
       press: { action: 'toggle-collapse', id: p.id },
-      label: isParentCollapsed(p, isCollapsed) ? 'Unfold' : 'Fold',
+      label: isParentCollapsed(p, isCollapsed) ? '展开' : '折叠',
       hotkey: 'f',
       kind: 'view',
       emphasis: 'quiet',
@@ -225,7 +225,7 @@ export function statusSelected(
 }
 
 /** The goal's text field's placeholder. */
-export const GOAL_FIELD = { placeholder: 'An outcome to work toward' } as const
+export const GOAL_FIELD = { placeholder: '要达成的成果' } as const
 
 /** The label of the goal field's submit button: Set for a new goal, while none runs, and Save for an edit of the goal. */
-export const goalSubmitLabel = (page: StatusPage): string => (page.goal === null || page.goal.isMet ? 'Set' : 'Save')
+export const goalSubmitLabel = (page: StatusPage): string => (page.goal === null || page.goal.isMet ? '设定' : '保存')

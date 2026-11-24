@@ -20,6 +20,6 @@ export function retrySection(offer: RetryOffer, seenAtMs: number, nowMs: number)
   const { providers } = offer
   // Rounded up, so the countdown empties only when no time is left.
   const filled = Math.ceil((remaining / offer.seconds) * BAND_CELLS)
-  const notice = providers.length === 1 ? `${providers[0]} failed` : `${providers.length} providers failed: ${providers.join(', ')}`
+  const notice = providers.length === 1 ? `${providers[0]} 失败` : `${providers.length} 个提供方失败：${providers.join(', ')}`
   return { kind: 'retry', notice, remaining, bar: bar({ kind: 'share', filled, total: BAND_CELLS }, BAND_CELLS) }
 }

@@ -10,9 +10,9 @@ export function finishNotice({ providers }: RunProgress, jobId = ''): string {
   const errors = count(providers, 'error')
   const cancelled = count(providers, 'cancelled')
   // The band draws the COUNCIL label ahead of this, so the text does not repeat the name.
-  const subject = jobId ? `job ${jobId} finished` : 'finished'
-  const answered = `${count(providers, ...ANSWERED_STATES)} of ${providers.length} answered`
-  return `${subject}: ${answered}${errors > 0 ? `, ${errors} error` : ''}${cancelled > 0 ? `, ${cancelled} cancelled` : ''}`
+  const subject = jobId ? `任务 ${jobId} 已完成` : '已完成'
+  const answered = `${providers.length} 个席位中 ${count(providers, ...ANSWERED_STATES)} 个已回答`
+  return `${subject}: ${answered}${errors > 0 ? `，${errors} 个错误` : ''}${cancelled > 0 ? `，${cancelled} 个已取消` : ''}`
 }
 
 
@@ -40,14 +40,14 @@ export function progressBand(
   return {
     bar: bar({ kind: 'sweep', frame }, BAND_CELLS),
     ...(startedAtMs === undefined ? {} : { clock: runClock(startedAtMs, nowMs) }),
-    event: `${finished} of ${providers.length} done${latest ? ` \u00b7 ${latest}` : ''}`,
+    event: `${providers.length} 个席位中 ${finished} 个完成${latest ? ` \u00b7 ${latest}` : ''}`,
   }
 }
 
 // A run whose process died without writing .done: what the band says instead.
 export function abandonedNotice({ providers }: RunProgress, jobId = ''): string {
-  const subject = jobId ? `job ${jobId} stopped` : 'stopped'
-  return `${subject} before it finished: ${count(providers, ...ANSWERED_STATES)} of ${providers.length} answered`
+  const subject = jobId ? `任务 ${jobId} 已停止` : '已停止'
+  return `${subject}（在完成之前）：${providers.length} 个席位中 ${count(providers, ...ANSWERED_STATES)} 个已回答`
 }
 
 // The pid a run left in its watch dir, fit to hand to kill -0: digits, not zero.
@@ -58,13 +58,13 @@ export function runPid(text: string): string | undefined {
 
 export function wakePrompt(jobId: string): string | undefined {
   if (!jobId) return undefined
-  return `The background council job ${jobId} has finished. Fetch it with /claude-council:result ${jobId} and summarise it.`
+  return `后台议事厅任务 ${jobId} 已完成。请用 /claude-council:result ${jobId} 获取结果并总结。`
 }
 
 export function reopenReply(hasRun: boolean): string {
   return hasRun
-    ? 'Council pane reopened with the last run.'
-    : 'No council run in this session yet. Start one with /claude-council:ask.'
+    ? '议事厅面板已重新打开，显示上一次运行。'
+    : '本会话尚无议事厅运行。请通过 /claude-council:ask 启动一次。'
 }
 
 export type FinishNotice = { text: string; untilMs: number; isFailure?: boolean }

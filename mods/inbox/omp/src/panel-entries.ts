@@ -105,12 +105,12 @@ function stopEntries(screen: PanelScreen, ui: PanelUi): Entry[] {
       line: {
         ...blankLine(STOP_ID),
         lead: { text: '!', tone: 'error' },
-        title: 'Stopped',
+        title: '已停止',
         status: { text: `${capitalized(stopText(stop))}.`, tone: 'error', rest: '' },
         age: stop.at,
         detail: canResume ? null : stopFix(stop),
         feedback:
-          resuming?.is === 'refused' ? { text: `Not sent: ${resuming.why}`, tone: 'error', source: null } : null,
+          resuming?.is === 'refused' ? { text: `未发送：${resuming.why}`, tone: 'error', source: null } : null,
         buttons: canResume ? [resume] : [],
         isStatic: !canResume,
         isWaiting: canResume,

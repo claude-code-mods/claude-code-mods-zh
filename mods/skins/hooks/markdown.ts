@@ -383,7 +383,7 @@ export function padCell(text: string, width: number, align: Align): string {
 // block; a message instead when there is nothing to copy.
 export function copyOf(reply: string, code: boolean): { text: string } | { message: string } {
   if (reply.trim() === '') {
-    return { message: 'Nothing to copy yet' }
+    return { message: '还没有可复制的内容' }
   }
 
   if (!code) {
@@ -392,7 +392,7 @@ export function copyOf(reply: string, code: boolean): { text: string } | { messa
 
   const last = splitReply(reply).findLast((segment): segment is Code => segment.kind === 'code')
 
-  return last === undefined ? { message: 'No code block in the last reply' } : { text: last.code }
+  return last === undefined ? { message: '上一条回复中没有代码块' } : { text: last.code }
 }
 
 // A table as it is drawn, boxed in monospace, for pasting where markdown does not render.

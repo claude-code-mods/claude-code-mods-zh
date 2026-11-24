@@ -21,15 +21,15 @@
   "userConfig": {
     "headless": {
       "type": "string",
-      "title": "Headless prompts",
-      "description": "guard (default): keep the cold-send guard for CLI and SDK prompts. send: allow non-interactive SDK prompts without asking, unless guard refuse is explicit. Remote human prompts keep the guard.",
+      "title": "无界面提示词",
+      "description": "guard（默认）：对 CLI 和 SDK 提示词保留冷发送守卫。send：允许非交互式 SDK 提示词不经询问直接发送，除非明确设置了 guard refuse。远程人工提示词始终保留守卫。",
       "default": "guard",
       "options": ["guard", "send"]
     },
     "autoWarm": {
       "type": "string",
-      "title": "Auto keepwarm",
-      "description": "on: after you pay a cold cache write, keepwarm arms itself for three hours (the default). off: keepwarm only runs when you arm it with /keepwarm.",
+      "title": "自动保温",
+      "description": "on：支付冷缓存写入费用后，保温功能自动启用三小时（默认）。off：只有通过 /keepwarm 手动启用时才会运行。",
       "default": "on",
       "options": [
         "on",
@@ -38,14 +38,14 @@
     },
     "pingFloor": {
       "type": "number",
-      "title": "Ping floor",
-      "description": "Limit each idle break's ping spend to the estimated rewrite cost divided by this number, including the next estimated ping. 2 by default; 0 disables the limit. The first ping has no receipt to estimate from.",
+      "title": "ping 费用下限",
+      "description": "将每次空闲期的 ping 花费限制为预计重写成本除以该数值（含下一次预计的 ping）。默认为 2；0 表示不限制。第一次 ping 没有可用于估算的凭据。",
       "default": 2,
       "min": 0
     },
     "display": {
-      "title": "Display",
-      "description": "Where cache-tax shows its state. band: the row above the prompt (the default). status: the status entry under the prompt instead, with no row.",
+      "title": "显示方式",
+      "description": "cache-tax 显示状态的位置。band：输入框上方的横条（默认）。status：改为输入框下方的状态条目，不显示横条。",
       "type": "string",
       "options": [
         "band",

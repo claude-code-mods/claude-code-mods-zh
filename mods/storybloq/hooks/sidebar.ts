@@ -82,7 +82,7 @@ const PANE_TITLE = "Storybloq";
 * a placed pane docks or sits inline is the renderer's call (ISS-1247).
 */
 const DOCK_COLUMNS = 144;
-const BAND_HINT = ", board opens at your next prompt";
+const BAND_HINT = '，看板将在你下次输入时打开';
 const STORE_KEY = "sidebar-ledger-cache-v1";
 /** Under the store's 4 MiB, with room for whatever else the plugin keeps. */
 const STORE_BUDGET_BYTES = 3000000;
@@ -119,7 +119,7 @@ const CONFIG_PATH = ".story/config.json";
 const ROADMAP_PATH = ".story/roadmap.json";
 const STATUS_PATH = ".story/status.json";
 /** T-537: the setup hint's action, in the Claude Code profile's command. */
-export const SETUP_HINT = "Run /story to set this project up; the pane opens when it finishes.";
+export const SETUP_HINT = "运行 /story 初始化此项目；完成后面板会打开。";
 /** T-532: tool calls read the context fill at most this often. */
 const CONTEXT_REFRESH_MS = 5000;
 function forgetEverything(dashboard: DashboardState): void {
@@ -191,26 +191,26 @@ function summaryLine(dashboard: DashboardState): string {
   const busy = dashboard.scanActive || dashboard.scanInitializing;
   if (!dashboard.warm || dashboard.projection === null) {
     return busy
-      ? `Storybloq: reading the ledger, ${dashboard.queue.length} files left`
-      : "Storybloq: no ledger read yet";
+      ? `Storybloq：正在读取台账，还剩 ${dashboard.queue.length} 个文件`
+      : "Storybloq：尚未读取台账";
   }
   // The phase in hand; failing that, why there is none: a project whose
   // every phase is complete is finished, not phaseless (ISS-1257, the
-  // `complete` sample), and only a roadmap with no phases says "no phase".
+  // `complete` sample), and only a roadmap with no phases says "无阶段".
   const phase = dashboard.projection.currentPhase
     ? dashboard.projection.currentPhase.name
     : dashboard.projection.phases.length > 0
-      ? "all phases complete"
-      : "no phase";
+      ? "所有阶段已完成"
+      : "无阶段";
   const parts = [
     phase,
-    `${dashboard.projection.openTickets} open`,
-    `${dashboard.projection.inProgressTickets.length} in progress`,
-    `${dashboard.projection.blockedTickets} blocked`,
-    `${dashboard.projection.openIssues} issues`,
+    `${dashboard.projection.openTickets} 个待办`,
+    `${dashboard.projection.inProgressTickets.length} 个进行中`,
+    `${dashboard.projection.blockedTickets} 个受阻`,
+    `${dashboard.projection.openIssues} 个问题`,
   ];
   if (busy)
-    parts.push(`reading ${dashboard.queue.length}`);
+    parts.push(`正在读取 ${dashboard.queue.length}`);
   return `Storybloq: ${parts.join(", ")}`;
 }
 /**
@@ -371,7 +371,7 @@ async function loadCache(dashboard: DashboardState, $: any): Promise<void> {
 async function saveCache(dashboard: DashboardState, $: any): Promise<void> {
   const text = JSON.stringify(dashboard.cache);
   if (text.length > STORE_BUDGET_BYTES) {
-    $.ui.log(`storybloq sidebar: the ledger cache is over ${STORE_BUDGET_BYTES} bytes, so it is not kept between sessions`);
+    $.ui.log(`storybloq sidebar：台账缓存超过 ${STORE_BUDGET_BYTES} 字节，因此不会在会话间保留`);
     return;
   }
   try {
@@ -387,7 +387,7 @@ function noteFailure(dashboard: DashboardState, $: any, what: string): void {
     return;
   dashboard.saidScanFailed = true;
   try {
-    $.ui.log(`storybloq sidebar: ${what}, so the pane may be behind the ledger until a later turn`);
+    $.ui.log(`storybloq sidebar：${what}，因此面板可能要等到后续回合才会显示台账`);
   }
   catch {
     // A refused log is not worth a second failure.
@@ -1079,7 +1079,7 @@ export function registerSidebar(on: On, _options: Options): void {
     if (!dashboard.uiAvailable) {
       if (!dashboard.saidNoUi) {
         dashboard.saidNoUi = true;
-        $.ui.log("storybloq sidebar: this client has no UI render events, so the pane is not drawn");
+        $.ui.log("storybloq sidebar：此客户端没有 UI 渲染事件，因此不绘制面板");
       }
       return next(e);
     }
@@ -1110,7 +1110,7 @@ export function registerSidebar(on: On, _options: Options): void {
       dashboard.noLedger = true;
       if (!dashboard.saidNoLedger) {
         dashboard.saidNoLedger = true;
-        $.ui.log("storybloq sidebar: this session start carried no working directory, so the pane stays closed");
+        $.ui.log("storybloq sidebar：此会话启动时没有工作目录，因此面板保持关闭");
       }
       return next(e);
     }
@@ -1128,7 +1128,7 @@ export function registerSidebar(on: On, _options: Options): void {
       dashboard.noLedger = true;
       if (!dashboard.setupHintRoots.has(dashboard.initialCwd)) {
         dashboard.setupHintRoots.add(dashboard.initialCwd);
-        $.ui.log(`storybloq sidebar: no .story directory here, so the pane stays closed. ${SETUP_HINT}`);
+        $.ui.log(`storybloq sidebar：此处没有 .story 目录，因此面板保持关闭。${SETUP_HINT}`);
       }
       return next(e);
     }
@@ -1143,7 +1143,7 @@ export function registerSidebar(on: On, _options: Options): void {
       dashboard.noLedger = true;
       if (!dashboard.saidRootUnresolved) {
         dashboard.saidRootUnresolved = true;
-        $.ui.log(`storybloq sidebar: could not resolve the ledger root (${resolution.reason}), so the pane stays closed until it can be read`);
+        $.ui.log(`storybloq sidebar：无法解析台账根目录（${resolution.reason}），因此在可读取前面板保持关闭`);
       }
       return next(e);
     }

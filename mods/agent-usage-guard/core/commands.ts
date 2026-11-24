@@ -29,14 +29,14 @@ export function parseCommand(args: string): Command {
   if (verb === 'resume') return { action: 'resume' }
   if (verb === 'report') {
     const days = rest[0] === undefined ? DEFAULT_REPORT_DAYS : Number(rest[0])
-    if (!Number.isInteger(days) || days < 1 || days > MAX_REPORT_DAYS) return { action: 'help', error: `"${rest[0]}" is not a number of days` }
+    if (!Number.isInteger(days) || days < 1 || days > MAX_REPORT_DAYS) return { action: 'help', error: `“${rest[0]}”不是天数` }
     return { action: 'report', days }
   }
   if (verb === 'simulate') {
     const rule = SIMULATED.find((r) => r === rest[0])
     if (rule) return { action: 'simulate', rule }
     const rules = SIMULATED.join(', ')
-    return { action: 'help', error: rest[0] === undefined ? `name a rule to simulate: ${rules}` : `"${rest[0]}" is not a rule; the rules are ${rules}` }
+    return { action: 'help', error: rest[0] === undefined ? `请指定要模拟的规则：${rules}` : `“${rest[0]}”不是规则；可用规则有：${rules}` }
   }
   if (verb === 'allow' || verb === 'pause') {
     let scope: Scope = 'all'
@@ -48,13 +48,13 @@ export function parseCommand(args: string): Command {
       }
       const n = Number(word.replace(/m(in(utes?)?)?$/, ''))
       if (!Number.isInteger(n) || n < 1 || n > MAX_ALLOW_MINUTES) {
-        return { action: 'help', error: `"${word}" is not ${verb === 'allow' ? 'agents, context or ' : ''}a number of minutes from 1 to ${MAX_ALLOW_MINUTES}` }
+        return { action: 'help', error: `“${word}”不是${verb === 'allow' ? 'agents、context，也不是' : ''}1 到 ${MAX_ALLOW_MINUTES} 之间的分钟数` }
       }
       minutes = n
     }
     return { action: 'allow', scope, minutes }
   }
-  return { action: 'help', error: `unknown subcommand "${verb}"` }
+  return { action: 'help', error: `未知子命令“${verb}”` }
 }
 
 /** Lifts limits for this session, and forgets the declines and the fuse they cover. */
@@ -70,7 +70,7 @@ export function applyOverride(state: SessionState, now: number, scope: Scope, mi
     for (const loop of Object.values(state.loops)) loop.stopped = false
     state.failures = {}
   }
-  return `${sentence(scopeName(scope))} lifted for ${duration(minutes * 60_000)}, until ${shortClock(until)}. /agent-guard resume ends it early.`
+  return `${sentence(scopeName(scope))}已解除 ${duration(minutes * 60_000)}，直至 ${shortClock(until)}。运行 /agent-guard resume 可提前结束。`
 }
 
 /** Ends an override and clears declined questions, so the guard asks again. */
@@ -82,8 +82,8 @@ export function resumeGuard(state: SessionState): string {
   state.denials = state.denials.filter((d) => !d.agent)
   loopOf(state, MAIN).stopped = false
   return had
-    ? 'Limits apply again.'
-    : 'No override was active. Declined questions are cleared, so the guard asks again.'
+    ? '限制重新生效。'
+    : '当前没有生效的解除操作。已清除被拒绝的问题，守卫会再次询问。'
 }
 
 export function helpText(error?: string): string {

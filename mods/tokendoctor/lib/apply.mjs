@@ -113,12 +113,12 @@ export function readJournal() {
 
 export function describePlan(plan) {
   if (plan.kind === 'template' || plan.kind === 'script') {
-    const what = plan.kind === 'script' ? 'new executable script' : 'new agent file from the template'
-    return plan.exists ? `${plan.path}: already exists, will not overwrite` : `${plan.path}: ${what}`
+    const what = plan.kind === 'script' ? '新的可执行脚本' : '根据模板新建的代理文件'
+    return plan.exists ? `${plan.path}：已存在，不会覆盖` : `${plan.path}：${what}`
   }
   const diff = plan.drops ? plan.drops.join('\n') : diffLines(plan.normalized, plan.after)
-  const note = plan.exists && plan.before !== plan.normalized ? '\n(the file will also be re-indented as 2-space JSON)' : ''
-  return `${plan.path}${plan.exists ? '' : ' (new file)'}\n${diff || '(no change)'}${note}`
+  const note = plan.exists && plan.before !== plan.normalized ? '\n（该文件还会重新缩进为 2 空格的 JSON）' : ''
+  return `${plan.path}${plan.exists ? '' : '（新文件）'}\n${diff || '（无变化）'}${note}`
 }
 
 // Writes a plan. An existing file is copied to <file>.tokendoctor-<timestamp>.bak first.

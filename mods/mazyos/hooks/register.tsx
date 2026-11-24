@@ -149,7 +149,7 @@ export const register: Register = (on, options) => {
       const chave = `avisado:${ws.raiz}`
       if ((await $.store.get(chave)) === undefined) {
         await $.store.set(chave, true)
-        $.ui.toast('MazyOS instalado. Pra ligar o sistema nessa pasta, rode /mazyos:instalar.')
+        $.ui.toast('MazyOS 已安装。要在此目录启用，请运行 /mazyos:instalar。')
       }
     }
 

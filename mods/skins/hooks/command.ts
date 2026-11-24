@@ -158,18 +158,18 @@ export function listing(current: Prefs, names: readonly string[], extra: readonl
   const mark = (name: string) => (name === current.skin ? `${name} (current)` : name)
 
   return [
-    `Skins · now: ${current.skin}`,
+    `皮肤 · 当前：${current.skin}`,
     '',
     markdownTable(
-      ['Skin', 'Kind'],
+      ['皮肤', '类型'],
       [
-        ...names.map(name => [mark(name), isBuiltIn(name) ? 'built in' : 'yours']),
-        [mark('off'), 'Claude Code\'s own look'],
+        ...names.map(name => [mark(name), isBuiltIn(name) ? '内置' : '自定义']),
+        [mark('off'), 'Claude Code 原生外观'],
       ],
     ),
     '',
     markdownTable(
-      ['Setting', 'Value'],
+      ['设置', '值'],
       [
         ['icons', current.icons],
         ['prompt', current.prompt],
@@ -197,58 +197,58 @@ export function listing(current: Prefs, names: readonly string[], extra: readonl
       ],
     ),
     '',
-    '`/skin <name>` picks a skin.',
+    '`/skin <name>` 选择皮肤。',
     '',
-    '`/skin help` shows the commands.',
+    '`/skin help` 查看所有命令。',
   ].join('\n')
 }
 
 // /skin help: every argument, laid out as skin-code lays out its help.
 export const helpText = (): string =>
   [
-    'skins commands',
+    'skins 命令',
     '',
     markdownTable(
-      ['Command', 'What it does'],
+      ['命令', '作用'],
       [
-        ['`/skin`', 'open the settings'],
-        ['`/skin <name>`', 'switch to that skin'],
-        ['`/skin list`', 'every skin and setting'],
-        ['`/skin help`', 'these commands'],
-        ['`/skin off`', 'back to Claude Code\'s own look'],
-        ['`/skin on`', 'skins back on'],
-        ['`/skin gallery`', 'every element the skin draws, numbered'],
-        ['`/skin calm [on/off]`', 'no motion, one line per tool row, read-only output folded'],
-        ['`/skin copy` · `copy code`', 'copy the last reply, or its last code block'],
-        ['`/skin pin` · `unpin` · `share`', 'give this folder its own look, drop it, or make it the default'],
-        ['`/skin tables on/text/off`', 'tables as cards, as selectable text, or Claude Code\'s own'],
-        ['`/skin prompt left/right/plain`', 'which side your prompt\'s outline sits on, or a plain marker'],
-        ['`/skin words claude/skin`', 'whose words the spinner and the turn footer show'],
-        ['`/skin icons unicode/ascii`', 'the icon set'],
-        ['`/skin rail on/off`', 'the coloured rail beside tool rows'],
-        ['`/skin shimmer on/off`', 'the band of light across the spinner word'],
-        ['`/skin band on/off`', 'the usage meters above the prompt'],
-        ['`/skin countdown on/off`', 'time left on each limit in the band'],
-        ['`/skin clip on/off`', 'trim Claude Code\'s own shell output to its head and tail'],
-        ['`/skin markdown on/off`', 'alerts and task lists drawn'],
-        ['`/skin quiet on/off`', 'fold reads, searches and read-only commands to one row'],
-        ['`/skin charts on/off`', 'Mermaid fences as charts'],
-        ['`/skin math on/off`', 'math typeset'],
-        ['`/skin commands on/off`', 'slash-command output as tables and cards'],
-        ['`/skin shell on/off`', 'shell output as a card'],
-        ['`/skin highlight on/off`', 'code blocks highlighted in the skin\'s colours'],
-        ['`/skin hints on/off`', 'tell Claude that charts draw here'],
-        ['`/skin links on/off`', 'URLs and paths as links'],
-        ['`/skin copy on/off`', 'Copy buttons on cards'],
-        ['`/skin fold on/off`', 'long blocks fold behind `▾ N more`'],
-        ['`/skin expand on/off`', 'open every group of reads and searches'],
-        ['`/skin compact on/off`', 'the Compact button in the band'],
+        ['`/skin`', '打开设置'],
+        ['`/skin <name>`', '切换到该皮肤'],
+        ['`/skin list`', '列出所有皮肤和设置'],
+        ['`/skin help`', '显示这些命令'],
+        ['`/skin off`', '恢复 Claude Code 原生外观'],
+        ['`/skin on`', '重新启用 skins'],
+        ['`/skin gallery`', '编号展示皮肤绘制的每个元素'],
+        ['`/skin calm [on/off]`', '关闭动画、工具行只占一行、折叠只读输出'],
+        ['`/skin copy` · `copy code`', '复制上一条回复，或其最后一个代码块'],
+        ['`/skin pin` · `unpin` · `share`', '为本文件夹设置独立外观、取消，或设为默认'],
+        ['`/skin tables on/text/off`', '表格显示为卡片、可选文本，或使用 Claude Code 原生样式'],
+        ['`/skin prompt left/right/plain`', '提示符轮廓在左侧还是右侧，或使用简单标记'],
+        ['`/skin words claude/skin`', '转圈提示和回合页脚使用谁的文案'],
+        ['`/skin icons unicode/ascii`', '图标字符集'],
+        ['`/skin rail on/off`', '工具行旁边的彩色侧栏'],
+        ['`/skin shimmer on/off`', '转圈文字上的流光效果'],
+        ['`/skin band on/off`', '提示符上方的使用量状态带'],
+        ['`/skin countdown on/off`', '状态带中每项额度的剩余时间'],
+        ['`/skin clip on/off`', '将 Claude Code 原生终端输出截断为开头和结尾'],
+        ['`/skin markdown on/off`', '绘制提示框和任务列表'],
+        ['`/skin quiet on/off`', '将读取、搜索和只读命令折叠为一行'],
+        ['`/skin charts on/off`', '将 Mermaid 代码块绘制为图表'],
+        ['`/skin math on/off`', '数学公式排版'],
+        ['`/skin commands on/off`', '将斜杠命令输出绘制为表格和卡片'],
+        ['`/skin shell on/off`', '将终端输出绘制为卡片'],
+        ['`/skin highlight on/off`', '用皮肤配色高亮代码块'],
+        ['`/skin hints on/off`', '告诉 Claude 这里可以绘制图表'],
+        ['`/skin links on/off`', '将网址和路径显示为链接'],
+        ['`/skin copy on/off`', '在卡片上显示复制按钮'],
+        ['`/skin fold on/off`', '长内容折叠到 `▾ 还有 N 行` 后面'],
+        ['`/skin expand on/off`', '展开所有读取和搜索分组'],
+        ['`/skin compact on/off`', '状态带中的压缩按钮'],
       ],
     ),
     '',
-    '`/skin list` shows every skin and setting.',
+    '`/skin list` 列出所有皮肤和设置。',
     '',
-    '`/skin` opens the settings.',
+    '`/skin` 打开设置。',
   ].join('\n')
 
 const isToggle = (word: string): word is ToggleWord => Object.hasOwn(TOGGLES, word)
@@ -274,16 +274,16 @@ export function runSkinCommand(args: string, current: Prefs, names: readonly str
     case 'off':
     case 'default':
     case 'stock':
-      return changed({ ...current, skin: 'off' }, 'skins off')
+      return changed({ ...current, skin: 'off' }, 'skins 已关闭')
     case 'on':
       return current.skin === 'off'
         ? changed({ ...current, skin: DEFAULT_PREFS.skin }, `skin: ${DEFAULT_PREFS.skin}`)
         : changed(current, `skin: ${current.skin}`)
     case 'calm':
       return value === 'on' || value === undefined
-        ? changed(withCalm(current, true), current.calm === null ? 'calm on' : 'calm is already on')
+        ? changed(withCalm(current, true), current.calm === null ? '静谧已开启' : '静谧已经开启')
         : value === 'off'
-          ? changed(withCalm(current, false), current.calm === null ? 'calm is already off' : 'calm off: your settings are back')
+          ? changed(withCalm(current, false), current.calm === null ? '静谧已经关闭' : '静谧已关闭：你的设置已恢复')
           : refused(current, 'usage: /skin calm [on|off]')
     case 'tables':
       return value === 'on' || value === 'text' || value === 'off'

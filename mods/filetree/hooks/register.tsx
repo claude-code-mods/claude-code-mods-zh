@@ -80,7 +80,7 @@ const DOUBLE_MS = 450
 const FIND_LIMIT = 200
 const GREP_LIMIT = 200
 const MARK_LIMIT = 100
-const MARKS_FULL = `at most ${MARK_LIMIT} marks; press "${MARK_LIMIT} marked" in the footer to clear them`
+const MARKS_FULL = `最多 ${MARK_LIMIT} 个标记；按页脚的 "${MARK_LIMIT} marked" 可清除`
 const GREP_MS = 15_000
 const GREP_WAIT_MS = 150
 const GREP_TEXT = 300
@@ -126,7 +126,7 @@ const SIZE_WALK_LIMIT = 50_000
 const AGE_TICK_MS = 60_000
 const GUARDS = 'guards'
 const SHIMMER_KEY = /^filetree(@[^.]+)?\.shimmer$/
-const OUTSIDE = 'writes outside the repo'
+const OUTSIDE = '仓库外写入'
 
 let blink: Timer | null = null
 let cached: FileTree | null = null
@@ -140,7 +140,7 @@ let generation = 0
 let lastPress = { key: '', at: 0 }
 let noNerd = false
 let glyphSetting = 'auto'
-const WORDS: Record<string, string> = { up: 'up', cwd: 'cwd', refresh: 'sync', hidden: 'dots', size: 'size', collapse: 'fold', autocollapse: 'auto', split: 'split', unselect: 'clear' }
+const WORDS: Record<string, string> = { up: '上', cwd: '根目录', refresh: '同步', hidden: '隐藏', size: '大小', collapse: '折叠', autocollapse: '自动', split: '分屏', unselect: '清除' }
 let openWithSetting = ''
 let binariesInDefaultApp = false
 let editWithSetting = ''
@@ -412,7 +412,7 @@ async function list($: EngineInterface, dir: string): Promise<FileNode[] | null>
     if (!(await exists($, dir))) return []
     if (!unreadable.has(dir)) {
       unreadable.add(dir)
-      $.ui.toast(`could not list ${shortPath(dir)}: ${err instanceof Error ? err.message : String(err)}`)
+      $.ui.toast(`无法列出 ${shortPath(dir)}：${err instanceof Error ? err.message : String(err)}`)
     }
     return null
   }
@@ -588,7 +588,7 @@ async function reset($: EngineInterface, root: string, focus = false, ready?: Pr
   sizeEpoch += 1
   sizeQueue = []
   await put($, () => ({ ...emptyTree(root), showHidden: prev.showHidden, column: prev.root ? prev.column : columnDefault, split: prev.split, searchCase: Boolean(prev.searchCase), searchRegex: Boolean(prev.searchRegex), searchContent: Boolean(prev.searchContent) }))
-  const title = `Files: ${root.split('/').pop() || root}`
+  const title = `文件：${root.split('/').pop() || root}`
   const listed = loadDirs($, [root])
   const repo = detectRepo($)
   await ready
@@ -1151,11 +1151,11 @@ async function outcomes($: EngineInterface, p: Pending, ok: boolean, op: GitOper
   return p.actions.map(a => {
     if (a.verb === 'commit') {
       const sha = op?.commit?.sha || (after && after !== p.head ? after : '')
-      return sha ? { state: 'done', label: a.done, detail: sha.slice(0, 7) } : { state: 'failed', label: `${a.verb} failed`, detail: '' }
+      return sha ? { state: 'done', label: a.done, detail: sha.slice(0, 7) } : { state: 'failed', label: `${a.verb} 失败`, detail: '' }
     }
     if ((op && PROOF[a.verb]?.(op)) || (ok && chain.and)) return { state: 'done', label: a.done, detail: '' }
-    if (!ok && chain.and && chain.size === 1) return { state: 'failed', label: `${a.verb} failed`, detail: '' }
-    return { state: 'done', label: `ran ${a.kind}`, detail: '' }
+    if (!ok && chain.and && chain.size === 1) return { state: 'failed', label: `${a.verb} 失败`, detail: '' }
+    return { state: 'done', label: `已执行 ${a.kind}`, detail: '' }
   })
 }
 
@@ -1172,7 +1172,7 @@ async function finishGit($: EngineInterface, p: Pending, results: Outcome[]): Pr
 }
 
 function failAll(p: Pending): Outcome[] {
-  return p.actions.map(a => ({ state: 'failed', label: `${a.verb} failed`, detail: '' }))
+  return p.actions.map(a => ({ state: 'failed', label: `${a.verb} 失败`, detail: '' }))
 }
 
 function proven(p: Pending | null, results: Outcome[]): GitAction[] {
@@ -1236,7 +1236,7 @@ async function applyStart($: EngineInterface): Promise<void> {
   }
   if (noDock || shown) return
   const t = await get($)
-  if (t.root) await $.ui.open({ id: PANE, title: `Files: ${t.root.split('/').pop() || t.root}` })
+  if (t.root) await $.ui.open({ id: PANE, title: `文件：${t.root.split('/').pop() || t.root}` })
 }
 
 async function settleRoot($: EngineInterface): Promise<void> {
@@ -1280,7 +1280,7 @@ async function copyPaths($: EngineInterface, ids: string[], how: 'relative' | 'a
   const one = (id: string) => (how === 'name' ? id.slice(id.lastIndexOf('/') + 1) || id : how === 'relative' && id !== t.root && inside(t.root, id) ? id.slice(t.root.endsWith('/') ? t.root.length : t.root.length + 1) : id)
   const text = ids.map(one).join('\n')
   const done = await $.ui.copy({ text, ...(surface ? { surface } : {}) })
-  $.ui.toast(!done.isCopied ? `Could not copy the ${how === 'name' ? 'name' : 'path'}${ids.length > 1 ? 's' : ''}` : ids.length > 1 ? `Copied ${ids.length} ${how === 'name' ? 'names' : 'paths'}` : `Copied ${text}`)
+  $.ui.toast(!done.isCopied ? `无法复制${how === 'name' ? '文件名' : '路径'}` : ids.length > 1 ? `已复制 ${ids.length} 个${how === 'name' ? '文件名' : '路径'}` : `已复制 ${text}`)
 }
 
 function copyPath($: EngineInterface, id: string, absolute: boolean, surface?: RenderSurface): Promise<void> {
@@ -1336,7 +1336,7 @@ async function classifyLink($: EngineInterface, id: string): Promise<void> {
 function linkNote(state: LinkState | null | undefined): string {
   if (!state) return ' →'
   const to = state.target ? ` ${shortPath(state.target)}` : ''
-  return ` →${to}${state.kind === 'outside' ? ' (outside the tree)' : state.kind === 'broken' ? ' (broken: target missing)' : state.kind === 'circular' ? ' (circular link)' : ''}`
+  return ` →${to}${state.kind === 'outside' ? '（位于树外）' : state.kind === 'broken' ? '（已损坏：目标不存在）' : state.kind === 'circular' ? '（循环链接）' : ''}`
 }
 
 function picks(t: FileTree): { ids: string[]; marked: boolean } {
@@ -1668,7 +1668,7 @@ async function search($: EngineInterface, query: string): Promise<string[]> {
   const scope = t.searchScope ? `${t.searchScope.replace(/\/$/, '')}/` : ''
   for (let i = 0; i < index.rel.length && hits.length < SEARCH_REVEAL_LIMIT; i++) if ((!scope || (index.paths[i] ?? '').startsWith(scope)) && match(index.rel[i] ?? '')) hits.push(index.paths[i] ?? '')
   if ((await get($)).query !== query) return []
-  if (match.partial) void $.ui.toast(`regex search stopped after ${hits.length} match${hits.length === 1 ? '' : 'es'}; the pattern is too slow to check every path`)
+  if (match.partial) void $.ui.toast(`正则搜索在 ${hits.length} 个匹配后停止；该模式太慢，无法检查所有路径`)
   await revealPaths($, hits)
   const shown = await get($)
   const ids = new Set(shown.nodes.map(n => n.id))
@@ -1733,7 +1733,7 @@ function grepRun($: EngineInterface, t: FileTree): void {
   const q = t.query.trim()
   if (!q) return
   if (badPattern(q, Boolean(t.searchRegex))) {
-    grep.note = 'not a valid pattern'
+    grep.note = '无效的匹配模式'
     return
   }
   grep.busy = true
@@ -1757,7 +1757,7 @@ async function grepSpawn($: EngineInterface, t: FileTree, q: string, mine: numbe
   let note = ''
   const timer = $.clock.after(GREP_MS, () => {
     if (grep.seq !== mine) return
-    note = `search stopped after ${GREP_MS / 1000} seconds`
+    note = `搜索在 ${GREP_MS / 1000} 秒后停止`
     stop()
   })
   const files = new Map<string, GrepHit[]>()
@@ -1781,7 +1781,7 @@ async function grepSpawn($: EngineInterface, t: FileTree, q: string, mine: numbe
     if (fits && !(exact && body.length > GREP_LINE)) {
       const ok = fits(body)
       if (work.left < 0) {
-        note ||= 'search stopped: the pattern is too costly'
+        note ||= '搜索已停止：该模式开销过大'
         costly = true
         stop()
         return
@@ -1813,7 +1813,7 @@ async function grepSpawn($: EngineInterface, t: FileTree, q: string, mine: numbe
     }
     if (rest && !capped) take(rest)
   } catch (error) {
-    err = /ENOENT|not found|no such file/i.test(messageOf(error)) ? `${t.top ? 'git' : 'grep'} is not installed` : messageOf(error).split('\n')[0] ?? ''
+    err = /ENOENT|not found|no such file/i.test(messageOf(error)) ? `未安装 ${t.top ? 'git' : 'grep'}` : messageOf(error).split('\n')[0] ?? ''
   } finally {
     timer.cancel()
     if (grep.seq === mine) {
@@ -1875,7 +1875,7 @@ async function openRef($: EngineInterface, href: string, surface: RenderSurface)
   if (!ref) return
   const t = await get($)
   if (!inside(t.root, ref.path)) return
-  void $.ui.open({ id: PANE, title: `Files: ${t.root.split('/').pop() || t.root}` }).catch(() => undefined)
+  void $.ui.open({ id: PANE, title: `文件：${t.root.split('/').pop() || t.root}` }).catch(() => undefined)
   await openHit($, { path: ref.path, line: ref.line, text: '' }, surface)
 }
 
@@ -2149,10 +2149,10 @@ async function considerWork($: EngineInterface): Promise<void> {
     $.clock.after(0, async () => {
       try {
         await $.command.run({ command: 'cd', args: repo })
-        void $.ui.toast(`filetree moved to the cwd`)
+        void $.ui.toast(`文件树已移至当前目录`)
         $.clock.after(400, () => void (follow ? followCwd($) : reset($, repo)))
       } catch (error) {
-        void $.ui.toast(`could not move Claude to ${shortPath(repo)}: ${error instanceof Error ? error.message : String(error)}`)
+        void $.ui.toast(`无法将 Claude 移至 ${shortPath(repo)}：${error instanceof Error ? error.message : String(error)}`)
       }
     })
   } finally {
@@ -2167,7 +2167,7 @@ async function canCd($: EngineInterface): Promise<boolean> {
 async function jumpTo($: EngineInterface, dir: string): Promise<void> {
   if (!(await $.fs.exists(dir).catch(() => false))) {
     await forgetVisits($, [dir])
-    void $.ui.toast(`${shortPath(dir)} no longer exists`)
+    void $.ui.toast(`${shortPath(dir)} 已不存在`)
     void jumpRefresh($)
     return
   }
@@ -2180,7 +2180,7 @@ async function jumpTo($: EngineInterface, dir: string): Promise<void> {
     try {
       await $.command.run({ command: 'cd', args: dir })
     } catch (error) {
-      void $.ui.toast(`could not move Claude to ${dir}: ${error instanceof Error ? error.message : String(error)}`)
+      void $.ui.toast(`无法将 Claude 移至 ${dir}：${error instanceof Error ? error.message : String(error)}`)
     }
   })
 }
@@ -2312,31 +2312,31 @@ function previewWindow(text: string, line: number): { text: string; first: numbe
 }
 
 async function readPreview($: EngineInterface, path: string, page = 1, line?: number): Promise<Preview> {
-  if (path === OUTSIDE) return { path, text: outside.map(shortPath).join('\n'), note: `${outside.length} file${outside.length === 1 ? '' : 's'} Claude wrote outside the repo this session` }
+  if (path === OUTSIDE) return { path, text: outside.map(shortPath).join('\n'), note: `本次会话中 Claude 在仓库外写入了 ${outside.length} 个文件` }
   let text = ''
   let note = ''
   try {
     const stat = await $.fs.stat(path)
     const kind = pictureKind(path)
-    if (stat.kind !== 'file') note = 'not a regular file'
+    if (stat.kind !== 'file') note = '不是普通文件'
     else if (kind === 'pdf' || kind === 'office') {
       text = await docText($, path, page)
       if (text === '\0encrypted') {
         text = ''
-        note = 'encrypted'
-      } else if (!text) note = kind === 'pdf' && docCounts.has(path) ? `no text on page ${page}` : `${path.split('/').pop()}, ${formatSize(stat.size)}`
+        note = '已加密'
+      } else if (!text) note = kind === 'pdf' && docCounts.has(path) ? `第 ${page} 页没有文本` : `${path.split('/').pop()}, ${formatSize(stat.size)}`
     }
     else if (stat.size > 4_000_000) note = `${formatSize(stat.size)}, too large to preview`
     else {
       text = await $.fs.read(path)
       if (text.slice(0, 8000).includes('\0')) {
         text = ''
-        note = `binary file, ${formatSize(stat.size)}`
+        note = `二进制文件，${formatSize(stat.size)}`
       }
     }
   } catch (err) {
     unlessAborted(err)
-    note = `could not read: ${messageOf(err).split('\n')[0]}`
+    note = `无法读取：${messageOf(err).split('\n')[0]}`
   }
   const total = text.length
   const win = line && total > PREVIEW_CHARS ? previewWindow(text, line) : { text, first: 0 }
@@ -2346,8 +2346,8 @@ async function readPreview($: EngineInterface, path: string, page = 1, line?: nu
   if (lines.length > 1 && (text.length > PREVIEW_CHARS || lines.at(-1) === '')) lines.pop()
   lines = lines.map(l => (l.length > PREVIEW_LINE ? `${l.slice(0, PREVIEW_LINE)}…` : l))
   const fit = fitSerialized(lines, PREVIEW_CHARS)
-  if (first) note = `lines ${(first + 1).toLocaleString('en')}–${(first + fit.length).toLocaleString('en')} of ${total.toLocaleString('en')} characters`
-  else if (total > PREVIEW_CHARS || fit.length < lines.length) note = `first ${fit.length.toLocaleString('en')} lines of ${total.toLocaleString('en')} characters`
+  if (first) note = `${(first + 1).toLocaleString('en')}–${(first + fit.length).toLocaleString('en')} 行，共 ${total.toLocaleString('en')} 字符`
+  else if (total > PREVIEW_CHARS || fit.length < lines.length) note = `共 ${total.toLocaleString('en')} 字符，仅显示前 ${fit.length.toLocaleString('en')} 行`
   return { path, text: fit.join('\n'), note, page, ...(first ? { first } : {}) }
 }
 
@@ -2368,7 +2368,7 @@ async function loadDiff($: EngineInterface, path: string, folder: boolean): Prom
   if (!files.length) return false
   const many = folder || files.length > 1
   const lines = many ? groupFiles(files, folder ? groupSetting : 'off').flatMap(g => ('group' in g ? [{ kind: '@' as const, text: g.group, old: 0, new: 0 }] : [{ kind: '@' as const, text: g.file.path, old: 0, new: 0 }, ...g.file.lines])) : files.flatMap(f => f.lines)
-  const note = many ? `${files.length} changed file${files.length === 1 ? '' : 's'} against HEAD` : others.length ? 'untracked file' : 'changes against HEAD'
+  const note = many ? `与 HEAD 相比有 ${files.length} 个已更改文件` : others.length ? '未跟踪的文件' : '与 HEAD 相比的更改'
   previewed = { path, text: '', note, diff: lines }
   return true
 }
@@ -2379,7 +2379,7 @@ async function diffFile($: EngineInterface, path: string): Promise<void> {
     const folder = t.nodes.find(n => n.id === path)?.kind === 'dir'
     if (t.preview === path && previewed?.path === path && previewed.diff) return folder ? closePreview($) : showPreview($, path)
     if (!(await loadDiff($, path, folder))) {
-      $.ui.toast(`no changes in ${shortPath(path)}`)
+      $.ui.toast(`${shortPath(path)} 没有更改`)
       return
     }
     await patch($, () => ({ preview: path, previewTop: 0, selected: path }))
@@ -2392,18 +2392,18 @@ async function diffFile($: EngineInterface, path: string): Promise<void> {
     if (host === 'herdr') return await openInHerdr($, diffWithSetting, path)
     if (host === 'tmux') {
       const run = await $.process.run(tmuxCommand(targetSetting, dirname(path), [...words(diffWithSetting), path]), { timeoutMs: 10_000 })
-      if (run.exitCode !== 0) $.ui.toast(`could not diff ${shortPath(path)} with ${diffWithSetting}: ${run.stderr.trim().split('\n')[0] || `exit ${run.exitCode}`}`)
+      if (run.exitCode !== 0) $.ui.toast(`无法用 ${diffWithSetting} 比较 ${shortPath(path)}：${run.stderr.trim().split('\n')[0] || `exit ${run.exitCode}`}`)
       return
     }
     if (os === 'linux') {
       const argv = ['sh', '-c', LINUX_LAUNCH, 'sh', 'xdg-terminal-exec', 'sh', '-c', 'cd "$1" && shift && exec "$@"', 'sh', dirname(path), ...words(diffWithSetting), path]
       const run = await $.process.run(argv, { timeoutMs: 10_000 })
-      if (run.exitCode !== 0) $.ui.toast(`could not diff ${shortPath(path)} with ${diffWithSetting}: ${run.stderr.trim().split('\n')[0] || `exit ${run.exitCode}`}`)
+      if (run.exitCode !== 0) $.ui.toast(`无法用 ${diffWithSetting} 比较 ${shortPath(path)}：${run.stderr.trim().split('\n')[0] || `exit ${run.exitCode}`}`)
       return
     }
-    $.ui.toast('Diff with: a terminal command needs tmux, herdr or Linux. Clear Diff with to see the diff in the pane.')
+    $.ui.toast('“比较命令”：终端命令需要 tmux、herdr 或 Linux。清空该设置可在面板中查看差异。')
   } catch {
-    $.ui.toast(`could not diff ${shortPath(path)} with ${diffWithSetting}`)
+    $.ui.toast(`无法用 ${diffWithSetting} 比较 ${shortPath(path)}`)
   }
 }
 
@@ -2414,7 +2414,7 @@ async function pngHeader($: EngineInterface, file: string): Promise<{ width: num
 
 async function makePicture($: EngineInterface, job: PictureJob): Promise<Picture> {
   try {
-    if ((await osName($)) === 'win32') return { state: 'failed', note: 'image preview needs Linux or macOS' }
+    if ((await osName($)) === 'win32') return { state: 'failed', note: '图片预览需要 Linux 或 macOS' }
     let file = job.path
     let size = job.kind === 'png' && job.size <= PNG_DIRECT_BYTES ? await pngHeader($, job.path) : null
     if (size && (size.width > PNG_DIRECT_PIXELS || size.height > PNG_DIRECT_PIXELS)) size = null
@@ -2423,21 +2423,21 @@ async function makePicture($: EngineInterface, job: PictureJob): Promise<Picture
       const doc = job.kind === 'pdf' || job.kind === 'office'
       const argv = ['sh', '-c', POSTER, 'sh', job.path, pictureBase, pictureSession, job.sig, doc ? job.kind : job.kind === 'video' ? 'video' : 'image', coderFor(job.path), String(CACHE_KEEP), POLICY, ...(doc ? [String(job.page), String(job.px), job.pdf] : [])]
       const made = doc ? await spawnRun($, job, argv) : await $.process.run(argv, { timeoutMs: 30_000 })
-      if (!made) return { state: 'failed', note: 'cancelled' }
+      if (!made) return { state: 'failed', note: '已取消' }
       const why = made.stderr.trim().split('\n').filter(Boolean)[0] ?? ''
-      if (made.exitCode === EXIT_MISSING) return { state: 'failed', note: why || 'no decoder on PATH', missing: true }
-      if (made.exitCode === EXIT_LOCKED) return { state: 'failed', note: 'encrypted' }
-      if (made.exitCode === EXIT_FAILED) return { state: 'failed', note: `could not decode${why ? `: ${why}` : ''}` }
+      if (made.exitCode === EXIT_MISSING) return { state: 'failed', note: why || 'PATH 中没有解码器', missing: true }
+      if (made.exitCode === EXIT_LOCKED) return { state: 'failed', note: '已加密' }
+      if (made.exitCode === EXIT_FAILED) return { state: 'failed', note: `无法解码${why ? `：${why}` : ''}` }
       const [out = '', count = ''] = made.stdout.trim().split('\n')
-      if (made.exitCode !== 0 || !isAbsolute(out)) return { state: 'failed', note: why || `could not decode, exit ${made.exitCode}` }
+      if (made.exitCode !== 0 || !isAbsolute(out)) return { state: 'failed', note: why || `无法解码，退出码 ${made.exitCode}` }
       file = out
       pages = Number(count) || 0
       sessionDir = dirname(file)
       size = await pngHeader($, file)
     }
-    return size ? { state: 'ready', file, generation: Math.floor(job.mtime) + job.page * 7 + job.px, ...size, ...(pages ? { pages } : {}) } : { state: 'failed', note: 'could not read the picture size' }
+    return size ? { state: 'ready', file, generation: Math.floor(job.mtime) + job.page * 7 + job.px, ...size, ...(pages ? { pages } : {}) } : { state: 'failed', note: '无法读取图片尺寸' }
   } catch (err) {
-    return { state: 'failed', note: messageOf(err).split('\n')[0] ?? 'could not decode' }
+    return { state: 'failed', note: messageOf(err).split('\n')[0] ?? '无法解码' }
   }
 }
 
@@ -2508,8 +2508,8 @@ async function picture($: EngineInterface, path: string, page = 0, px = 0): Prom
   const kind = pictureKind(path)
   if (!kind) return null
   const stat = await $.fs.stat(path).catch(() => null)
-  if (!stat) return { state: 'failed', note: 'could not read' }
-  if (stat.kind !== 'file') return { state: 'failed', note: 'not a regular file' }
+  if (!stat) return { state: 'failed', note: '无法读取' }
+  if (stat.kind !== 'file') return { state: 'failed', note: '不是普通文件' }
   const doc = kind === 'pdf' || kind === 'office'
   const at = doc ? Math.max(1, page) : 0
   const wide = doc ? Math.max(200, Math.min(1600, Math.round(px / 100) * 100)) : 0
@@ -2518,7 +2518,7 @@ async function picture($: EngineInterface, path: string, page = 0, px = 0): Prom
   const pdf = kind === 'office' ? cacheName(path, stat.mtimeMs, stat.size, 0, 0, 'pdf') : ''
   const known = pictures.get(key)
   const gone = known?.sig === sig && known.picture.state === 'ready' && known.picture.file !== path && !(await $.fs.stat(known.picture.file).then(f => f.kind === 'file', () => false))
-  if (gone && known.retried) known.picture = { state: 'failed', note: 'the preview cache was cleared' }
+  if (gone && known.retried) known.picture = { state: 'failed', note: '预览缓存已清除' }
   if (gone && !known.retried) pictures.delete(key)
   else if (known?.sig === sig) {
     pictures.delete(key)
@@ -2689,7 +2689,7 @@ async function mapKey($: EngineInterface, key: string): Promise<boolean> {
 }
 
 function focusPane($: EngineInterface, root: string, key: string): void {
-  void $.ui.open({ id: PANE, title: `Files: ${root.split('/').pop() || root}`, focus: true }).then(() => (key ? $.ui.focus({ requestId: PANE, key }) : undefined)).catch(() => {})
+  void $.ui.open({ id: PANE, title: `文件：${root.split('/').pop() || root}`, focus: true }).then(() => (key ? $.ui.focus({ requestId: PANE, key }) : undefined)).catch(() => {})
 }
 
 function toggleShortcuts($: EngineInterface, open = !shortcutsShown): void {
@@ -2851,7 +2851,7 @@ async function openFile($: EngineInterface, path: string, how: { mode?: string; 
   const os = await osName($)
   const host = mode === 'editor' ? await editorHost($, os) : ''
   if (mode === 'editor' && !host) {
-    $.ui.toast('Open with: editor requires tmux or herdr on Linux or macOS. Clear Open with to use the default app, or set a custom command.')
+    $.ui.toast('“打开方式”：编辑器在 Linux 或 macOS 上需要 tmux 或 herdr。清空该设置可使用默认应用，或设置自定义命令。')
     return
   }
   const native = (p: string) => (os === 'win32' ? p.replace(/\//g, '\\') : p)
@@ -2861,9 +2861,9 @@ async function openFile($: EngineInterface, path: string, how: { mode?: string; 
     if (editor && host === 'herdr') return await openInHerdr($, editor, path, how.line)
     const { argv, init } = editor ? tmuxOpenCommand(editor, path, how.line, targetSetting) : custom ? { argv: os === 'linux' ? ['sh', '-c', LINUX_LAUNCH, 'sh', ...custom] : custom, init: { timeoutMs: 10_000 } } : openCommand(os, path)
     const run = await $.process.run(argv, init)
-    if (run.exitCode !== 0) $.ui.toast(`could not open ${path} with ${editor ?? custom?.[0] ?? argv[0]}: ${run.stderr.trim().split('\n')[0] || `exit ${run.exitCode}`}`)
+    if (run.exitCode !== 0) $.ui.toast(`无法用 ${editor ?? custom?.[0] ?? argv[0]} 打开 ${path}：${run.stderr.trim().split('\n')[0] || `exit ${run.exitCode}`}`)
   } catch {
-    $.ui.toast(`could not open ${path} with ${editor ?? custom?.[0] ?? 'the default app'}`)
+    $.ui.toast(`无法用 ${editor ?? custom?.[0] ?? '默认应用'} 打开 ${path}`)
   }
 }
 
@@ -2877,21 +2877,21 @@ async function openInHerdr($: EngineInterface, editor: string, path: string, lin
   const { split, run, init } = herdrOpenCommand((await $.env.get('HERDR_BIN_PATH')) || 'herdr', editor, path, line, targetSetting, (await $.env.get('HERDR_WORKSPACE_ID')) || '')
   const made = await $.process.run(split, init)
   const sent = made.exitCode === 0 ? await $.process.run(run(herdrPane(made.stdout)), init) : made
-  if (sent.exitCode !== 0) $.ui.toast(`could not open ${path} with ${editor}: ${herdrError(sent.stderr) || `exit ${sent.exitCode}`}`)
+  if (sent.exitCode !== 0) $.ui.toast(`无法用 ${editor} 打开 ${path}：${herdrError(sent.stderr) || `exit ${sent.exitCode}`}`)
 }
 
 async function openTerminal($: EngineInterface, dir: string): Promise<void> {
   const host = await editorHost($, await osName($))
   if (!host) {
-    $.ui.toast('t opens a shell in a new tmux or herdr pane; run Claude Code inside tmux or herdr to use it')
+    $.ui.toast('t 会在新的 tmux 或 herdr 窗格中打开终端；请在 tmux 或 herdr 中运行 Claude Code 后使用')
     return
   }
   try {
     const argv = host === 'tmux' ? tmuxCommand(targetSetting, dir, [(await $.env.get('SHELL')) || 'sh']) : herdrSplit((await $.env.get('HERDR_BIN_PATH')) || 'herdr', dir, targetSetting, (await $.env.get('HERDR_WORKSPACE_ID')) || '')
     const run = await $.process.run(argv, { timeoutMs: 10_000 })
-    if (run.exitCode !== 0) $.ui.toast(`could not open a terminal in ${shortPath(dir)}: ${(host === 'herdr' ? herdrError(run.stderr) : run.stderr.trim().split('\n')[0]) || `exit ${run.exitCode}`}`)
+    if (run.exitCode !== 0) $.ui.toast(`无法在 ${shortPath(dir)} 中打开终端：${(host === 'herdr' ? herdrError(run.stderr) : run.stderr.trim().split('\n')[0]) || `exit ${run.exitCode}`}`)
   } catch (err) {
-    $.ui.toast(`could not open a terminal in ${shortPath(dir)}: ${messageOf(err).split('\n')[0]}`)
+    $.ui.toast(`无法在 ${shortPath(dir)} 中打开终端：${messageOf(err).split('\n')[0]}`)
   }
 }
 
@@ -2903,7 +2903,7 @@ async function quickLook($: EngineInterface, path: string): Promise<void> {
   try {
     await $.process.run(['sh', '-c', '(nohup qlmanage -p "$1" >/dev/null 2>&1 &); sleep 0.4; osascript -e \'tell application "System Events" to set frontmost of first process whose name is "qlmanage" to true\' >/dev/null 2>&1 || true', 'sh', path], { timeoutMs: 10_000 })
   } catch {
-    $.ui.toast(`could not preview ${path} with Quick Look`)
+    $.ui.toast(`无法通过“快速查看”预览 ${path}`)
   }
 }
 
@@ -3111,7 +3111,7 @@ async function pressHeader($: EngineInterface, id: string): Promise<void> {
     if (deny) {
       shimmerOn = !lit
       void $.ui.invalidate('ui.render')
-      $.ui.toast(`Activity shimmer stays ${shimmerOn ? 'on' : 'off'}: ${deny}`)
+      $.ui.toast(`活动流光保持${shimmerOn ? '开启' : '关闭'}状态：${deny}`)
     }
   }
   else if (id === 'outside') await showOutside($)
@@ -3149,7 +3149,7 @@ async function toggleGuard($: EngineInterface, path: string): Promise<void> {
   const t = await get($)
   const over = guardOver(allGuards(guards), path)
   if (over && over !== path) {
-    $.ui.toast(`${shortPath(path)} is already guarded by ${shortPath(over)}`)
+    $.ui.toast(`${shortPath(path)} 已受 ${shortPath(over)} 保护`)
     return
   }
   const owner = over === path ? Object.keys(guards).find(k => guards[k]?.includes(path)) : undefined
@@ -3189,7 +3189,7 @@ async function noteOutside($: EngineInterface, file: string): Promise<void> {
   const abs = resolve(await cwdOf($), posix(file), home)
   if (!outsideOf(t.top || t.root, abs) || outside.includes(abs)) return
   outside = [...outside, abs]
-  if (outside.length === 1) $.ui.toast(`Claude wrote outside ${shortPath(t.top || t.root)}: ${shortPath(abs)}. w lists these writes.`)
+  if (outside.length === 1) $.ui.toast(`Claude 在 ${shortPath(t.top || t.root)} 之外写入了 ${shortPath(abs)}。按 w 可查看这些写入。`)
   if (previewed?.path === OUTSIDE) previewed = null
   void $.ui.invalidate('ui.render')
 }
@@ -3251,8 +3251,8 @@ export const register: Register = (on, options) => {
     guardsLoaded = null
     void loadGuards($)
     cached ??= { ...emptyTree(''), ...(await $.state.get(TREE)).value }
-    await $.command.register({ name: 'filetree', description: 'Show or hide the file tree; args: [path | open | keys] (no path = cwd, open = never hide, keys = bind alt+l / alt+h to move the keys to and from the tree)', immediate: true })
-    if (palette.unknown.length) void $.ui.toast(`filetree palette: ignored ${palette.unknown.join(' ')}; use key=#hex with fg, bg, accent, muted, urgent, selection, hover, jump, added, modified, renamed, add or del`)
+    await $.command.register({ name: 'filetree', description: '显示或隐藏文件树；参数：[path | open | keys]（无参数 = 当前目录，open = 始终显示，keys = 绑定 alt+l / alt+h 以在文件树与输入框之间转移按键）', immediate: true })
+    if (palette.unknown.length) void $.ui.toast(`filetree 配色：已忽略 ${palette.unknown.join(' ')}；请使用 key=#hex 格式，可用键名：fg、bg、accent、muted、urgent、selection、hover、jump、added、modified、renamed、add、del`)
     const windows = (await $.env.get('OS')) === 'Windows_NT'
     useDrives(windows)
     inTmux = !windows && Boolean(await $.env.get('TMUX'))
@@ -3281,9 +3281,9 @@ export const register: Register = (on, options) => {
       const t = await get($)
       if (t.flashOn) await patch($, () => ({ flash: [], flashDim: [], flashOn: false, flashTones: {} }))
       if (t.preview) await patch($, () => ({ preview: '', previewTop: 0 }))
-      await setActivities($, cur => cur.map(a => (a.state === 'running' ? { ...a, state: 'failed', label: `${a.kind} interrupted` } : a)))
+      await setActivities($, cur => cur.map(a => (a.state === 'running' ? { ...a, state: 'failed', label: `${a.kind} 已中断` } : a)))
       const cwd = await cwdOf($)
-      const shown = !t.root || t.nodes.length === 0 || (follow && t.root !== cwd) ? reset($, cwd, false, ready) : ready.then(() => (noDock ? undefined : $.ui.open({ id: PANE, title: `Files: ${t.root.split('/').pop() || t.root}` })))
+      const shown = !t.root || t.nodes.length === 0 || (follow && t.root !== cwd) ? reset($, cwd, false, ready) : ready.then(() => (noDock ? undefined : $.ui.open({ id: PANE, title: `文件：${t.root.split('/').pop() || t.root}` })))
       await ready
       ageTick?.cancel()
       ageTick = showAge ? $.clock.every(AGE_TICK_MS, () => $.ui.invalidate('ui.render')) : null
@@ -3309,18 +3309,18 @@ export const register: Register = (on, options) => {
       noDock = true
       if (zjump.on) jumpClose($)
       await $.ui.close({ id: PANE }).catch(() => undefined)
-      return { text: 'File tree closed.' }
+      return { text: '文件树已关闭。' }
     }
     const terminal = await $.session.surfaces().then(s => s.includes('terminal'), () => true)
-    if (terminal && !e.presentation.isFullscreen) return { text: 'filetree shows in the sidebar, which needs the fullscreen layout. Run /tui fullscreen, then /filetree.' }
-    if (terminal && e.presentation.columns < 110) return { text: 'filetree shows in the sidebar, which needs a terminal at least 110 columns wide. Widen it, then run /filetree.' }
+    if (terminal && !e.presentation.isFullscreen) return { text: 'filetree 显示在侧边栏中，需要全屏布局。请先运行 /tui fullscreen，再运行 /filetree。' }
+    if (terminal && e.presentation.columns < 110) return { text: 'filetree 显示在侧边栏中，需要至少 110 列宽的终端。请加宽终端后运行 /filetree。' }
     noDock = false
     const arg = given === 'open' ? '' : given
     const cwd = await cwdOf($)
     follow = !arg
     const root = arg ? resolve(cwd, arg, home) : cwd
     await reset($, root, focusOnOpen || given !== '' || mine?.isPlaced === true)
-    return { text: `File tree on ${shortPath(root)}${follow ? ' (moves with the cwd)' : ''}.` }
+    return { text: `文件树已定位于 ${shortPath(root)}${follow ? '（随当前目录移动）' : ''}。` }
   })
 
   on('tool.call', async ($, e, next) => {
@@ -3795,20 +3795,20 @@ export const register: Register = (on, options) => {
       previewLine = first + win.top + 1
       const name = t.preview !== t.root && inside(t.root, t.preview) ? relative(t.root, t.preview) : shortPath(t.preview)
       const listing = t.preview === OUTSIDE
-      const external = { id: 'external', label: glyphSetting === 'text' ? 'open' : unicode ? '↗' : '\u{eb14}', dim: true, hint: 'open in default app' }
+      const external = { id: 'external', label: glyphSetting === 'text' ? 'open' : unicode ? '↗' : '\u{eb14}', dim: true, hint: '用默认应用打开' }
       if (desk && Svg) {
         const step = p?.diff ? (p.diff.some(l => l.kind === '@') ? 'file' : 'hunk') : ''
         const toTree = t.nodes.find(n => n.id === t.preview)?.kind === 'dir'
         const edits = !listing && (editWithSetting || inTmux || inHerdr)
         previewDesk = true
         const acts: { id: string; key: string; icon: IconName; hint: string; run: () => Promise<void> }[] = [
-          { id: 'pv-k', key: 'k', icon: 'arrow-up', hint: step ? `previous ${step}` : 'up a line', run: () => (step ? jumpDiff($, -1) : scrollPreview($, -1)) },
-          { id: 'pv-j', key: 'j', icon: 'arrow-down', hint: step ? `next ${step}` : 'down a line', run: () => (step ? jumpDiff($, 1) : scrollPreview($, 1)) },
-          { id: 'pv-b', key: 'b', icon: 'page-up', hint: 'page up', run: () => scrollPreview($, 2 - previewRows) },
-          { id: 'pv-f', key: 'f', icon: 'page-down', hint: 'page down', run: () => scrollPreview($, previewRows - 2) },
-          ...(listing ? [] : [{ id: 'pv-d', key: 'd', icon: (p?.diff ? (toTree ? 'folder' : 'file') : 'diff') as IconName, hint: p?.diff ? (toTree ? 'back to the tree' : 'back to the file') : 'diff against HEAD', run: () => diffFile($, t.preview) }]),
-          ...(edits ? [{ id: 'pv-e', key: 'e', icon: 'pencil' as const, hint: `edit at line ${previewLine}`, run: () => editPreview($, t.preview) }] : []),
-          ...(listing ? [] : [{ id: 'external', key: '', icon: 'external-link' as const, hint: 'open in default app', run: () => pressHeader($, 'external') }]),
+          { id: 'pv-k', key: 'k', icon: 'arrow-up', hint: step ? `previous ${step}` : '向上一行', run: () => (step ? jumpDiff($, -1) : scrollPreview($, -1)) },
+          { id: 'pv-j', key: 'j', icon: 'arrow-down', hint: step ? `next ${step}` : '向下一行', run: () => (step ? jumpDiff($, 1) : scrollPreview($, 1)) },
+          { id: 'pv-b', key: 'b', icon: 'page-up', hint: '向上翻页', run: () => scrollPreview($, 2 - previewRows) },
+          { id: 'pv-f', key: 'f', icon: 'page-down', hint: '向下翻页', run: () => scrollPreview($, previewRows - 2) },
+          ...(listing ? [] : [{ id: 'pv-d', key: 'd', icon: (p?.diff ? (toTree ? 'folder' : 'file') : 'diff') as IconName, hint: p?.diff ? (toTree ? '返回文件树' : '返回文件') : '与 HEAD 比较', run: () => diffFile($, t.preview) }]),
+          ...(edits ? [{ id: 'pv-e', key: 'e', icon: 'pencil' as const, hint: `编辑第 ${previewLine} 行`, run: () => editPreview($, t.preview) }] : []),
+          ...(listing ? [] : [{ id: 'external', key: '', icon: 'external-link' as const, hint: '用默认应用打开', run: () => pressHeader($, 'external') }]),
         ]
         previewActs = new Map(acts.map(a => [a.id, () => void a.run().then(() => (a.id === 'external' ? undefined : parkPreview($)))]))
         const tools = acts.map(a => ({ id: a.id, label: '', dim: true, hint: a.hint, icon: a.icon }))
@@ -3816,7 +3816,7 @@ export const register: Register = (on, options) => {
           <Box flexDirection="column" minHeight={Math.max(1, e.props.scroll?.bodyRows ?? 1)} backgroundColor={theme.bg || undefined}>
             <Box key="pv-head" flexDirection="row" alignItems="center">
               <Box key="pv-back" flexDirection="row" alignItems="center" flexShrink={0}>
-                <Svg key="pv-back-icon" source={rowSvg(0, null, 'chevron-left', mutedInk, DESK.muted, 0)} alt="back to files" width={STEP_PX * 2} height={ROW_PX} />
+                <Svg key="pv-back-icon" source={rowSvg(0, null, 'chevron-left', mutedInk, DESK.muted, 0)} alt="返回文件列表" width={STEP_PX * 2} height={ROW_PX} />
                 <Button key="back" plain dimColor hover={{ dimColor: false }} hotkey="h" autoFocus label="Files" onPress={() => void closePreview($)} />
               </Box>
               <Text {...mutedText}>{' / '}</Text>
@@ -3898,7 +3898,7 @@ export const register: Register = (on, options) => {
               const label = step ? `${unicode ? plain : nerd} ${step}` : unicode ? plain : nerd
               return <Button key={`pv-${k}`} plain dimColor hotkey={k} label={label} onPress={() => void (step ? jumpDiff($, by > 0 ? 1 : -1) : scrollPreview($, by)).then(() => parkPreview($))} />
             })}
-            {listing ? null : <Button key="pv-d" plain dimColor hotkey="d" label={p?.diff ? (t.nodes.find(n => n.id === t.preview)?.kind === 'dir' ? 'tree' : 'file') : 'diff'} onPress={() => void diffFile($, t.preview)} />}
+            {listing ? null : <Button key="pv-d" plain dimColor hotkey="d" label={p?.diff ? (t.nodes.find(n => n.id === t.preview)?.kind === 'dir' ? '树状图' : '文件') : '差异'} onPress={() => void diffFile($, t.preview)} />}
             {!listing && (editWithSetting || inTmux || inHerdr) ? <Button key="edit" plain dimColor autoFocus hotkey="e" label={`${unicode ? 'edit' : '\u{ea73} edit'} :${previewLine}`} onPress={() => void editPreview($, t.preview)} /> : null}
           </Box>
           {p?.note ? <Text {...mutedText}>{p.note}</Text> : null}
@@ -3981,19 +3981,19 @@ export const register: Register = (on, options) => {
     }
     const rootCounts = t.top ? countSegs(t.counts[t.root]) : []
     const plainButtons = [
-      ...(outside.length ? [{ id: 'outside', label: `${unicode ? '⚠' : '\u{ea6c}'} ${outside.length}`, dim: false, hint: `${outside.length} file${outside.length === 1 ? '' : 's'} written outside the repo`, icon: 'warning' as const }] : []),
-      ...(picked.ids.length ? [{ id: 'unselect', label: unicode ? '⊘' : '\u{eabd}', dim: false, hint: 'clear selection', icon: 'ban' as const }] : []),
-      { id: 'up', label: unicode ? '↑' : '\u{f19f3}', dim: true, hint: 'parent folder', icon: 'folder-up-line' as const },
-      { id: 'cwd', label: unicode ? '⌂' : '\u{eb46}', dim: !follow, hint: 'go to cwd', icon: 'root-folder' as const },
-      { id: 'hidden', label: unicode ? (t.showHidden ? '⊙' : '○') : t.showHidden ? '\u{ea70}' : '\u{eae7}', dim: !t.showHidden, hint: t.showHidden ? 'hide hidden files' : 'show hidden files', icon: t.showHidden ? ('eye' as const) : ('eye-off' as const) },
-      { id: 'size', label: unicode ? '◫' : '\u{ea90}', dim: t.column === 'date', hint: t.column === 'date' ? 'show sizes' : t.column === 'size' ? 'show lines of code' : t.column === 'loc' ? 'show file counts' : 'show dates', icon: 'columns' as const },
-      { id: 'collapse', label: unicode ? '⊟' : '\u{eac5}', dim: true, hint: t.expanded.length ? 'collapse all' : 'expand all', icon: t.expanded.length ? 'square-minus' as const : 'square-plus' as const },
-      { id: 'autocollapse', label: unicode ? '◷' : '\u{ea82}', dim: !autoCollapseOn(t), hint: 'auto-collapse opened folders', icon: 'folder-minus' as const },
-      ...(nativeScroll ? [] : [{ id: 'split', label: unicode ? '⊡' : '\u{eb57}', dim: !t.split, hint: t.split ? 'hide preview' : 'show preview', icon: 'panel' as const }]),
-      ...(desk ? [{ id: 'shimmer', label: '', dim: !shimmerOn, hint: shimmerOn ? 'disable agent activity shimmer effect' : 'enable agent activity shimmer effect', icon: 'clawd' as const }] : []),
-      { id: 'refresh', label: unicode ? '↻' : '\u{eb37}', dim: !reloading, hint: 'reload tree and git', icon: 'refresh' as const },
+      ...(outside.length ? [{ id: 'outside', label: `${unicode ? '⚠' : '\u{ea6c}'} ${outside.length}`, dim: false, hint: `${outside.length} 个文件写入了仓库外部`, icon: 'warning' as const }] : []),
+      ...(picked.ids.length ? [{ id: 'unselect', label: unicode ? '⊘' : '\u{eabd}', dim: false, hint: '清除选择', icon: 'ban' as const }] : []),
+      { id: 'up', label: unicode ? '↑' : '\u{f19f3}', dim: true, hint: '父文件夹', icon: 'folder-up-line' as const },
+      { id: 'cwd', label: unicode ? '⌂' : '\u{eb46}', dim: !follow, hint: '前往当前目录', icon: 'root-folder' as const },
+      { id: 'hidden', label: unicode ? (t.showHidden ? '⊙' : '○') : t.showHidden ? '\u{ea70}' : '\u{eae7}', dim: !t.showHidden, hint: t.showHidden ? '隐藏隐藏文件' : '显示隐藏文件', icon: t.showHidden ? ('eye' as const) : ('eye-off' as const) },
+      { id: 'size', label: unicode ? '◫' : '\u{ea90}', dim: t.column === 'date', hint: t.column === 'date' ? '显示大小' : t.column === 'size' ? '显示代码行数' : t.column === 'loc' ? '显示文件数' : '显示日期', icon: 'columns' as const },
+      { id: 'collapse', label: unicode ? '⊟' : '\u{eac5}', dim: true, hint: t.expanded.length ? '全部折叠' : '全部展开', icon: t.expanded.length ? 'square-minus' as const : 'square-plus' as const },
+      { id: 'autocollapse', label: unicode ? '◷' : '\u{ea82}', dim: !autoCollapseOn(t), hint: '自动折叠已打开的文件夹', icon: 'folder-minus' as const },
+      ...(nativeScroll ? [] : [{ id: 'split', label: unicode ? '⊡' : '\u{eb57}', dim: !t.split, hint: t.split ? '隐藏预览' : '显示预览', icon: 'panel' as const }]),
+      ...(desk ? [{ id: 'shimmer', label: '', dim: !shimmerOn, hint: shimmerOn ? '关闭智能体活动流光效果' : '开启智能体活动流光效果', icon: 'clawd' as const }] : []),
+      { id: 'refresh', label: unicode ? '↻' : '\u{eb37}', dim: !reloading, hint: '重新加载文件树和 Git', icon: 'refresh' as const },
     ]
-    const wordButtons = plainButtons.map(b => ({ ...b, label: b.id === 'outside' ? `outside ${outside.length}` : (WORDS[b.id] ?? b.label) }))
+    const wordButtons = plainButtons.map(b => ({ ...b, label: b.id === 'outside' ? `仓库外 ${outside.length}` : (WORDS[b.id] ?? b.label) }))
     const wordWidth = wordButtons.reduce((w, b) => w + b.label.length + 1, 1)
     const buttons = glyphSetting === 'text' && e.props.bodyColumns - wordWidth >= 8 ? wordButtons : plainButtons
     const rootGlyph = unicode ? '■' : t.top === t.root ? '\u{f02a2}' : '\u{e5fe}'
@@ -4157,13 +4157,13 @@ export const register: Register = (on, options) => {
     const jumpDate = zjump.on ? zjump.rows.reduce((m, dir) => Math.max(m, [...jumpWhen(dir)].length), 0) : 0
     const gitSpan = zjump.on ? 0 : GIT_COLS.reduce((w, c) => w + (widths[c] ? (widths[c] ?? 0) + 1 : 0), 0)
     const metricSpan = zjump.on ? (jumpDate ? jumpDate + 1 : 0) : widths.metric ? (widths.metric ?? 0) + 1 : 0
-    const gitLabel = e.props.bodyColumns - Math.max(metricSpan, 11) - 20 >= 12 ? 'Git (LOC)' : 'Git'
-    const metricLabel = zjump.on ? 'Last accessed' : t.column === 'size' ? 'Size' : t.column === 'loc' ? 'LOC' : t.column === 'files' ? '# Files' : 'Modified'
+    const gitLabel = e.props.bodyColumns - Math.max(metricSpan, 11) - 20 >= 12 ? 'Git（行数）' : 'Git'
+    const metricLabel = zjump.on ? '最近访问' : t.column === 'size' ? 'Size' : t.column === 'loc' ? 'LOC' : t.column === 'files' ? '# 文件数' : '修改时间'
     const headCell = (col: 'name' | 'git' | 'metric', label: string) => (!zjump.on ? sortCell(col, label) : desk ? <Text key={`head-${col}`} color={mutedInk}>{label}</Text> : <Text key={`head-${col}`} dimColor>{label}</Text>)
     const headerRow = () => (
       <Box key="sort-header" flexDirection="row" alignItems="center" {...(desk ? {} : { width: e.props.bodyColumns, height: 1 })}>
-        {desk && Svg ? <Svg key="sort-indent" source={rowSvg(0, null, null, mutedInk)} alt="column headers" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} /> : <Text>{'    '}</Text>}
-        {headCell('name', 'Name')}
+        {desk && Svg ? <Svg key="sort-indent" source={rowSvg(0, null, null, mutedInk)} alt="列标题" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} /> : <Text>{'    '}</Text>}
+        {headCell('name', '名称')}
         <Box flexGrow={1} />
         {gitSpan ? <Box key="sort-git-cell" width={Math.max(gitSpan, gitLabel.length + 3)} flexShrink={0} flexDirection="row" justifyContent="flex-end">{headCell('git', gitLabel)}</Box> : null}
         {metricSpan ? <Box key="sort-metric-cell" width={Math.max(metricSpan, metricLabel.length + 3)} flexShrink={0} flexDirection="row" justifyContent="flex-end">{headCell('metric', metricLabel)}</Box> : null}
@@ -4171,7 +4171,7 @@ export const register: Register = (on, options) => {
       </Box>
     )
     const headerRule = () => desk && Svg
-      ? <Box key="sort-rule" overflow="hidden"><Svg key="sort-rule-svg" source={lineSvg(DESK.edge, 1)} alt="column header rule" width={4000} height={1} /></Box>
+      ? <Box key="sort-rule" overflow="hidden"><Svg key="sort-rule-svg" source={lineSvg(DESK.edge, 1)} alt="列标题分隔线" width={4000} height={1} /></Box>
       : null
     const tailCols = (cells: Partial<Record<Col, Seg>>, key: string, cols: readonly Col[] = COLS) => cols.filter(c => widths[c]).map(c => {
       const seg = cells[c]
@@ -4196,14 +4196,14 @@ export const register: Register = (on, options) => {
         : <Text {...tint(p.nameColor)} strikethrough={strike || undefined} wrap="truncate-end">{p.parts.some(x => x.hit) ? p.parts.map((x, i) => (x.hit ? <Text key={`hl-${i}`} color={accentText} weight="semibold">{x.t}</Text> : x.t)) : n.name}</Text>
       return (
         <Box key={`row:${n.id}`} position="relative" flexDirection="row" alignItems="center" backgroundColor={n.id === t.cursor && !p.isPicked ? deskCursor : p.isPicked ? deskCur : undefined} hover={{ backgroundColor: n.id === t.cursor && !p.isPicked ? deskCursor : p.isPicked ? deskCur : deskHover }}>
-          {n.id === t.cursor && (e.props.isFocused || !p.isPicked) && Svg ? <Box key={`bar:${n.id}`} position="absolute" top={0} left={0} bottom={0}><Svg key={`bar-svg:${n.id}`} source={barSvg(accentInk)} alt="cursor" width={2} height={ROW_PX} /></Box> : null}
+          {n.id === t.cursor && (e.props.isFocused || !p.isPicked) && Svg ? <Box key={`bar:${n.id}`} position="absolute" top={0} left={0} bottom={0}><Svg key={`bar-svg:${n.id}`} source={barSvg(accentInk)} alt="光标" width={2} height={ROW_PX} /></Box> : null}
           {Svg ? <Svg key={`icon:${n.id}`} source={rowSvg(r.depth, n.kind === 'dir' ? (r.open ? 'open' : 'closed') : null, icon, iconInk)} alt={`${p.isGuard ? 'guarded ' : ''}${n.kind === 'dir' ? 'folder' : n.kind === 'link' ? 'link' : 'file'} ${n.name}`} width={r.depth * STEP_PX + STEP_PX * 2 + GAP_PX} height={ROW_PX} /> : null}
           <Box flexGrow={p.isLink ? 0 : 1} flexShrink={1} overflow="hidden">{name}</Box>
           {p.isLink ? <Text key={`link:${n.id}`} {...tint(p.linkColor)}>{` → `}</Text> : null}
           {p.isLink ? <Box flexGrow={1} /> : null}
           {tailCols(p.cells, `tail:${n.id}`)}
           <Box width={2} flexShrink={0} flexDirection="row" justifyContent="flex-end" alignItems="center">
-            {p.status ? <Text {...tint(p.gitColor)} bold>{p.status}</Text> : p.isIgnored && Svg ? <Svg key={`ignored:${n.id}`} source={iconSvg('ban', mutedInk, 12)} alt="ignored by git" width={12} height={12} /> : null}
+            {p.status ? <Text {...tint(p.gitColor)} bold>{p.status}</Text> : p.isIgnored && Svg ? <Svg key={`ignored:${n.id}`} source={iconSvg('ban', mutedInk, 12)} alt="已被 Git 忽略" width={12} height={12} /> : null}
           </Box>
           <Box position="absolute" top={0} left={0} right={0} bottom={0}>
             <Client key={`hit:${n.id}`} module="./hit.tsx" props={{ id: n.id } satisfies HitProps} width="100%" height="100%" />
@@ -4215,11 +4215,11 @@ export const register: Register = (on, options) => {
     const note = (text: string): RowSpec => ({ id: '', left: [{ t: text, c: theme.muted }], right: [] })
     const jumpSpecs: RowSpec[] = zjump.rows.length
       ? zjump.rows.map(dir => ({ id: dir, left: clean([{ t: unicode ? '■ ' : '\u{e5ff} ', c: palette.jump ?? JUMP_COLOR }, { t: dir.split('/').filter(Boolean).pop() ?? dir, c: theme.fg || undefined }, { t: `  ${shortPath(dirname(dir))}`, c: theme.muted }]), right: jumpWhen(dir) ? [{ t: ` ${jumpWhen(dir)} `, c: theme.muted }] : [] }))
-      : [note('no matching folder')]
+      : [note('没有匹配的文件夹')]
     const grepDigits = Math.max(2, ...grep.rows.map(h => String(h.line).length))
     const grepName = (path: string) => (inside(t.root, path) ? relative(t.root, path) : shortPath(path))
     const grepNode = (path: string): FileNode => ({ id: path, parent: dirname(path), name: path.slice(path.lastIndexOf('/') + 1), kind: 'file', hidden: false, mtime: 0, size: 0, loaded: true })
-    const grepNote = !grepping ? '' : grep.rows.length === 0 ? (grep.busy ? 'searching…' : grep.note || 'no matches') : grep.capped ? `first ${GREP_LIMIT} matches; keep typing to narrow` : grep.note
+    const grepNote = !grepping ? '' : grep.rows.length === 0 ? (grep.busy ? '正在搜索…' : grep.note || '无匹配') : grep.capped ? `仅显示前 ${GREP_LIMIT} 个匹配；继续输入以缩小范围` : grep.note
     const grepRoom = Math.max(1, room - (grepNote ? 1 : 0))
     const grepFrom = nativeScroll ? 0 : Math.max(0, Math.min(grep.sel - Math.floor(grepRoom / 2), grep.rows.length - grepRoom))
     const grepSpecs: RowSpec[] = !grepping ? [] : [
@@ -4229,7 +4229,7 @@ export const register: Register = (on, options) => {
       ...(grepNote ? [note(grepNote)] : []),
     ]
     const specs: RowSpec[] = zjump.on ? jumpSpecs : grepping ? grepSpecs : desk ? [] : [
-      ...(rows.length === 0 ? [note('empty')] : []),
+      ...(rows.length === 0 ? [note('空')] : []),
       ...pinned.map(rowSpec),
       ...(pinned.length > 0 ? [note('  ⋮')] : []),
       ...shown.map(rowSpec),
@@ -4237,7 +4237,7 @@ export const register: Register = (on, options) => {
     if (nativeScroll) {
       let size = 0
       const cut = specs.findIndex(r => (size += JSON.stringify(r).length + 1) > ROWS_BUDGET)
-      if (cut >= 0) specs.splice(cut, specs.length - cut, note(`  … ${specs.length - cut} more rows, collapse folders or use search`))
+      if (cut >= 0) specs.splice(cut, specs.length - cut, note(`  … 还有 ${specs.length - cut} 行，可折叠文件夹或使用搜索`))
     }
     const deskParts: ReturnType<typeof rowParts>[] = []
     let deskStart = deskFrom
@@ -4285,7 +4285,7 @@ export const register: Register = (on, options) => {
       }
     }
     if (desk && grepping) deskGrepShown = deskGrep.length
-    const deskGrepNote = deskGrep.length < grep.rows.length ? `first ${deskGrep.length} of ${grep.rows.length} rows; keep typing to narrow` : grepNote
+    const deskGrepNote = deskGrep.length < grep.rows.length ? `仅显示 ${grep.rows.length} 行中的前 ${deskGrep.length} 行；继续输入以缩小范围` : grepNote
     const deskTree = () => {
       if (grepping) return (
         <Box key="grep-list" flexDirection="column">
@@ -4341,9 +4341,9 @@ export const register: Register = (on, options) => {
       )
       const out: RenderElement[] = rows.length === 0 ? [<Text key="empty" {...mutedText}>empty</Text>] : []
       for (const p of deskParts) out.push(deskRow(p, deskShimmer))
-      if (deskStart > 0) out.unshift(<Text key="above" {...mutedText}>{`  … ${deskStart} rows above, collapse folders or use search`}</Text>)
+      if (deskStart > 0) out.unshift(<Text key="above" {...mutedText}>{`  … 上方还有 ${deskStart} 行，可折叠文件夹或使用搜索`}</Text>)
       const below = shown.length - deskStart - deskParts.length
-      if (below > 0) out.push(<Text key="more" {...mutedText}>{`  … ${below} more rows, collapse folders or use search`}</Text>)
+      if (below > 0) out.push(<Text key="more" {...mutedText}>{`  … 下方还有 ${below} 行，可折叠文件夹或使用搜索`}</Text>)
       return <Box key="tree" flexDirection="column">{out}</Box>
     }
     const barSize = Math.max(1, Math.round((specs.length * shown.length) / Math.max(1, rows.length)))
@@ -4362,7 +4362,7 @@ export const register: Register = (on, options) => {
         <Box flexDirection="row" height={desk ? undefined : 1} overflow="hidden" alignItems={desk ? 'center' : undefined}>
           <Box flexDirection="row" flexShrink={0} alignItems={desk ? 'center' : undefined}>
             {desk && Svg
-              ? <Svg key="branch-icon" source={rowSvg(0, null, 'git-branch', isFlash ? (tones[tone]?.solid ?? accentInk) : e.props.isFocused ? accentInk : mutedInk)} alt="git branch" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
+              ? <Svg key="branch-icon" source={rowSvg(0, null, 'git-branch', isFlash ? (tones[tone]?.solid ?? accentInk) : e.props.isFocused ? accentInk : mutedInk)} alt="Git 分支" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
               : <Text color={isFlash ? (tones[tone]?.solid ?? theme.accent) : theme.accent}>{(unicode ? BRANCH_ICON.plain : BRANCH_ICON.nerd) + ' '}</Text>}
             <Text {...(desk && !e.props.isFocused && !isFlash ? mutedText : { bold: true, color: isFlash ? (tones[tone]?.solid ?? (theme.fg || undefined)) : theme.fg || undefined })}>
               {label}
@@ -4375,8 +4375,8 @@ export const register: Register = (on, options) => {
           <Box flexDirection="row" flexShrink={0} alignItems={desk ? 'center' : undefined}>
             {rootCounts.length === 0 && totals[0] === 0 && totals[1] === 0 ? (
               desk && Svg
-                ? <Box key="clean" flexDirection="row" alignItems="center"><Svg key="clean-icon" source={iconSvg('git-commit', mutedInk, 14)} alt="git" width={14} height={14} /><Text {...mutedText}> no changes</Text></Box>
-                : <Text {...mutedText}>{unicode ? '± no changes' : '\u{e702} no changes'}</Text>
+                ? <Box key="clean" flexDirection="row" alignItems="center"><Svg key="clean-icon" source={iconSvg('git-commit', mutedInk, 14)} alt="Git" width={14} height={14} /><Text {...mutedText}> no changes</Text></Box>
+                : <Text {...mutedText}>{unicode ? '± 无更改' : '\u{e702} 无更改'}</Text>
             ) : null}
             {desk ? tailCols(branchCells, 'branch', GIT_COLS) : null}
             {!desk && totals[0] > 0 && <Text color={addColor}>{` +${totals[0]}`}</Text>}
@@ -4388,7 +4388,7 @@ export const register: Register = (on, options) => {
           {b.upstream && showRemote ? (
             <Box flexDirection="row" flexShrink={1} overflow="hidden" marginLeft={2} alignItems={desk ? 'center' : undefined}>
               {desk && Svg
-                ? <Svg key="remote-icon" source={iconSvg('cloud', mutedInk, 14)} alt="remote branch" width={14} height={14} />
+                ? <Svg key="remote-icon" source={iconSvg('cloud', mutedInk, 14)} alt="远程分支" width={14} height={14} />
                 : <Text {...mutedText}>{unicode ? '☁' : '\u{f0c2}'}</Text>}
               <Text {...mutedText} wrap="truncate-end">{` ${b.upstream}`}</Text>
             </Box>
@@ -4451,7 +4451,7 @@ export const register: Register = (on, options) => {
       const page = isDoc ? (docPages.get(target) ?? 1) : 0
       const px = Math.round(Math.max(1, e.props.bodyColumns - 1) * (cellPx?.cw ?? 10))
       const raw = target && (!isDoc || docPixels) ? await picture($, target, page, px) : null
-      const pic = isDoc && raw && raw.state !== 'ready' && !(raw.state === 'failed' && raw.note === 'encrypted') ? null : raw
+      const pic = isDoc && raw && raw.state !== 'ready' && !(raw.state === 'failed' && raw.note === '已加密') ? null : raw
       if (isDoc && raw?.state === 'ready' && raw.pages) {
         docCounts.set(target, raw.pages)
         if (page < raw.pages) void picture($, target, page + 1, px)
@@ -4556,7 +4556,7 @@ export const register: Register = (on, options) => {
           )
         } else content = tiles.length
           ? <Client key="treemap" module="./rows.tsx" props={{ rows: draw(tiles, cols, peekRows, look, sized), active: '', ...rowColors, pointer } satisfies RowsProps} />
-          : <Text {...mutedText}>{scan.done ? 'empty' : 'sizing…'}</Text>
+          : <Text {...mutedText}>{scan.done ? '空' : 'sizing…'}</Text>
       } else if (!target) content = <Text {...mutedText}>no file selected</Text>
       else if (pic) {
         if (pic.state === 'ready' && Image) {
@@ -4565,8 +4565,8 @@ export const register: Register = (on, options) => {
           const raw = await pngOf($, pic)
           const big = Math.floor(raw.length * 3 / 4) > IMAGE_BYTES
           const png = big ? '' : raw
-          content = big ? <Text {...mutedText}>{`${name}: too large to preview here`}</Text> : png ? <Image key="peek-image" source={{ png }} columns={fit.columns} rows={fit.rows} alt={name} /> : <Text {...mutedText}>{name}</Text>
-        } else content = <Text {...mutedText}>{pic.state === 'pending' ? 'decoding…' : pic.state === 'failed' ? pic.note : 'images show in the terminal'}</Text>
+          content = big ? <Text {...mutedText}>{`${name}：过大，无法在此预览`}</Text> : png ? <Image key="peek-image" source={{ png }} columns={fit.columns} rows={fit.rows} alt={name} /> : <Text {...mutedText}>{name}</Text>
+        } else content = <Text {...mutedText}>{pic.state === 'pending' ? '正在解码…' : pic.state === 'failed' ? pic.note : '图片会在终端中显示'}</Text>
       } else {
         if (isDoc && (peeked?.path !== target || (docKind === 'pdf' && peeked.page !== page))) {
           const want = `${target}\0${page}`
@@ -4584,7 +4584,7 @@ export const register: Register = (on, options) => {
               if (docReading === want) docReading = ''
             }))
           }
-          if (peeked?.path !== target) peeked = { path: target, text: '', note: 'reading…', page }
+          if (peeked?.path !== target) peeked = { path: target, text: '', note: '正在读取…', page }
         } else if (peeked?.path !== target) {
           const at = peekAt?.path === target ? peekAt : null
           peeked = await readPreview($, target, 1, at?.line)
@@ -4605,7 +4605,7 @@ export const register: Register = (on, options) => {
         if (!peeked.text) overPeek = false
         content = peeked.text
           ? <Client key="peek" module="./rows.tsx" props={{ rows: [], active: '', ...rowColors, pointer, ...(bar ? { bar } : {}), preview: { text: win.text, path: target, startLine: first + win.top + 1, markdown, rows: peekRows } } satisfies RowsProps} />
-          : <Text {...mutedText}>{raw?.state === 'pending' ? 'converting…' : peeked.note || 'empty file'}</Text>
+          : <Text {...mutedText}>{raw?.state === 'pending' ? '正在转换…' : peeked.note || '空文件'}</Text>
       }
       const title = (
         <Box key="peek-title" flexDirection="row" height={1} overflow="hidden">
@@ -4617,7 +4617,7 @@ export const register: Register = (on, options) => {
             )}
           </Box>
           {status ? <Box flexShrink={0}><Text {...mutedText}>{` ${status}`}</Text></Box> : null}
-          {peeked?.note && peeked.text && !pic ? <Text {...mutedText}>{' partial'}</Text> : null}
+          {peeked?.note && peeked.text && !pic ? <Text {...mutedText}>{' 部分内容'}</Text> : null}
         </Box>
       )
       const box = <Box key="peek-body" flexDirection="column" height={peekRows} overflow="hidden">{content}</Box>
@@ -4633,27 +4633,27 @@ export const register: Register = (on, options) => {
     if (footer && links.has(footer) && !linkStates.has(footer)) void classifyLink($, footer)
     const footerName = footer === t.root ? t.root.split('/').filter(Boolean).pop() || t.root : footer ? (inside(t.root, footer) ? footer.slice(t.root.endsWith('/') ? t.root.length : t.root.length + 1) : shortPath(footer)) : ''
     const allKeys: { key: string; label: string; act: () => void }[] = [
-      { key: 'jkhl', label: 'move', act: () => undefined },
-      { key: 'o', label: 'open', act: () => void navigate($, 'return') },
-      { key: 'd', label: 'diff', act: () => void navigate($, 'd') },
-      { key: 's', label: 'search', act: () => void navigate($, 's', false, e.surface) },
-      { key: 'i', label: 'in folder', act: () => void navigate($, 'i', false, e.surface) },
-      { key: 'a', label: 'auto-collapse', act: () => void navigate($, 'a', false, e.surface).then(park) },
-      { key: 'z', label: 'jump', act: () => void navigate($, 'z', false, e.surface) },
-      { key: 'n', label: 'sort name', act: () => void navigate($, 'n', false, e.surface).then(park) },
-      { key: 'g', label: 'sort git', act: () => void navigate($, 'g', false, e.surface).then(park) },
-      { key: 'm', label: 'sort value', act: () => void navigate($, 'm', false, e.surface).then(park) },
-      ...(e.surface === 'desktop' ? [] : [{ key: 'p', label: 'preview', act: () => void navigate($, 'p', false, e.surface).then(park) }]),
-      { key: 'y', label: 'copy path', act: () => void navigate($, 'y', false, e.surface).then(park) },
-      { key: 'u', label: 'copy name', act: () => void navigate($, 'u', false, e.surface).then(park) },
-      { key: 'v', label: 'mark', act: () => void navigate($, 'v', false, e.surface).then(park) },
-      { key: 't', label: 'terminal', act: () => void navigate($, 't', false, e.surface) },
-      { key: 'x', label: 'guard', act: () => void navigate($, 'x', false, e.surface).then(park) },
-      ...(outside.length ? [{ key: 'w', label: 'outside writes', act: () => void navigate($, 'w', false, e.surface) }] : []),
-      { key: 'c', label: 'match case', act: () => void navigate($, 'c', false, e.surface).then(park) },
-      { key: 'r', label: 'regex', act: () => void navigate($, 'r', false, e.surface).then(park) },
-      { key: 'q', label: 'contents', act: () => void navigate($, 'q', false, e.surface).then(park) },
-      ...(paging ? [{ key: '[ ]', label: 'page', act: () => void (turnPage($, 1), park()) }] : []),
+      { key: 'jkhl', label: '移动', act: () => undefined },
+      { key: 'o', label: '打开', act: () => void navigate($, 'return') },
+      { key: 'd', label: '差异', act: () => void navigate($, 'd') },
+      { key: 's', label: '搜索', act: () => void navigate($, 's', false, e.surface) },
+      { key: 'i', label: '文件夹内', act: () => void navigate($, 'i', false, e.surface) },
+      { key: 'a', label: '自动折叠', act: () => void navigate($, 'a', false, e.surface).then(park) },
+      { key: 'z', label: '跳转', act: () => void navigate($, 'z', false, e.surface) },
+      { key: 'n', label: '按名称排序', act: () => void navigate($, 'n', false, e.surface).then(park) },
+      { key: 'g', label: '按 Git 排序', act: () => void navigate($, 'g', false, e.surface).then(park) },
+      { key: 'm', label: '按大小排序', act: () => void navigate($, 'm', false, e.surface).then(park) },
+      ...(e.surface === 'desktop' ? [] : [{ key: 'p', label: '预览', act: () => void navigate($, 'p', false, e.surface).then(park) }]),
+      { key: 'y', label: '复制路径', act: () => void navigate($, 'y', false, e.surface).then(park) },
+      { key: 'u', label: '复制文件名', act: () => void navigate($, 'u', false, e.surface).then(park) },
+      { key: 'v', label: '标记', act: () => void navigate($, 'v', false, e.surface).then(park) },
+      { key: 't', label: '终端', act: () => void navigate($, 't', false, e.surface) },
+      { key: 'x', label: '保护', act: () => void navigate($, 'x', false, e.surface).then(park) },
+      ...(outside.length ? [{ key: 'w', label: '仓库外写入', act: () => void navigate($, 'w', false, e.surface) }] : []),
+      { key: 'c', label: '区分大小写', act: () => void navigate($, 'c', false, e.surface).then(park) },
+      { key: 'r', label: '正则', act: () => void navigate($, 'r', false, e.surface).then(park) },
+      { key: 'q', label: '内容', act: () => void navigate($, 'q', false, e.surface).then(park) },
+      ...(paging ? [{ key: '[ ]', label: '翻页', act: () => void (turnPage($, 1), park()) }] : []),
     ]
     const overlay = shortcutsShown && !zjump.on
     const keyRows = overlay && !desk ? shortcutRows(theme.accent, theme.muted) : []
@@ -4666,10 +4666,10 @@ export const register: Register = (on, options) => {
       return (
         <Box key="keys-panel" flexDirection="column" marginTop={1} marginX={1} paddingX={1} paddingY={1} backgroundColor={DESK.field}>
           <Box key="keys-head" flexDirection="row" alignItems="center">
-            {Svg ? <Svg key="keys-panel-icon" source={iconSvg('keyboard', accentInk, 16)} alt="keyboard shortcuts" width={16} height={16} /> : null}
-            <Box marginLeft={1} flexShrink={1}><Text bold>Keyboard shortcuts</Text></Box>
+            {Svg ? <Svg key="keys-panel-icon" source={iconSvg('keyboard', accentInk, 16)} alt="快捷键" width={16} height={16} /> : null}
+            <Box marginLeft={1} flexShrink={1}><Text bold>快捷键</Text></Box>
             <Box flexGrow={1} />
-            <Button key="keys-close" plain dimColor hover={{ dimColor: false }} label="Close" onPress={() => { toggleShortcuts($, false); park() }} />
+            <Button key="keys-close" plain dimColor hover={{ dimColor: false }} label="关闭" onPress={() => { toggleShortcuts($, false); park() }} />
           </Box>
           {groups.map(g => (
             <Box key={`keys-${g.title}`} flexDirection="column" marginTop={1}>
@@ -4696,7 +4696,7 @@ export const register: Register = (on, options) => {
         {desk && Svg ? (
           <Box key="head" flexDirection="row" alignItems="center">
             <Box flexDirection="row" alignItems="center" flexShrink={1} overflow="hidden" position="relative">
-              <Svg key="root-icon" source={rowSvg(0, null, t.top === t.root ? 'folder-git' : 'folder-open', e.props.isFocused ? accentInk : mutedInk)} alt="root folder" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
+              <Svg key="root-icon" source={rowSvg(0, null, t.top === t.root ? 'folder-git' : 'folder-open', e.props.isFocused ? accentInk : mutedInk)} alt="根文件夹" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
               {e.props.isFocused ? <Text bold color={accentText}>{header}</Text> : <Text {...mutedText}>{header}</Text>}
               <Box position="absolute" top={0} left={0} right={0} bottom={0}>
                 <Client key="hit:root" module="./hit.tsx" props={{ id: ROOT_PRESS, keys: false } satisfies HitProps} width="100%" height="100%" />
@@ -4724,18 +4724,18 @@ export const register: Register = (on, options) => {
         )}
         {splitAt === 'top' ? split : null}
         {branchRow()}
-        {!t.top && showHints && (!hintOn ? (desk && Svg ? <Svg key="git-hint" source={rowSvg(0, null, null, mutedInk)} alt="git status" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} /> : <Text key="git-hint">{' '}</Text>) : desk && Svg ? (
+        {!t.top && showHints && (!hintOn ? (desk && Svg ? <Svg key="git-hint" source={rowSvg(0, null, null, mutedInk)} alt="Git 状态" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} /> : <Text key="git-hint">{' '}</Text>) : desk && Svg ? (
           <Box key="git-hint" flexDirection="row" alignItems="center">
-            <Svg key="git-hint-icon" source={rowSvg(0, null, 'git-branch', mutedInk)} alt="no git repo" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
-            <Text {...mutedText}>not a Git repo</Text>
+            <Svg key="git-hint-icon" source={rowSvg(0, null, 'git-branch', mutedInk)} alt="不是 Git 仓库" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
+            <Text {...mutedText}>不是 Git 仓库</Text>
           </Box>
         ) : <Text key="git-hint" {...mutedText}>{unicode ? '± ' : '\u{ea68} '}not a Git repo</Text>)}
         {searchGap ? <Text key="gap-above"> </Text> : null}
         {desk && Svg ? (
           <Box key="search-bar" flexDirection="row" alignItems="center" backgroundColor={DESK.field} paddingX={1}>
-            <Svg key="search-icon" source={iconSvg('search', mutedInk, 14)} alt="search" width={14} height={14} />
+            <Svg key="search-icon" source={iconSvg('search', mutedInk, 14)} alt="搜索" width={14} height={14} />
             {zjump.on ? (
-              <Box key="jump-chip" flexShrink={0} flexDirection="row" marginLeft={1} paddingX={1} backgroundColor={palette.jump ? `${palette.jump}0f` : DESK.jumpOn}><Text color={palette.jump ?? DESK.jump}>jump</Text></Box>
+              <Box key="jump-chip" flexShrink={0} flexDirection="row" marginLeft={1} paddingX={1} backgroundColor={palette.jump ? `${palette.jump}0f` : DESK.jumpOn}><Text color={palette.jump ?? DESK.jump}>跳转</Text></Box>
             ) : scopeChip()}
             <Box flexGrow={1} flexShrink={1} marginLeft={1} flexDirection="column" width={Math.max(10, e.props.bodyColumns - (t.query ? 18 : 16))}>
               {zjump.on ? <>
@@ -4760,7 +4760,7 @@ export const register: Register = (on, options) => {
         ) : (
           <Box flexDirection="row" width={e.props.bodyColumns} backgroundColor={searchBg}>
             {glyphSetting === 'text' ? null : <Text {...mutedText}>{unicode ? '⌕ ' : '\u{ea6d} '}</Text>}
-            {zjump.on ? <Text key="jump-chip" color={palette.jump ?? JUMP_COLOR} bold>{'jump '}</Text> : scopeChip()}
+            {zjump.on ? <Text key="jump-chip" color={palette.jump ?? JUMP_COLOR} bold>{'跳转 '}</Text> : scopeChip()}
             <Box flexGrow={1}>
               {zjump.on ? <>
                 <Box key="jump-up-box" height={0} overflow="hidden"><Button key="jump-up" plain label="up" onPress={() => void jumpKey($, 'up')} /></Box>
@@ -4805,12 +4805,12 @@ export const register: Register = (on, options) => {
             {shortcutsSetting === 'auto' ? (
               desk && Svg ? (
                 <Box key="keys" flexShrink={0} flexDirection="row" alignItems="center">
-                  <Svg key="keys-icon" source={rowSvg(0, null, 'keyboard', mutedInk)} alt="keyboard shortcuts" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
-                  <Button key="nav-help" plain dimColor hover={{ dimColor: false }} label="Shortcuts" onPress={() => { toggleShortcuts($); park() }} />
+                  <Svg key="keys-icon" source={rowSvg(0, null, 'keyboard', mutedInk)} alt="快捷键" width={STEP_PX * 2 + GAP_PX} height={ROW_PX} />
+                  <Button key="nav-help" plain dimColor hover={{ dimColor: false }} label="快捷键" onPress={() => { toggleShortcuts($); park() }} />
                 </Box>
               ) : (
                 <Box flexShrink={0}>
-                  <Button key="nav-help" plain dimColor label="?: shortcuts" onPress={() => { toggleShortcuts($); park() }}><Text color={theme.accent}>?</Text>: shortcuts</Button>
+                  <Button key="nav-help" plain dimColor label="?：快捷键" onPress={() => { toggleShortcuts($); park() }}><Text color={theme.accent}>?</Text>：快捷键</Button>
                 </Box>
               )
             ) : null}
@@ -4820,7 +4820,7 @@ export const register: Register = (on, options) => {
                 <Text {...tipProps} wrap="truncate-end">{tipText}</Text>
               </Box>
             ) : null}
-            {picked.marked && !tipText ? <Box key="marked" flexShrink={0} marginLeft={2}><Button key="marked-clear" plain label={`${picked.ids.length} marked`} onPress={() => { clearMarks($); park() }}><Text color={desk ? accentInk : theme.accent}>{`${picked.ids.length} marked`}</Text></Button></Box> : null}
+            {picked.marked && !tipText ? <Box key="marked" flexShrink={0} marginLeft={2}><Button key="marked-clear" plain label={`${picked.ids.length} 个标记`} onPress={() => { clearMarks($); park() }}><Text color={desk ? accentInk : theme.accent}>{`${picked.ids.length} 个标记`}</Text></Button></Box> : null}
             {footerName && (desk || !tipText) ? (
               <Box flexShrink={1} marginLeft={2}>
                 <Text {...mutedText} wrap="truncate-start">{footer && links.has(footer) ? footerName + linkNote(footerLink) : footerName}</Text>
@@ -4828,7 +4828,7 @@ export const register: Register = (on, options) => {
             ) : null}
             {footerName && (desk || !tipText) ? (
               desk && Svg
-                ? <Box key="cursor" flexShrink={0} flexDirection="row" alignItems="center" marginLeft={1}><Svg key="cursor-icon" source={iconSvg('cursor', mutedInk, 14)} alt="cursor" width={14} height={14} /></Box>
+                ? <Box key="cursor" flexShrink={0} flexDirection="row" alignItems="center" marginLeft={1}><Svg key="cursor-icon" source={iconSvg('cursor', mutedInk, 14)} alt="光标" width={14} height={14} /></Box>
                 : <Box key="cursor" flexShrink={0}><Text {...mutedText}>{unicode ? ' ↖' : ' \u{f01bf}'}</Text></Box>
             ) : null}
           </Box>

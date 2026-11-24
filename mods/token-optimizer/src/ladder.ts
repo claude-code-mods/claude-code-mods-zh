@@ -24,46 +24,46 @@ const plain = (text: string): Run => ({ text })
 
 /** The tokens the next message would re-read, as the one bold red run. */
 export function loseRun(n: number): Run {
-  return { text: `${tokens(n)} tokens`, lose: true }
+  return { text: `${tokens(n)} 个 token`, lose: true }
 }
 
 function renews(limit: Limit, now: number, opts: FormatOptions): string {
   const when = renewalPhrase(limit.resetsAt, now, opts)
-  return when ? ` Renews ${when}.` : ''
+  return when ? ` ${when}续期。` : ''
 }
 
 function limitSentence(name: string, limit: Limit, now: number, opts: FormatOptions): Sentence {
-  const head = limit.percentUsed >= 100 ? `${name} limit reached.` : `${name} limit ${Math.round(limit.percentUsed)}% used.`
+  const head = limit.percentUsed >= 100 ? `${name}用量已达上限。` : `${name}用量已使用 ${Math.round(limit.percentUsed)}%。`
   return say('gauge', 'bad', [plain(head + renews(limit, now, opts))])
 }
 
 export function sentence(s: Snapshot, opts: FormatOptions = {}): Sentence {
   // What the band is doing right now leads, with no button.
-  if (s.busy === 'clean') return say('compact', 'good', [plain('Cleaning up.')])
-  if (s.busy === 'fresh-capture') return say('bookmark', 'good', [plain('Saving checkpoint.')])
-  if (s.busy === 'fresh-clear') return say('bookmark', 'good', [plain('Clearing.')])
+  if (s.busy === 'clean') return say('compact', 'good', [plain('正在清理。')])
+  if (s.busy === 'fresh-capture') return say('bookmark', 'good', [plain('正在保存检查点。')])
+  if (s.busy === 'fresh-clear') return say('bookmark', 'good', [plain('正在清空。')])
   if (s.busy === 'dashboard') return say('gauge', 'good', [plain(DASHBOARD_OPENING)])
-  if (s.busy === 'warming') return say('hourglass', 'good', [plain('Keeping the cache warm.')])
+  if (s.busy === 'warming') return say('hourglass', 'good', [plain('正在保持缓存温热。')])
   if (s.freshArmed) {
-    return say('bookmark', 'caution', [plain('Start fresh clears this conversation after saving a checkpoint.')], {
+    return say('bookmark', 'caution', [plain('“重新开始”会先保存检查点，再清空当前对话。')], {
       id: 'fresh',
-      label: 'Click again to clear',
+      label: '再次点击以清空',
     })
   }
-  if (s.handoffPending) return say('bookmark', 'good', [plain('Checkpoint ready, it joins your first message.')])
+  if (s.handoffPending) return say('bookmark', 'good', [plain('检查点已就绪，它将加入你的第一条消息。')])
 
   // The ladder, first match wins. Null limits (API users) skip their rules.
   const five = s.fiveHour
   const week = s.week
-  if (five && five.percentUsed >= 100) return limitSentence('5-hour', five, s.now, opts)
-  if (week && week.percentUsed >= 100) return limitSentence('Weekly', week, s.now, opts)
-  if (five && five.percentUsed >= LIMIT_WARN) return limitSentence('5-hour', five, s.now, opts)
-  if (week && week.percentUsed >= LIMIT_WARN) return limitSentence('Weekly', week, s.now, opts)
+  if (five && five.percentUsed >= 100) return limitSentence('5 小时', five, s.now, opts)
+  if (week && week.percentUsed >= 100) return limitSentence('每周', week, s.now, opts)
+  if (five && five.percentUsed >= LIMIT_WARN) return limitSentence('5 小时', five, s.now, opts)
+  if (week && week.percentUsed >= LIMIT_WARN) return limitSentence('每周', week, s.now, opts)
 
   const q = s.quality
   // Recovery thresholds remain shadow-only, including older cached flags.
   if (q && q.score < QUALITY_FLOOR) {
-    return say('slip', 'bad', [plain(`Quality slipped to ${gradeOf(q.score)}.`)], { id: 'clean', label: 'Clean up' })
+    return say('slip', 'bad', [plain(`质量下滑至 ${gradeOf(q.score)} 级。`)], { id: 'clean', label: '清理' })
   }
 
   // Cache rules hold still while a turn runs: every request refreshes the cache.
@@ -72,23 +72,23 @@ export function sentence(s: Snapshot, opts: FormatOptions = {}): Sentence {
     if (c.state === 'cold') {
       const runs: Run[] =
         c.tokensAtStake != null
-          ? [plain('Cache is cold. Next message re-reads '), loseRun(c.tokensAtStake), plain(' at full price.')]
-          : [plain('Cache is cold. Next message re-reads the whole context at full price.')]
-      runs.push(plain(' Cleaning up first makes later messages cheaper.'))
-      return say('cold', 'cold', runs, { id: 'clean-first', label: 'Clean up first' })
+          ? [plain('缓存已冷。下一条消息将重新读取 '), loseRun(c.tokensAtStake), plain('，按全价计费。')]
+          : [plain('缓存已冷。下一条消息将按全价重新读取整个上下文。')]
+      runs.push(plain(' 先清理可让后续消息更便宜。'))
+      return say('cold', 'cold', runs, { id: 'clean-first', label: '先清理' })
     }
     if (c.state === 'warning') {
-      const head = c.secondsLeft != null ? `Cache drops in ${clock(c.secondsLeft)}.` : 'Cache drops soon.'
+      const head = c.secondsLeft != null ? `缓存将在 ${clock(c.secondsLeft)} 后失效。` : '缓存即将失效。'
       const runs: Run[] =
         c.tokensAtStake != null
-          ? [plain(`${head} Then the next message re-reads `), loseRun(c.tokensAtStake), plain('.')]
-          : [plain(`${head} Then the next message re-reads the whole context.`)]
+          ? [plain(`${head}下一条消息将重新读取 `), loseRun(c.tokensAtStake), plain('。')]
+          : [plain(`${head}下一条消息将重新读取整个上下文。`)]
       // Keep warm only on a measured lifetime.
-      return say('hourglass', 'caution', runs, c.measured ? { id: 'warm', label: 'Keep warm' } : null)
+      return say('hourglass', 'caution', runs, c.measured ? { id: 'warm', label: '保持温热' } : null)
     }
   }
 
-  const observing = q && q.compactions > 0 ? `Compacts:${q.compactions} (observing).` : 'All clear.'
+  const observing = q && q.compactions > 0 ? `压缩次数：${q.compactions}（持续观察）。` : '一切正常。'
   return say('check', 'good', [plain(s.note ?? observing)])
 }
 

@@ -37,21 +37,21 @@ export function threadActions(pr: PrView, t: PrThread, presses: PressState): PrA
     ...retryAction(prRetryOf(row.last, pr.ref, t.id)),
     {
       press: { action: 'thread-address', ...on },
-      label: again(row, 'thread-address', 'Address'),
+      label: again(row, 'thread-address', '处理'),
       kind: 'handoff',
       emphasis: 'primary',
       hotkey: 'a',
     },
     {
       press: { action: 'thread-draft', ...on },
-      label: again(row, 'thread-draft', 'Draft reply'),
+      label: again(row, 'thread-draft', '起草回复'),
       kind: 'talk',
       emphasis: 'normal',
       hotkey: 'r',
     },
     {
       press: { action: 'thread-open', ...on },
-      label: 'Open comment',
+      label: '打开评论',
       kind: 'local',
       emphasis: 'normal',
       icon: 'open',
@@ -59,7 +59,7 @@ export function threadActions(pr: PrView, t: PrThread, presses: PressState): PrA
     },
     {
       press: { action: 'thread-discuss', ...on },
-      label: again(row, 'thread-discuss', 'Discuss'),
+      label: again(row, 'thread-discuss', '讨论'),
       kind: 'talk',
       emphasis: 'quiet',
       hotkey: 'd',
@@ -104,7 +104,7 @@ export function checkActions(pr: PrView, c: PrCheck, presses: PressState): PrAct
     ...mainMove,
     {
       press: { action: 'log', ...on },
-      label: 'Open log',
+      label: '打开日志',
       kind: 'local',
       emphasis: 'normal',
       icon: 'open',
@@ -132,7 +132,7 @@ export function prBlockActions(
       ? [
           {
             press: { action: 'pr-merge' as const, ref: pr.ref },
-            label: again(row, 'pr-merge', 'Merge'),
+            label: again(row, 'pr-merge', '合并'),
             kind: 'handoff' as const,
           },
         ]
@@ -150,7 +150,7 @@ export function prBlockActions(
       ? [
           {
             press: { action: 'pr-address-all' as const, ref: pr.ref },
-            label: again(row, 'pr-address-all', `Address all ${waitingOn} threads`),
+            label: again(row, 'pr-address-all', `处理全部 ${waitingOn} 条讨论`),
             kind: 'handoff' as const,
           },
         ]
@@ -160,13 +160,13 @@ export function prBlockActions(
   return withOut(row, [
     ...retryAction(prRetryOf(row.last, pr.ref, null)),
     ...moves.map((m, n): PlannedPrAction => ({ ...m, emphasis: n === 0 ? 'primary' : 'normal' })),
-    { press: { action: 'pr-open', ref: pr.ref }, label: 'Open PR', kind: 'local', emphasis: 'normal', icon: 'open' },
+    { press: { action: 'pr-open', ref: pr.ref }, label: '打开 PR', kind: 'local', emphasis: 'normal', icon: 'open' },
     ...(pr.ref === branchRef
       ? []
       : [
           {
             press: { action: 'pr-dismiss' as const, ref: pr.ref },
-            label: 'Dismiss',
+            label: '忽略',
             kind: 'mark' as const,
             emphasis: 'quiet' as const,
           },
@@ -236,7 +236,7 @@ export function prClearActions(prState: PrViews, links: PrLinks): PrAction[] {
   return [
     {
       press: { action: 'pr-clear-finished' },
-      label: 'Clear merged and closed',
+      label: '清除已合并和已关闭',
       kind: 'mark',
       emphasis: 'normal',
       hotkey: 'm',
@@ -383,16 +383,16 @@ export function applyPrPress(
       if (p.action === 'thread-open') return local([id], 'Open', commentEffect(pr, t))
       if (p.action === 'thread-address')
         return applied({
-          lasts: { [id]: record(id, 'handoff', p.action, 'Address') },
+          lasts: { [id]: record(id, 'handoff', p.action, '处理') },
           effects: [send(prompts.address(pr, [t]))],
         })
       if (p.action === 'thread-draft')
         return applied({
-          lasts: { [id]: record(id, 'talk', p.action, 'Draft reply') },
+          lasts: { [id]: record(id, 'talk', p.action, '起草回复') },
           effects: [send(prompts.draft(pr, t))],
         })
       return applied({
-        lasts: { [id]: record(id, 'talk', p.action, 'Discuss') },
+        lasts: { [id]: record(id, 'talk', p.action, '讨论') },
         effects: [send(prompts.discuss(pr, t))],
       })
     }
@@ -407,11 +407,11 @@ export function applyPrPress(
       if (waiting.length === 0) return stale
       const threads = waiting.map(t => {
         const id = prThreadId(pr, t)
-        return [id, record(id, 'handoff', 'thread-address', 'Address')]
+        return [id, record(id, 'handoff', 'thread-address', '处理')]
       })
       return applied({
         lasts: {
-          [markId]: record(markId, 'handoff', p.action, `Address all ${waiting.length} threads`),
+          [markId]: record(markId, 'handoff', p.action, `处理全部 ${waiting.length} 条讨论`),
           ...Object.fromEntries(threads),
         },
         effects: [send(prompts.address(pr, waiting))],
@@ -421,12 +421,12 @@ export function applyPrPress(
       const shown = readiness(pr, threadSentIn(lastActions))
       if (shown.status !== 'ready') return stale
       return applied({
-        lasts: { [markId]: record(markId, 'handoff', p.action, 'Merge') },
+        lasts: { [markId]: record(markId, 'handoff', p.action, '合并') },
         effects: [send(prompts.merge(pr, shown.text))],
       })
     }
     case 'pr-open':
-      return local([markId], 'Open PR', prPageEffect(pr))
+      return local([markId], '打开 PR', prPageEffect(pr))
     case 'pr-dismiss':
       if (!tabPrs(ledger).includes(p.ref) || prState.branchRef === p.ref) return stale
       return applied({
@@ -455,7 +455,7 @@ export function applyPrPress(
     case 'log': {
       const check = pr.checks.find(c => checkKey(c) === p.check)
       if (!check) return stale
-      return local([prCheckId(pr, check)], 'Open log', logEffect(pr, check))
+      return local([prCheckId(pr, check)], '打开日志', logEffect(pr, check))
     }
   }
 }

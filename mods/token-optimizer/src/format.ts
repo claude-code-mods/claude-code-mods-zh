@@ -10,7 +10,7 @@ const DAY_MIN = 24 * 60
 /** The note after refreshes failed: "Last updated 3 days ago. Will try again later." Retries back off up to ten minutes, so it promises no exact time. */
 export function savingsRetryNote(failed: boolean, computedAt: number | null, nowMs: number): string | null {
   if (!failed || computedAt === null) return null
-  return `Last updated ${ago(computedAt * 1000, nowMs)}. Will try again later.`
+  return `上次更新于${ago(computedAt * 1000, nowMs)}。稍后将重试。`
 }
 
 /** Seconds as m:ss, clamped to 0:00..60:00 (the longest cache lifetime is an hour). */
@@ -41,40 +41,40 @@ export function relative(targetMs: number, nowMs: number): string {
   const diff = targetMs - nowMs
   if (diff < 0) return ago(targetMs, nowMs)
   const mins = Math.round(diff / MINUTE)
-  if (mins < 1) return 'in under a minute'
-  if (mins < 60) return mins === 1 ? 'in 1 minute' : `in ${mins} minutes`
+  if (mins < 1) return '不到 1 分钟后'
+  if (mins < 60) return mins === 1 ? '1 分钟后' : `${mins} 分钟后`
   if (mins < DAY_MIN) {
     const m = mins % 60
-    return m === 0 ? `in ${Math.floor(mins / 60)}h` : `in ${Math.floor(mins / 60)}h ${String(m).padStart(2, '0')}m`
+    return m === 0 ? `${Math.floor(mins / 60)} 小时后` : `${Math.floor(mins / 60)} 小时 ${String(m).padStart(2, '0')} 分钟后`
   }
   const days = Math.floor(mins / DAY_MIN)
   if (days < 2) {
     const h = Math.floor((mins % DAY_MIN) / 60)
-    return h === 0 ? 'in 1 day' : `in 1 day ${h}h`
+    return h === 0 ? '1 天后' : `1 天 ${h} 小时后`
   }
-  return `in ${days} days`
+  return `${days} 天后`
 }
 
 /** Time since `thenMs`: "just now", "3 min ago", "2h 5m ago", "3 days ago". */
 export function ago(thenMs: number, nowMs: number): string {
   const mins = Math.floor(Math.max(0, nowMs - thenMs) / MINUTE)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return '刚刚'
+  if (mins < 60) return `${mins} 分钟前`
   if (mins < DAY_MIN) {
     const m = mins % 60
-    return m === 0 ? `${Math.floor(mins / 60)}h ago` : `${Math.floor(mins / 60)}h ${m}m ago`
+    return m === 0 ? `${Math.floor(mins / 60)} 小时前` : `${Math.floor(mins / 60)} 小时 ${m} 分钟前`
   }
   const days = Math.floor(mins / DAY_MIN)
-  return days === 1 ? '1 day ago' : `${days} days ago`
+  return days === 1 ? '1 天前' : `${days} 天前`
 }
 
 /** A span in seconds: "48m", "1h 5m", "under 1m". */
 export function duration(sec: number): string {
   const s = Math.max(0, Math.floor(sec))
-  if (s < 60) return 'under 1m'
+  if (s < 60) return '不到 1 分钟'
   const mins = Math.floor(s / 60)
-  if (mins < 60) return `${mins}m`
-  return `${Math.floor(mins / 60)}h ${mins % 60}m`
+  if (mins < 60) return `${mins} 分钟`
+  return `${Math.floor(mins / 60)} 小时 ${mins % 60} 分钟`
 }
 
 function clean(text: string): string {
@@ -96,18 +96,18 @@ export function renewal(iso: string | null, nowMs: number, opts: FormatOptions =
   const { timeZone, locale, hourCycle } = opts
   const time = clean(new Intl.DateTimeFormat(locale, { timeZone, hour: 'numeric', minute: '2-digit', ...(hourCycle ? { hourCycle } : {}) }).format(at))
   const diff = dayNumber(at, timeZone) - dayNumber(nowMs, timeZone)
-  if (diff === 0) return `today at ${time}`
-  if (diff === 1) return `tomorrow at ${time}`
+  if (diff === 0) return `今天 ${time}`
+  if (diff === 1) return `明天 ${time}`
   const weekday = new Intl.DateTimeFormat(locale, { timeZone, weekday: 'long' }).format(at)
   const month = new Intl.DateTimeFormat(locale, { timeZone, month: 'short' }).format(at)
   const day = new Intl.DateTimeFormat(locale, { timeZone, day: 'numeric' }).format(at)
-  return `${weekday}, ${month} ${day} at ${time}`
+  return `${weekday}，${month} ${day}日 ${time}`
 }
 
 /** Renewal for use after "Renews": "at 3:20 PM" today, otherwise as `renewal`. */
 export function renewalPhrase(iso: string | null, nowMs: number, opts: FormatOptions = {}): string | null {
   const r = renewal(iso, nowMs, opts)
-  return r && r.startsWith('today ') ? r.slice('today '.length) : r
+  return r && r.startsWith('今天 ') ? r.slice('今天 '.length) : r
 }
 
 /** Letter grade with the same boundaries as score_to_grade in measure.py. */

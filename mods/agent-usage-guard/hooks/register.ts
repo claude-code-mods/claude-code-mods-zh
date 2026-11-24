@@ -141,7 +141,7 @@ export function register(on: On): void {
     try {
       await $.command.register({
         name: COMMAND,
-        description: 'agent-usage-guard: status, allow, resume, report',
+        description: 'agent-usage-guard：状态、解除限制、恢复、报告',
         argumentHint: '[status | allow [agents|context] [minutes] | pause [minutes] | resume | report [days] | help]',
         immediate: true,
       })
@@ -258,7 +258,7 @@ export function register(on: On): void {
       compactAfterTurn = false
       $.clock.after(0, async () => {
         const failed = await compact($)
-        if (failed !== undefined) $.ui.log(`could not compact (${failed}).`)
+        if (failed !== undefined) $.ui.log(`压缩失败（${failed}）。`)
       })
     }
     await refreshStatus($)
@@ -362,7 +362,7 @@ export function register(on: On): void {
     // would let a broken guard wave through every agent of a parallel batch.
     next.called
       ? failOpen($, 'agent.spawn', next.error, () => next(e))
-      : { deny: `agent-usage-guard could not judge this agent${next.error?.kind === 'timeout' ? ' in time' : ''}. Start it again. [${SIGNATURE}]` },
+      : { deny: `agent-usage-guard 无法${next.error?.kind === 'timeout' ? '及时' : ''}判断此智能体。请重新启动它。[${SIGNATURE}]` },
   )
 
   on('tool.call', async ($, e, next) => {
@@ -435,8 +435,8 @@ export function register(on: On): void {
       // Only the person lifts limits: another plugin's $.command.run reaches this hook too.
       if (!fromPerson(e.origin.kind)) {
         const from = e.origin.kind === 'plugin' ? `the ${e.origin.name} plugin` : `a ${e.origin.kind} prompt`
-        $.ui.log(`refused /${COMMAND} ${e.args.trim()} from ${from}.`)
-        return { text: `Only you can lift the guard's limits, and this came from ${from}, so nothing changed. Type /${COMMAND} ${e.args.trim()} to lift them.` }
+        $.ui.log(`已拒绝来自 ${from} 的 /${COMMAND} ${e.args.trim()} 调用。`)
+        return { text: `只有你能解除守卫限制，而此请求来自 ${from}，因此没有做任何更改。请输入 /${COMMAND} ${e.args.trim()} 来解除限制。` }
       }
       const text = applyOverride(session, now, command.scope, command.minutes)
       await journal($, now, { ev: 'override', rule: command.scope })
@@ -451,7 +451,7 @@ export function register(on: On): void {
     }
     await loadPeers($, now)
     return { text: statusReport(session, peers, config, now, problems, await pluginVersion($), storeFailure) }
-  }).catch(($, e, next) => ({ text: `The command failed: ${next.error?.message ?? 'unknown error'}` }))
+  }).catch(($, e, next) => ({ text: `命令执行失败：${next.error?.message ?? '未知错误'}` }))
 }
 
 /** Each variable is named in full, so `claude plugin validate` can list every one the mod reads. */
@@ -655,7 +655,7 @@ async function refreshStatus($: Api): Promise<void> {
     const expiries = [statusLineExpiry(session, peers, config, now), bandExpiry(session, peers, config, now)].filter((t) => t !== undefined)
     redrawAt($, expiries.length > 0 ? Math.min(...expiries) : undefined, now)
     await drawBand($, now)
-    const parts = [statusLine(session, peers, config, now), storeFailure === undefined || !config.enabled ? undefined : "store not saving: other sessions can't count this one"]
+    const parts = [statusLine(session, peers, config, now), storeFailure === undefined || !config.enabled ? undefined : '存储无法保存：其他会话不会计入本会话']
     const text = parts.filter((p) => p !== undefined).join(' · ') || undefined
     if (text === lastStatus) return
     lastStatus = text
@@ -754,22 +754,22 @@ async function oneAtATime<T>($: Api, key: string, held: () => T, run: () => Prom
  */
 async function simulation($: Api, rule: SimulatedRule, now: number): Promise<string> {
   const verdict = simulate(rule, config, now, canAsk())
-  const opening = `Simulation of ${rule}`
-  const aside = `${opening}: nothing was held, and none of this applies to the current work.`
+  const opening = `模拟规则：${rule}`
+  const aside = `${opening}：没有拦截任何操作，以下内容均不适用于当前工作。`
   if (verdict.kind === 'ask') {
     if (canAsk()) {
       try {
-        const answer = await $.ui.ask(`Simulation, nothing changes: ${verdict.question}`, { options: verdict.options, header: HEADER })
-        return `${opening}: you answered "${answer}". Nothing was held, nothing changed and no usage was spent.`
+        const answer = await $.ui.ask(`模拟场景，不会更改任何内容：${verdict.question}`, { options: verdict.options, header: HEADER })
+        return `${opening}：你选择了“${answer}”。没有拦截任何操作，没有更改任何内容，也没有消耗任何用量。`
       } catch {
         // Dismissed, or the dialog could not open: show the question instead.
       }
     }
-    return `${aside} The guard would ask:\n\n${verdict.question}\nOptions: ${verdict.options.join(' · ')}`
+    return `${aside} 守卫会询问：\n\n${verdict.question}\n选项：${verdict.options.join(' · ')}`
   }
-  if (verdict.kind === 'deny') return `${aside} Claude would read this refusal:\n\n${verdict.message}`
-  if (verdict.kind === 'drop') return `${aside} A prompt you send would be held:\n\n${verdict.message}`
-  return `${opening}: with your settings, this rule would not trip.`
+  if (verdict.kind === 'deny') return `${aside} Claude 会读到以下拒绝信息：\n\n${verdict.message}`
+  if (verdict.kind === 'drop') return `${aside} 你发送的提示会被拦截：\n\n${verdict.message}`
+  return `${opening}：按照你的设置，此规则不会触发。`
 }
 
 /** Compacts the conversation. Returns why it did not, or undefined once it has. */
@@ -801,7 +801,7 @@ async function compactThenSend($: Api, text: string, resend: boolean): Promise<v
   const failed = await compact($)
   if (failed !== undefined) {
     if (resend) await putBack($, text)
-    $.ui.log(`could not compact (${failed}), so your prompt is back in the input box.`)
+    $.ui.log(`压缩失败（${failed}），你的提示已放回输入框。`)
     return
   }
   if (!resend) return
@@ -810,7 +810,7 @@ async function compactThenSend($: Api, text: string, resend: boolean): Promise<v
     await $.prompt.submit({ text, asUser: true })
   } catch (error) {
     await putBack($, text)
-    $.ui.log(`could not send your prompt (${String(error)}), so it is back in the input box.`)
+    $.ui.log(`发送提示失败（${String(error)}），提示已放回输入框。`)
   }
 }
 
@@ -960,7 +960,7 @@ async function report($: Api, now: number, days: number): Promise<string> {
     const rows = (await Promise.all(recent.map((k) => $.store.get(k)))).flatMap((v) => (Array.isArray(v) ? v.filter(isJournalRow) : []))
     return formatReport(rows, now, days)
   } catch (error) {
-    return `Could not read the journal (${String(error)}).`
+    return `无法读取日志（${String(error)}）。`
   }
 }
 

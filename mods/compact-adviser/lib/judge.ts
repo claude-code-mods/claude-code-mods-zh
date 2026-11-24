@@ -113,48 +113,48 @@ const TRANSIENT_JUDGE_KINDS: ReadonlySet<JudgeErrorKind> = new Set([
 ]);
 
 const JUDGE_KIND_CAUSE: Record<JudgeErrorKind, string> = {
-  timeout: "the request timed out",
-  network: "the request could not reach TypeSafe",
-  authentication: "TypeSafe rejected the API key",
-  billing: "TypeSafe requires payment (HTTP 402)",
-  "rate-limit": "TypeSafe rate-limited the request",
-  server: "TypeSafe returned a server error",
-  response: "TypeSafe's reply was not a usable judgment",
-  input: "this checkpoint is too large to send",
-  configuration: "TYPESAFE_BASE is not a valid https URL or loopback http URL",
+  timeout: "请求超时",
+  network: "请求无法连接到 TypeSafe",
+  authentication: "TypeSafe 拒绝了 API 密钥",
+  billing: "TypeSafe 要求付款（HTTP 402）",
+  "rate-limit": "TypeSafe 对请求限流",
+  server: "TypeSafe 返回服务器错误",
+  response: "TypeSafe 的回复不是可用的判断",
+  input: "此检查点过大，无法发送",
+  configuration: "TYPESAFE_BASE 不是有效的 https URL 或本地回环 http URL",
 };
 
 export function judgeErrorMessage(kind: JudgeErrorKind): string {
   const core =
-    `The compact adviser asked TypeSafe (Jev) but did not get a usable judgment (${JUDGE_KIND_CAUSE[kind]}). ` +
-    "Context was left unchanged on purpose so a compact or hint cannot come from a bad answer.";
+    `compact adviser 请求了 TypeSafe（Jev），但未获得可用的判断（${JUDGE_KIND_CAUSE[kind]}）。` +
+    "上下文特意保持不变，以免错误的答案触发压缩或提示。";
   if (kind === "authentication") {
-    return `${core} Check the TypeSafe key configuration; this is not a temporary glitch.`;
+    return `${core} 请检查 TypeSafe 密钥配置；这不是临时故障。`;
   }
   if (kind === "billing") {
-    return `${core} Check TypeSafe billing and credits; this is not a temporary glitch.`;
+    return `${core} 请检查 TypeSafe 账单和额度；这不是临时故障。`;
   }
   if (kind === "configuration") {
-    return `${core} Fix or unset TYPESAFE_BASE; this is not a temporary glitch.`;
+    return `${core} 请修正或取消设置 TYPESAFE_BASE；这不是临时故障。`;
   }
   if (kind === "input") {
-    return `${core} This is a size limit, not a temporary glitch.`;
+    return `${core} 这是大小限制，不是临时故障。`;
   }
   if (TRANSIENT_JUDGE_KINDS.has(kind)) {
-    return `${core} This can be temporary; the adviser will try again later. No action needed unless it keeps repeating.`;
+    return `${core} 这可能是临时问题；顾问稍后会重试。除非反复出现，否则无需处理。`;
   }
   return core;
 }
 
 export const JUDGE_UNAVAILABLE_MESSAGE =
-  "The compact adviser asked TypeSafe (Jev) but did not get a usable judgment. " +
-  "Context was left unchanged on purpose so a compact or hint cannot come from a bad answer. " +
+  "compact adviser 请求了 TypeSafe（Jev），但未获得可用的判断。" +
+  "上下文特意保持不变，以免错误的答案触发压缩或提示。" +
   "This can be temporary; the adviser will try again later. No action needed unless it keeps repeating.";
 
 export const JUDGE_DISABLED_NETWORK_MESSAGE =
-  "The compact adviser could not ask TypeSafe (Jev): Claude Code has nonessential network traffic disabled. " +
-  "Context was left unchanged on purpose so a compact or hint cannot run without a judgment. " +
-  "Enable nonessential network traffic if TypeSafe should run; this is a configuration setting, not a temporary glitch.";
+  "compact adviser 无法请求 TypeSafe（Jev）：Claude Code 已禁用非必要的网络流量。" +
+  "上下文特意保持不变，因为没有判断结果时不会执行压缩或提示。" +
+  "如果需要使用 TypeSafe，请启用非必要网络流量；这是配置问题，不是临时故障。";
 
 export class JudgeError extends Error {
   // A plain field assignment, not a constructor parameter property: the Codex adapter runs

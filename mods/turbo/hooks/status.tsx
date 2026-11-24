@@ -6,7 +6,7 @@ import { clearTurnReading, turnParts } from './turn-tracking'
 const contextLeft = atom({ plugin: 'turbo', key: 'contextLeft' } as const, null)
 
 const contextText = (percent: number | undefined) =>
-  percent === undefined ? undefined : `${100 - percent}% context left`
+  percent === undefined ? undefined : `剩余 ${100 - percent}% 上下文`
 
 async function statusText($: EngineInterface, context: string | undefined, isWorking: boolean) {
   const parts = [...(context === undefined ? [] : [context]), ...(await turnParts($, isWorking))]

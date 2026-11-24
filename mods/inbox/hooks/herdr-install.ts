@@ -217,7 +217,7 @@ export async function keepHerdrModCurrent(
     .then(([installed, answer]) => modStep(installed, answer, bundled, now))
     .catch((err: unknown) => new Error(message(err)))
   if (step instanceof Error)
-    return { is: 'failed', text: `Could not read the Herdr app's mods folder. ${step.message}` }
+    return { is: 'failed', text: `无法读取 Herdr 应用的插件目录。${step.message}` }
   if (step === null) return { is: 'current' }
   if (step === 'ask') return { is: 'ask' }
   try {
@@ -226,12 +226,12 @@ export async function keepHerdrModCurrent(
 
     return { is: step === 'install' ? 'installed' : 'updated' }
   } catch (err) {
-    return { is: 'failed', text: `Could not ${step} the inbox mod in Herdr. ${message(err)}` }
+    return { is: 'failed', text: `无法在 Herdr 中${step === 'install' ? '安装' : '更新'}收件箱插件。${message(err)}` }
   }
 }
 
 export const NEWER_ANSWER_TEXT =
-  'A newer build of the inbox saved the answer about its Herdr mod. Update the inbox here to answer again.'
+  '较新版本的收件箱已保存关于 Herdr 插件的回答。请在此更新收件箱后重新回答。'
 
 /**
  * Saves the person's answer to whether hosts may install the mod, and installs it after a yes. A no stays until the
@@ -248,7 +248,7 @@ export async function answerHerdrMod(
   try {
     await saveAnswer(files, appHome, isYes ? 'yes' : 'no', now)
   } catch (err) {
-    return { is: 'failed', text: `Could not save the answer about the inbox mod in Herdr. ${message(err)}` }
+    return { is: 'failed', text: `无法保存关于 Herdr 中收件箱插件的回答。${message(err)}` }
   }
 
   return isYes ? keepHerdrModCurrent(files, appHome, bundledFolder, now) : { is: 'current' }

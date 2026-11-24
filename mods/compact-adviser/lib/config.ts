@@ -51,7 +51,7 @@ export function parseMinimum(text: string): number {
   const value = text.trim();
   const number = Number(value);
   if (!/^\d+$/.test(value) || !Number.isSafeInteger(number) || number <= 0) {
-    throw new Error("Enter a positive whole number of tokens, for example 40000.");
+    throw new Error("请输入正整数 token 数，例如 40000。");
   }
   return number;
 }
@@ -62,21 +62,21 @@ export function parseBudget(text: string): number {
   if (value === "off") return 0;
   const number = Number(value);
   if (!/^\d+$/.test(value) || !Number.isSafeInteger(number)) {
-    throw new Error("Enter a whole number of tokens, for example 450000, or off.");
+    throw new Error("请输入整数 token 数，例如 450000，或输入 off。");
   }
   return number;
 }
 
 export function parseSavedApiKey(text: string): string {
   const value = text.trim();
-  if (!value) throw new Error("Enter a TypeSafe API key, or cancel to leave it unchanged.");
+  if (!value) throw new Error("请输入 TypeSafe API 密钥，或取消以保持原值。");
   if (value.length > MAX_SAVED_API_KEY_LENGTH) {
-    throw new Error("That value is too long to save as a TypeSafe API key.");
+    throw new Error("该值过长，无法作为 TypeSafe API 密钥保存。");
   }
   for (let i = 0; i < value.length; i++) {
     const code = value.charCodeAt(i);
     if (code < 32 || code === 127) {
-      throw new Error("The key cannot contain control characters.");
+      throw new Error("密钥不能包含控制字符。");
     }
   }
   return value;
@@ -101,7 +101,7 @@ export function parseConsent(value: unknown): Consent {
     typeof c.autoAcknowledged !== "boolean"
   ) {
     throw new SettingsError(
-      "Invalid compact-adviser consent record; run /compact-adviser auto to restore it.",
+      "compact-adviser 的同意记录无效；请运行 /compact-adviser auto 恢复。",
     );
   }
   return { version: 1, autoAcknowledged: c.autoAcknowledged };
@@ -134,26 +134,26 @@ export function readConfig(
   const logRequests = row(LOG_KEY, "logRequests");
   const beforeCompactPrompt = row(BEFORE_COMPACT_PROMPT_KEY, "beforeCompactPrompt") ?? "";
   if (typeof mode !== "string" || !MODES.includes(mode as Mode)) {
-    throw new SettingsError("Cannot read the compact-adviser mode setting; no action is taken.");
+    throw new SettingsError("无法读取 compact-adviser 的模式设置；未执行任何操作。");
   }
   if (typeof minimum !== "number" || !Number.isSafeInteger(minimum) || minimum <= 0) {
     throw new SettingsError(
-      "Cannot read the compact-adviser minimum context setting; no action is taken.",
+      "无法读取 compact-adviser 的最小上下文设置；未执行任何操作。",
     );
   }
   if (typeof budget !== "number" || !Number.isSafeInteger(budget) || budget < 0) {
     throw new SettingsError(
-      "Cannot read the compact-adviser context budget setting; no action is taken.",
+      "无法读取 compact-adviser 的上下文预算设置；未执行任何操作。",
     );
   }
   if (logRequests !== undefined && typeof logRequests !== "boolean") {
     throw new SettingsError(
-      "Cannot read the compact-adviser request-log setting; no action is taken.",
+      "无法读取 compact-adviser 的请求记录设置；未执行任何操作。",
     );
   }
   if (typeof beforeCompactPrompt !== "string") {
     throw new SettingsError(
-      "Cannot read the compact-adviser before-compact prompt; no action is taken.",
+      "无法读取 compact-adviser 的压缩前提示词；未执行任何操作。",
     );
   }
   const profile = row(PROFILE_KEY, "profile");

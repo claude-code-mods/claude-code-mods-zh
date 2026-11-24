@@ -50,8 +50,8 @@ test('values are read as the setting takes them', () => {
 })
 
 test('a bad value says what would do, and a plugin option is written under pluginConfigs', () => {
-  assert.match(op(resolve('window'), 5).error, /not a valid value for window\. Try: 200k, 400k, 600k, 1m \(100k to 1m\)/)
-  assert.match(op(resolve('cache'), '2h').error, /Try: 5m, 1h/)
+  assert.match(op(resolve('window'), 5).error, /不是 window 的有效值。可尝试：200k, 400k, 600k, 1m（100k 到 1m）/)
+  assert.match(op(resolve('cache'), '2h').error, /可尝试：5m, 1h/)
   assert.deepEqual(op(resolve('slide'), true).op, { op: 'set', key: 'pluginConfigs.tokendoctor@tokendoctor.options.slide', value: true })
   assert.deepEqual(op(resolve('slide'), undefined).op, { op: 'unset', key: 'pluginConfigs.tokendoctor@tokendoctor.options.slide' })
 })
@@ -59,25 +59,25 @@ test('a bad value says what would do, and a plugin option is written under plugi
 test('the overview shows six settings, how to change them and the fixes the audit has', () => {
   const merged = { promptCacheTtl: '1h', pluginConfigs: { 'tokendoctor@tokendoctor': { options: { slide: true } } } }
   const text = overview(merged, findings, 367000)
-  assert.match(text, /window\s+default, compacts at 367K/)
-  assert.match(text, /slide\s+on/)
+  assert.match(text, /默认，在 367K 处压缩/)
+  assert.match(text, /slide.*开/)
   assert.match(text, /cache\s+1h/)
-  assert.match(text, /effort\s+default .*\(next session\)/)
-  assert.match(text, new RegExp(`${every().length - 6} more: /tokendoctor all`))
+  assert.match(text, /effort.*默认.*（下次会话）/)
+  assert.match(text, new RegExp(`${every().length - 6} 项：/tokendoctor all`))
   assert.match(text, /\/tokendoctor fix subagents-on-top-model\s+Subagents run on Opus/)
   assert.doesNotMatch(text, /main-model-expensive/)
-  assert.ok(all({}).startsWith('every setting it changes'))
-  assert.match(all({}), /no-git-instructions\s{2,}default/)
+  assert.ok(all({}).startsWith('它会修改的所有设置'))
+  assert.match(all({}), /no-git-instructions.*默认/)
 })
 
 test('explaining one setting names its values, when it applies and the audit’s fix for it', () => {
   const text = explain(resolve('subagents'), { env: { CLAUDE_CODE_SUBAGENT_MODEL: 'opus' } }, findings)
-  assert.match(text, /^subagents \(env\.CLAUDE_CODE_SUBAGENT_MODEL\): model for subagents/)
-  assert.match(text, /now: opus/)
-  assert.match(text, /values: sonnet, haiku, opus; a model alias or a claude-… id; reset for the default/)
-  assert.match(text, /applies: from the next session/)
-  assert.match(text, /audit: Subagents run on Opus → \/tokendoctor fix subagents-on-top-model/)
-  assert.match(text, /change: \/tokendoctor subagents sonnet/)
+  assert.match(text, /^subagents \(env\.CLAUDE_CODE_SUBAGENT_MODEL\)：/)
+  assert.match(text, /当前：opus/)
+  assert.match(text, /可选值：sonnet, haiku, opus；模型别名或 claude-… ID；reset 恢复默认/)
+  assert.match(text, /生效时间：下次会话起/)
+  assert.match(text, /审计：Subagents run on Opus → \/tokendoctor fix subagents-on-top-model/)
+  assert.match(text, /修改：\/tokendoctor subagents sonnet/)
 })
 
 test('typeahead: names, then values, then fix ids and scope flags', () => {
@@ -97,16 +97,16 @@ test('typeahead: names, then values, then fix ids and scope flags', () => {
 })
 
 test('an unknown name points at the near ones', () => {
-  assert.match(unknown('slid'), /Did you mean slide, slide-to\?/)
-  assert.match(unknown('zzz'), /No setting "zzz"\. \/tokendoctor all lists them\./)
+  assert.match(unknown('slid'), /你是不是想输入 slide, slide-to？/)
+  assert.match(unknown('zzz'), /没有名为 "zzz" 的设置.*\/tokendoctor all 会列出全部设置/)
 })
 
 test('a model is an alias or a model id, never any word', () => {
   assert.ok(op(resolve('advisor'), 'opus').op)
   assert.ok(op(resolve('model'), 'claude-sonnet-5-5').op)
   assert.ok(op(resolve('model'), 'opus[1m]').op)
-  assert.match(op(resolve('advisor'), 'model').error, /not a valid value for advisor\. Try: opus, sonnet/)
-  assert.match(op(resolve('advisor'), 'off').error, /not a valid value/)
+  assert.match(op(resolve('advisor'), 'model').error, /不是 advisor 的有效值。可尝试：opus, sonnet/)
+  assert.match(op(resolve('advisor'), 'off').error, /不是 advisor 的有效值/)
 })
 
 test('the undo list names each change by its short name, newest first', () => {
@@ -114,8 +114,8 @@ test('the undo list names each change by its short name, newest first', () => {
     { at: '2026-11-01T02:32:04Z', path: '/h/settings.json', scope: 'user', changes: [{ key: 'advisorModel', before: 'off' }], backup: null },
     { at: '2026-11-01T02:27:15Z', path: '/h/settings.json', scope: 'user', changes: [{ key: 'pluginConfigs.tokendoctor@tokendoctor.options.slide', after: true }], backup: null },
   ])
-  assert.match(text, / 1 .* user\s+advisor: off → default/)
-  assert.match(text, / 2 .* user\s+slide: default → on/)
-  assert.match(text, /\/tokendoctor undo <number> puts that one back/)
-  assert.equal(undoList([]), 'No changes made by tokendoctor yet.')
+  assert.match(text, /advisor: off → 默认/)
+  assert.match(text, /slide: 默认 → 开/)
+  assert.match(text, /\/tokendoctor undo <编号> 可恢复/)
+  assert.equal(undoList([]), 'tokendoctor 还没有做过任何修改。')
 })

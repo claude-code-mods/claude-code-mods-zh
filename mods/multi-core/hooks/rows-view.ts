@@ -43,7 +43,7 @@ function text(input: Input, key: string): string {
 }
 
 function count(value: number, unit: string): Part[] {
-  return [{ bold: String(value) }, ` ${unit}${value === 1 ? '' : 's'}`];
+  return [{ bold: String(value) }, ` ${UNIT[unit] ?? unit}`];
 }
 
 function oneLine(value: string) {
@@ -65,9 +65,9 @@ function readRange(input: Input) {
   const limit = typeof input.limit === 'number' ? input.limit : undefined;
   if (limit !== undefined) {
     const start = offset ?? 1;
-    return ` · lines ${start}-${start + limit - 1}`;
+    return ` · 第 ${start}-${start + limit - 1} 行`;
   }
-  return offset === undefined ? '' : ` · from line ${offset}`;
+  return offset === undefined ? '' : ` · 从第 ${offset} 行起`;
 }
 
 function quoted(input: Input, keys: readonly string[], cwd: string) {
@@ -154,7 +154,7 @@ function sentence({ Text }: Tags, parts: readonly Part[]): RenderElement {
 }
 
 function more({ Text }: Tags, hidden: number): RenderElement[] {
-  return hidden > 0 ? [Text({ dimColor: true, children: `… +${hidden} lines` })] : [];
+  return hidden > 0 ? [Text({ dimColor: true, children: `… 另有 ${hidden} 行` })] : [];
 }
 
 /** A text's lines, without the empty one after a final newline. */
@@ -196,7 +196,7 @@ function writeBody(tags: Tags, input: Input, cwd: string): RenderElement[] {
   const shown = lines.slice(0, previewLines);
   return [
     sentence(tags, [
-      'Wrote ',
+      '已写入 ',
       ...count(lines.length, 'line'),
       ' to ',
       { bold: shownPath(text(input, 'file_path'), cwd) },
@@ -276,9 +276,9 @@ function diffRow(tags: Tags, line: DiffLine, width: number): RenderElement {
 }
 
 function editSummary(added: number, removed: number): Part[] {
-  const parts: Part[] = added ? ['Added ', ...count(added, 'line')] : [];
+  const parts: Part[] = added ? ['新增 ', ...count(added, 'line')] : [];
   if (removed) {
-    parts.push(added ? ', removed ' : 'Removed ', ...count(removed, 'line'));
+    parts.push(added ? '，删除 ' : '已删除 ', ...count(removed, 'line'));
   }
   return parts;
 }
@@ -288,7 +288,7 @@ function editSummary(added: number, removed: number): Part[] {
  * result carries `linesAdded`/`linesRemoved` and no `diffString`).
  */
 function reportedCounts(output: string) {
-  const match = /^(?:\+(\d+))? ?(?:-(\d+))? lines$/.exec(output.trim());
+  const match = /^(?:\+(\d+))? ?(?:-(\d+))? (?:lines|行)$/.exec(output.trim());
   return match ? { added: Number(match[1] ?? 0), removed: Number(match[2] ?? 0) } : undefined;
 }
 
@@ -332,11 +332,11 @@ export function resultBody(
 ): RenderElement[] | undefined {
   switch (mirroredKind(input)) {
     case 'Read':
-      return [sentence(tags, ['Read ', ...count(readCount(output), 'line')])];
+      return [sentence(tags, ['已读取 ', ...count(readCount(output), 'line')])];
     case 'Grep':
-      return [sentence(tags, ['Found ', ...count(foundCount(output), searchUnit(output))])];
+      return [sentence(tags, ['找到 ', ...count(foundCount(output), searchUnit(output))])];
     case 'Glob':
-      return [sentence(tags, ['Found ', ...count(foundCount(output), 'file')])];
+      return [sentence(tags, ['找到 ', ...count(foundCount(output), 'file')])];
     case 'LS':
       return [sentence(tags, ['Listed ', ...count(foundCount(output), 'path')])];
     case 'Write':

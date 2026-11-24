@@ -6,7 +6,7 @@ import { duration } from './text'
 const STALE_AFTER_CALLS = 5
 
 const STATUS_FAILED =
-  "The inbox couldn't update this page from one of the agent's replies. What changed in that reply may be missing. It will read the whole conversation to fix this after the next reply. If that fails, it waits longer before each new try."
+  '收件箱未能根据智能体的一次回复更新此页面，那次回复中的变化可能缺失。下一次回复后它会读取整段对话来修正。若仍失败，每次重试前会等待更久。'
 
 /** What the page says from a Status, without code's times, children or links. */
 function pageWords(o: SessionStatus | null): string {
@@ -51,6 +51,6 @@ export function statusPageLine(
 
   return {
     error: s.overviewFailure ? STATUS_FAILED : null,
-    stale: isStale ? `Not updated in ${duration(now - o.changedAt!)}` : null,
+    stale: isStale ? `已有 ${duration(now - o.changedAt!)} 未更新` : null,
   }
 }

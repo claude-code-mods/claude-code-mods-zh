@@ -87,7 +87,7 @@ export type InboxView = {
 /** A closed entry as a look draws it. `mark` is `closedMark` of the entry and its delivery. */
 type ClosedView<T> = T & { delivery: ClosedDelivery; outcomeLabel: string; mark: ResultMark }
 
-const HOLDS_UP_TEXT = 'Holds up'
+const HOLDS_UP_TEXT = '阻塞'
 
 function needsYouOrder(ledger: Ledger): { questions: Item[]; tasks: Item[] } {
   const newestReplyFirst = (kind: Item['kind']) =>
@@ -379,9 +379,9 @@ export function inboxView({
 }
 
 function heldLabel(c: Pick<Closed, 'how' | 'outcome'>): string {
-  if (c.how === 'answered') return `Answered: ${c.outcome}`
+  if (c.how === 'answered') return `已回答：${c.outcome}`
 
-  return c.how === 'claude' ? capitalized(c.outcome) : `Closed: ${c.outcome}`
+  return c.how === 'claude' ? capitalized(c.outcome) : `已关闭：${c.outcome}`
 }
 
 /**
@@ -407,12 +407,12 @@ export function footerError(
  */
 export type UpdateRecovery = 'none' | 'waiting' | 'retrying' | 'failed-again' | 'unreadable'
 
-const NEXT_TRY = ' It tries again after the next reply.'
+const NEXT_TRY = ' 下一次回复后会再试一次。'
 
 const FAILED_UPDATE_TEXT: Record<Exclude<UpdateRecovery, 'none' | 'retrying'>, string> = {
-  waiting: `The inbox couldn't update from the agent's last reply. Questions, tasks and findings from it may be missing.${NEXT_TRY}`,
-  'failed-again': `The inbox couldn't update from the agent's recent replies, even on a retry. Questions, tasks and findings from them may be missing.${NEXT_TRY}`,
-  unreadable: `The inbox couldn't read this conversation. Questions, tasks and findings from the agent's last reply may be missing.${NEXT_TRY}`,
+  waiting: `收件箱未能根据智能体上次回复更新，其中的问题、任务和发现可能缺失。${NEXT_TRY}`,
+  'failed-again': `收件箱未能根据智能体最近的回复更新，重试后仍然失败，其中的问题、任务和发现可能缺失。${NEXT_TRY}`,
+  unreadable: `收件箱无法读取此对话，智能体上次回复中的问题、任务和发现可能缺失。${NEXT_TRY}`,
 }
 
 export function perTurnStatus(recovery: UpdateRecovery): ItemStatus {

@@ -3,11 +3,11 @@ import { capitalized } from './press-labels'
 import type { BannerTone } from './tones'
 
 export function groupEmptyText(title: string): string {
-  return `No open ${title.toLowerCase()}`
+  return `没有未处理的${title}`
 }
 
 /** The message Resume sends after an API error stopped a turn. */
-export const RESUME_TEXT = 'Continue'
+export const RESUME_TEXT = '继续'
 
 /** True when Resume can continue past the stop. */
 export function isResumable(stop: Stop): boolean {
@@ -34,13 +34,13 @@ export function stopText(stop: Stop): string {
 export function stopFix(stop: Stop): string {
   switch (stop.kind) {
     case 'sign-in':
-      return 'Run /login, then send a message to resume.'
+      return '请运行 /login，然后发送消息以继续。'
     case 'billing':
-      return 'Check billing in the Claude console, then resume.'
+      return '请在 Claude 控制台检查账单，然后继续。'
     case 'usage-limit':
-      return stop.resets ? `Resume after ${stop.resets}.` : 'Resume when the limit resets.'
+      return stop.resets ? `请在 ${stop.resets} 后继续。` : '请在限额重置后继续。'
     default:
-      return 'Send a message to resume.'
+      return '请发送消息以继续。'
   }
 }
 
@@ -110,7 +110,7 @@ export function stopBanner(stop: Stop): BannerView {
   return {
     kind: 'stopped',
     tone: BANNER_TONES.stopped,
-    lead: 'Stopped',
+    lead: '已停止',
     body: isResumable(stop) ? why : `${why} ${stopFix(stop)}`,
   }
 }
@@ -131,8 +131,8 @@ export function tabBarBanners(
   ]
 }
 
-export const DEMO_NOTICE = 'Sample entries. Buttons here send nothing.'
-export const READING_TEXT = 'Reading the inbox…'
+export const DEMO_NOTICE = '示例条目。这里的按钮不会发送任何内容。'
+export const READING_TEXT = '正在读取收件箱…'
 
 /**
  * A checkout that follows the `next` branch can hold this file in each folder a host installs or loads: the repo root,
@@ -145,7 +145,7 @@ export function versionLabel(version: string, isNextBuild: boolean): string {
 }
 
 /** What the band and an empty Asks tab read when nothing waits on the person. */
-export const NOTHING_NEEDED_TEXT = 'Nothing needed'
+export const NOTHING_NEEDED_TEXT = '无需处理'
 
 /** What the band, the Herdr line and an empty tab read in place of "Nothing needed" while rows may be missing. */
-export const MAYBE_STALE_TEXT = 'May be out of date'
+export const MAYBE_STALE_TEXT = '信息可能已过期'

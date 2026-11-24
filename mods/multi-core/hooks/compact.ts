@@ -37,7 +37,7 @@ export const register = (on: Parameters<Register>[0], _options: Parameters<Regis
     const sessionId = await $.session.id();
     const mode = accepted(await getJson(wire($), '/multi/mod/mode', { sessionId }));
     if (typeof mode?.generation !== 'number') {
-      return { skip: 'Multi compaction policy generation is unavailable.' };
+      return { skip: '多模型压缩策略生成不可用。' };
     }
     const payload = {
       sessionId,

@@ -18,8 +18,8 @@
   "userConfig": {
     "mode": {
       "type": "string",
-      "title": "Mode",
-      "description": "hint shows advice; auto compacts at eligible checkpoints after a first-use confirmation from /compact-adviser; off disables the adviser (Claude Code's own auto-compact is unaffected).",
+      "title": "模式",
+      "description": "hint 仅显示建议；auto 在首次通过 /compact-adviser 确认后，于符合条件的检查点自动压缩；off 关闭顾问（不影响 Claude Code 自带的自动压缩）。",
       "options": [
         "hint",
         "auto",
@@ -29,40 +29,40 @@
     },
     "minContextTokens": {
       "type": "number",
-      "title": "Minimum context (tokens)",
-      "description": "A constant token count, not a percentage; no judgment below it.",
+      "title": "最小上下文（token 数）",
+      "description": "固定的 token 数，不是百分比；低于该值不做判断。",
       "default": 40000,
       "min": 1
     },
     "contextBudgetTokens": {
       "type": "number",
-      "title": "Context budget (tokens)",
-      "description": "Optional. The context size you want compacted by: the hint floor relaxes as the context approaches the smaller of it and Claude Code's auto-compact point (or the window). 0 turns it off.",
+      "title": "上下文预算（token 数）",
+      "description": "可选。希望触发压缩的上下文大小：当上下文接近该值与 Claude Code 自动压缩点（或窗口上限）中较小者时，提示阈值会放宽。0 表示关闭。",
       "default": 0,
       "min": 0
     },
     "logRequests": {
       "type": "boolean",
-      "title": "Log TypeSafe requests",
-      "description": "When on, each TypeSafe/Jev request and sanitized Jev outcome is appended to ~/.claude/compact-adviser-requests-<session-id>.jsonl. Off by default. Never logs the API key.",
+      "title": "记录 TypeSafe 请求",
+      "description": "开启后，每次 TypeSafe/Jev 请求及脱敏后的 Jev 结果会追加到 ~/.claude/compact-adviser-requests-<session-id>.jsonl。默认关闭。绝不会记录 API key。",
       "default": false
     },
     "profile": {
       "type": "string",
-      "title": "Judge profile JSON",
-      "description": "Optional version-1 judge profile JSON. Empty uses shipped defaults. Invalid profiles disable advice. This does not grant auto consent.",
+      "title": "评判配置 JSON（profile）",
+      "description": "可选的 v1 版评判配置 JSON。留空使用内置默认值。配置无效时会关闭建议。此项不会授予自动压缩的同意。",
       "default": ""
     },
     "beforeCompactPrompt": {
       "type": "string",
-      "title": "Before-compact prompt",
-      "description": "Optional. Empty keeps automatic compaction immediate. In confirmed auto mode, a non-empty value runs as one turn, then compaction runs if that turn ends in a settled answer. A value that starts with / is a slash command (for example /stow); Claude Code does not expand slash commands or @file mentions in a plugin prompt, and it rejects a plugin prompt that starts with /. If you send your own prompt or run a command in between, or that turn is interrupted, errors, or does not finish within 5 minutes, nothing is compacted.",
+      "title": "压缩前提示词",
+      "description": "可选。留空则自动压缩立即执行。在已确认的自动模式下，非空值会先作为一个回合运行，若该回合以确定的答复结束，随后执行压缩。以 / 开头的值会被视为斜杠命令（例如 /stow）；Claude Code 不会在插件提示词中展开斜杠命令或 @file 引用，并且会拒绝以 / 开头的插件提示词。如果期间你发送了自己的提示词或运行了命令，或者该回合被打断、出错、未在 5 分钟内完成，则不会进行压缩。",
       "default": ""
     },
     "typesafeApiKey": {
       "type": "string",
-      "title": "TypeSafe API key",
-      "description": "Saved from /compact-adviser. Hidden in /config so the value is never shown. A non-empty TYPESAFE_API_KEY in the launch environment wins. Do not commit this value.",
+      "title": "TypeSafe API 密钥",
+      "description": "由 /compact-adviser 保存。在 /config 中隐藏，不显示具体值。启动环境中非空的 TYPESAFE_API_KEY 优先。请勿提交此值。",
       "default": ""
     }
   }

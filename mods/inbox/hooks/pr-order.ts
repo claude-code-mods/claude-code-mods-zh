@@ -12,10 +12,10 @@ import type { DrawnPr } from './pr-views'
 import { lastPressOf, withOut } from './pr-press'
 import type { LastPress, PrAction } from './pr-press'
 
-export const RANK_AGAIN_LABEL = 'Rank again'
+export const RANK_AGAIN_LABEL = '重新排序'
 
 /** The muted line that starts the PRs the agent's order does not rank. */
-export const OTHER_PRS_TEXT = 'Other PRs'
+export const OTHER_PRS_TEXT = '其他 PR'
 
 /**
  * The block a look draws the "Other PRs" line above: the first block the order does not rank, when a ranked block,
@@ -36,7 +36,7 @@ function prOrderText(order: PrLinks['prOrder'], drawn: DrawnPr[], now: number): 
   const isRanking = drawn.some(d => d.isRanked)
   if (!order || !isRanking) return null
 
-  return `${order.label ?? 'Order'}${DOT}set by ${order.by} ${ago(now - order.at)}`
+  return `${order.label ?? '顺序'}${DOT}由 ${order.by} 于 ${ago(now - order.at)}设定`
 }
 
 /** What a ranked PR's block shows, as an order records it. Read without sent threads, so a press does not change it. */

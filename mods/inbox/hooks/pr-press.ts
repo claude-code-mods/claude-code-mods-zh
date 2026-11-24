@@ -47,7 +47,7 @@ export function logEffect(pr: PrView, check: PrCheck): Effect {
   return { kind: 'open', target: check.url ?? pr.url, name: check.url ? 'the log' : `PR #${pr.number}` }
 }
 
-export const RERUN_LABEL = 'Re-run'
+export const RERUN_LABEL = '重新运行'
 
 /**
  * The re-run a cancelled check offers, or null when it offers none: it is not cancelled, another app ran it, or a
@@ -86,8 +86,8 @@ export type PrReadFirstPress = PrFixPress | { action: 'check-rerun'; ref: string
 
 /** The labels of the buttons that hand a PR's fix to the agent. */
 export const PR_FIX_LABELS: Record<PrFixPress['action'], string> = {
-  'pr-conflicts': 'Resolve conflicts',
-  'check-fix': 'Fix',
+  'pr-conflicts': '解决冲突',
+  'check-fix': '修复',
 }
 
 /** A hand-off press that reads the PR first only while the saved view predates the reply to its earlier press. */
@@ -98,9 +98,9 @@ export type PrStaleReadPress =
 export const PR_READ_FIRST_LABELS: Record<PrReadFirstPress['action'] | PrStaleReadPress['action'], string> = {
   ...PR_FIX_LABELS,
   'check-rerun': RERUN_LABEL,
-  'pr-address-all': 'Address all',
-  'pr-merge': 'Merge',
-  'thread-address': 'Address',
+  'pr-address-all': '处理全部',
+  'pr-merge': '合并',
+  'thread-address': '处理',
 }
 
 export function isPrStaleReadPress(p: PrPress): p is PrStaleReadPress {
@@ -223,7 +223,7 @@ export function lastPressOf(presses: PressState, rowId: string, fetchedAt?: numb
 }
 
 export function again(row: LastPress, action: PrActionId, label: string): string {
-  return isAgain(row.last, action, row.pressing === action) ? `${label} again` : label
+  return isAgain(row.last, action, row.pressing === action) ? `${label}（再次）` : label
 }
 
 export function withOut(row: LastPress, actions: PlannedPrAction[]): PrAction[] {
@@ -232,6 +232,6 @@ export function withOut(row: LastPress, actions: PlannedPrAction[]): PrAction[] 
 
 export function retryAction(retry: { press: PrPress; kind: PressKind } | null): PlannedPrAction[] {
   return retry
-    ? [{ press: retry.press, label: 'Try again', kind: retry.kind, emphasis: 'normal', icon: 'retry', isRetry: true }]
+    ? [{ press: retry.press, label: '重试', kind: retry.kind, emphasis: 'normal', icon: 'retry', isRetry: true }]
     : []
 }

@@ -47,9 +47,9 @@ export function diagnosis(now: number, kept: Problem[] = problems, isLogging = s
   const counts = new Map<string, number>()
   for (const p of recent) counts.set(p.what, (counts.get(p.what) ?? 0) + 1)
   const lines = recent.length
-    ? [`${recent.length} problem${recent.length === 1 ? '' : 's'} in the last 10 minutes:`, ...[...counts].sort((a, b) => b[1] - a[1]).map(([what, n]) => `  ${what} × ${n}`)]
-    : ['No problems noticed in the last 10 minutes.']
-  lines.push(isLogging ? `Full log: ${logPath}` : 'For a full log, start Claude Code with SHOW_YOUR_WORK_DEBUG=1 and try again.')
+    ? [`最近 10 分钟内发现 ${recent.length} 个问题：`, ...[...counts].sort((a, b) => b[1] - a[1]).map(([what, n]) => `  ${what} × ${n}`)]
+    : ['最近 10 分钟内未发现问题。']
+  lines.push(isLogging ? `完整日志：${logPath}` : '若要查看完整日志，请使用 SHOW_YOUR_WORK_DEBUG=1 启动 Claude Code 后重试。')
   return lines.join('\n')
 }
 

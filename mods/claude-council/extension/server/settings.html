@@ -1,11 +1,11 @@
 <!doctype html>
 <!-- ABOUTME: The council settings panel Claude Desktop draws in the chat (an MCP App page) -->
 <!-- ABOUTME: Picks each provider's model; all data and saves go through the extension's tools -->
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Council models</title>
+<title>议事厅模型</title>
 <style>
   /* @include panel-style.css */
   /* @include model-list.css */
@@ -17,9 +17,9 @@
 </head>
 <body>
 <main>
-  <header><h1>Council models</h1><span id="status" role="status"></span></header>
-  <p class="lead">Changes save as you make them and apply to the next council question. Keys are entered in Claude Desktop, under Settings, Extensions, Claude Council.</p>
-  <div id="providers" aria-live="polite"><p class="lead">Loading the model lists from each provider.</p></div>
+  <header><h1>议事厅模型</h1><span id="status" role="status"></span></header>
+  <p class="lead">更改会即时保存，并在下一次议事厅提问时生效。密钥请在 Claude Desktop 的“设置 → 扩展 → Claude Council”中输入。</p>
+  <div id="providers" aria-live="polite"><p class="lead">正在从各提供方加载模型列表。</p></div>
 </main>
 <script>
 'use strict'
@@ -58,7 +58,7 @@ function single(row) {
   for (const id of ids) select.append(element('option', { value: id, textContent: id }))
   select.value = row.selected
   select.addEventListener('change', () => save({ selections: { [row.name]: select.value } }))
-  return [heading(row, row.hasKey ? '' : 'no key'), element('div', { className: 'line' }, [element('span', { textContent: 'Model' }), select])]
+  return [heading(row, row.hasKey ? '' : '无密钥'), element('div', { className: 'line' }, [element('span', { textContent: '模型' }), select])]
 }
 
 function roster(row) {
@@ -66,13 +66,13 @@ function roster(row) {
   const title = heading(row, '')
   const count = title.querySelector('small')
   function label() {
-    count.textContent = !row.hasKey ? 'no key' : chosen.size === 0 ? `default: ${row.defaultModel}` : `${chosen.size} of ${rosterMax} seats`
+    count.textContent = !row.hasKey ? '无密钥' : chosen.size === 0 ? `默认：${row.defaultModel}` : `${rosterMax} 个席位中已选 ${chosen.size} 个`
   }
   const { filter, list } = modelList({
     ids: [...new Set([...row.selected, ...row.models])],
     pinned: id => chosen.has(id),
-    label: 'Filter OpenRouter models',
-    empty: row.hasKey ? 'No model matches.' : 'The list appears once a key is saved.',
+    label: '筛选 OpenRouter 模型',
+    empty: row.hasKey ? '没有匹配的模型。' : '保存密钥后才会显示列表。',
     disabled: !row.hasKey,
     row: id => {
       const box = element('input', { type: 'checkbox', className: 'switch', checked: chosen.has(id), disabled: !row.hasKey })
@@ -97,16 +97,16 @@ async function load() {
   rosterMax = data.rosterMax
   const cards = data.providers.map(row => {
     const section = element('section', { className: row.hasKey ? '' : 'off' }, row.roster ? roster(row) : single(row))
-    if (!row.hasKey) section.append(element('div', { className: 'sub note', textContent: `Add the ${row.title} key in Claude Desktop, then reopen the council settings.` }))
-    if (row.listError) section.append(element('div', { className: 'sub note bad', textContent: `${row.listError}. The saved choice still applies.` }))
+    if (!row.hasKey) section.append(element('div', { className: 'sub note', textContent: `请在 Claude Desktop 中添加 ${row.title} 密钥，然后重新打开议事厅设置。` }))
+    if (row.listError) section.append(element('div', { className: 'sub note bad', textContent: `${row.listError}。已保存的选择仍然有效。` }))
     return section
   })
-  if (data.problem) cards.unshift(element('p', { className: 'lead bad', textContent: `${data.problem} Any change here saves a fresh set.` }))
+  if (data.problem) cards.unshift(element('p', { className: 'lead bad', textContent: `${data.problem} 此处的任何更改都会保存一套新的设置。` }))
   root.replaceChildren(...cards)
   host.reportSize()
 }
 
-load().catch(err => { root.replaceChildren(element('p', { className: 'note bad', textContent: `Could not load the settings (${err.message}).` })) })
+load().catch(err => { root.replaceChildren(element('p', { className: 'note bad', textContent: `无法加载设置（${err.message}）。` })) })
 </script>
 </body>
 </html>

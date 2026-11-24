@@ -53,7 +53,7 @@ function ItemGroup({
   all: Row[]
   now: number
 }) {
-  const title = kind === 'question' ? 'Questions' : 'Tasks'
+  const title = kind === 'question' ? '问题' : '任务'
   const mark = NEEDS_YOU_MARKS[kind]
   const rest = staying(entries)
   const closed = itemsClosed(v, kind, entries)
@@ -191,9 +191,9 @@ function GroupEnd({
 /** What the Asks tab says about the hooks the inbox has not heard from. The tab bar's line says why Codex is not running them. */
 function notHeardText(v: View): [string, string?] | null {
   if (v.heard === 'heard' || v.hooksTrust) return null
-  if (v.heard === 'none') return ['The inbox starts with your next message.']
+  if (v.heard === 'none') return ['收件箱将在你下一条消息后开始工作。']
 
-  return ['Items from Codex’s replies are missing.', 'The inbox has not heard from this chat’s hooks.']
+  return ['Codex 回复中的条目可能缺失。', '收件箱尚未收到此对话 hooks 的通知。']
 }
 
 export function NeedsYou({ v, lists, now }: { v: View; lists: Lists; now: number }) {

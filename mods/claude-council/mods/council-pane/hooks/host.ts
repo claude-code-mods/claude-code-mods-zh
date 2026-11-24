@@ -5,11 +5,11 @@ export type PaneHost = 'mod' | 'tmux'
 
 export const HOST_STORE_KEY = 'pane_host'
 
-export const HOST_QUESTION = 'Where should the council pane open?'
+export const HOST_QUESTION = '议事厅面板应在哪里打开？'
 
 export const HOST_LABELS: Record<PaneHost, string> = {
-  mod: 'Inside Claude Code',
-  tmux: 'tmux pane',
+  mod: 'Claude Code 内部',
+  tmux: 'tmux 窗格',
 }
 
 // A query starts a pane; fetching, cancelling or listing jobs, listing models

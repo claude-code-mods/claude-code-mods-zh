@@ -64,24 +64,24 @@ export function limitTone(p: number): Tone {
 }
 
 function estimateNote(c: CacheView): string {
-  return c.measured ? 'an estimate' : 'an estimate, lifetime not measured yet'
+  return c.measured ? '估算值' : '估算值，寿命尚未测量'
 }
 
 function cacheMark(c: CacheView): Mark {
-  const base = { id: 'cache' as const, label: 'cache' }
+  const base = { id: 'cache' as const, label: '缓存' }
   const est = estimateNote(c)
   switch (c.state) {
     case 'warm':
     case 'warning': {
       const left = c.secondsLeft ?? 0
       const tone: Tone = c.state === 'warm' ? 'good' : 'caution'
-      const word = c.state === 'warm' ? 'warm' : 'about to drop'
-      return { ...base, icon: 'hourglass', value: minutes(left), tone, ringPercent: clamp((left / c.lifetime) * 100), alt: `Cache ${word}, ${minutes(left)} left, ${est}` }
+      const word = c.state === 'warm' ? '温热' : '即将失效'
+      return { ...base, icon: 'hourglass', value: minutes(left), tone, ringPercent: clamp((left / c.lifetime) * 100), alt: `缓存${word}，剩余 ${minutes(left)}，${est}` }
     }
     case 'cold':
-      return { ...base, icon: 'cold', value: 'cold', tone: 'cold', ringPercent: 0, alt: `Cache cold, ${est}` }
+      return { ...base, icon: 'cold', value: '冷', tone: 'cold', ringPercent: 0, alt: `缓存已冷，${est}` }
     case 'refreshing':
-      return { ...base, icon: 'hourglass', value: minutes(c.lifetime), tone: 'good', ringPercent: 100, alt: 'Cache refreshing while the turn runs' }
+      return { ...base, icon: 'hourglass', value: minutes(c.lifetime), tone: 'good', ringPercent: 100, alt: '当前回合正在刷新缓存' }
     case 'warming':
       return {
         ...base,
@@ -89,25 +89,25 @@ function cacheMark(c: CacheView): Mark {
         value: c.secondsLeft != null ? minutes(c.secondsLeft) : '--',
         tone: 'good',
         ringPercent: c.secondsLeft != null ? clamp((c.secondsLeft / c.lifetime) * 100) : 0,
-        alt: 'Cache warm-up running',
+        alt: '缓存预热中',
       }
     default:
-      return { ...base, icon: 'hourglass', value: '--', tone: 'none', ringPercent: 0, alt: 'Cache clock starts after the first reply' }
+      return { ...base, icon: 'hourglass', value: '--', tone: 'none', ringPercent: 0, alt: '缓存在首次回复后开始计时' }
   }
 }
 
 function limitMark(id: 'fiveHour' | 'week', limit: Limit, now: number, opts: FormatOptions): Mark {
   const p = Math.round(limit.percentUsed)
-  const name = id === 'fiveHour' ? '5-hour' : 'Weekly'
+  const name = id === 'fiveHour' ? '5 小时' : '每周'
   const when = renewal(limit.resetsAt, now, opts)
   return {
     id,
     icon: 'clock',
     value: `${p}%`,
-    label: id === 'fiveHour' ? '5 hours' : 'week',
+    label: id === 'fiveHour' ? '5 小时' : '每周',
     tone: limitTone(limit.percentUsed),
     ringPercent: clamp(limit.percentUsed),
-    alt: `${name} limit ${p}% used` + (when ? `, renews ${when}` : ''),
+    alt: `${name}用量已使用 ${p}%` + (when ? `，${when}续期` : ''),
   }
 }
 
@@ -120,17 +120,17 @@ export function marks(s: Snapshot, opts: FormatOptions = {}): Mark[] {
         icon: q.score < QUALITY_FLOOR ? 'slip' : 'check',
         value: String(Math.round(q.score)),
         badge: gradeOf(q.score),
-        label: 'quality',
+        label: '质量',
         tone: qualityTone(q.score),
-        alt: `Quality grade ${gradeOf(q.score)}, score ${Math.round(q.score)} of 100`,
+        alt: `质量等级 ${gradeOf(q.score)}，得分 ${Math.round(q.score)}/100`,
       }
-    : { id: 'quality', icon: 'check', value: '--', badge: '--', label: 'quality', tone: 'none', alt: 'Quality not measured yet' }
+    : { id: 'quality', icon: 'check', value: '--', badge: '--', label: '质量', tone: 'none', alt: '质量尚未测量' }
 
   const p = s.contextPercent
   const context: Mark =
     p != null
-      ? { id: 'context', icon: 'gauge', value: `${Math.round(p)}%`, label: 'context', tone: fillTone(p), ringPercent: clamp(p), alt: `Context ${Math.round(p)}% full` }
-      : { id: 'context', icon: 'gauge', value: '--', label: 'context', tone: 'none', ringPercent: 0, alt: 'Context fill not reported yet' }
+      ? { id: 'context', icon: 'gauge', value: `${Math.round(p)}%`, label: '上下文', tone: fillTone(p), ringPercent: clamp(p), alt: `上下文已占用 ${Math.round(p)}%` }
+      : { id: 'context', icon: 'gauge', value: '--', label: '上下文', tone: 'none', ringPercent: 0, alt: '尚未报告上下文占用量' }
 
   const out = [quality, context, cacheMark(s.cache)]
   if (s.fiveHour) out.push(limitMark('fiveHour', s.fiveHour, s.now, opts))
@@ -139,62 +139,62 @@ export function marks(s: Snapshot, opts: FormatOptions = {}): Mark[] {
 }
 
 function cacheCard(c: CacheView): Card {
-  const est = ` The clock is ${estimateNote(c)}.`
+  const est = `计时为${estimateNote(c)}。`
   // Offered only while a press can still run: not in the last seconds before the cache drops.
-  const warm: Action[] = c.measured && (c.secondsLeft ?? 0) > KEEP_WARM_MARGIN_S ? [{ id: 'warm', label: 'Keep warm' }] : []
+  const warm: Action[] = c.measured && (c.secondsLeft ?? 0) > KEEP_WARM_MARGIN_S ? [{ id: 'warm', label: '保持温热' }] : []
   const stake = c.tokensAtStake
   const left = minutes(c.secondsLeft ?? 0)
   switch (c.state) {
     case 'warm':
       return {
         id: 'cache',
-        title: `Warm for ${left}`,
-        means: [plain(`Messages re-read ${stake != null ? `${tokens(stake)} tokens` : 'the context'} at a tenth of the price.${est}`)],
-        todo: [plain(warm.length ? `Reply within ${left} or click Keep warm before a break.` : `Reply within ${left} to keep it warm.`)],
+        title: `温热还可维持 ${left}`,
+        means: [plain(`消息将以十分之一的价格重新读取${stake != null ? `${tokens(stake)} 个 token` : '上下文'}。${est}`)],
+        todo: [plain(warm.length ? `请在 ${left} 内回复，或点击“保持温热”后再休息。` : `请在 ${left} 内回复以保持温热。`)],
         actions: warm,
       }
     case 'warning':
       return {
         id: 'cache',
-        title: c.secondsLeft != null ? `Drops in ${left}` : 'Drops soon',
+        title: c.secondsLeft != null ? `${left}后失效` : '即将失效',
         means: [
-          ...(stake != null ? [plain('Then the next message re-reads '), loseRun(stake), plain(` at full price.${est}`)] : [plain(`Then the next message re-reads the whole context at full price.${est}`)]),
+          ...(stake != null ? [plain('届时下一条消息将按全价重新读取 '), loseRun(stake), plain(`。${est}`)] : [plain(`届时下一条消息将按全价重新读取整个上下文。${est}`)]),
         ],
-        todo: [plain(warm.length ? 'Click Keep warm now.' : 'Reply now; after the drop, Clean up first makes the next read cheaper.')],
+        todo: [plain(warm.length ? '立即点击“保持温热”。' : '立即回复；失效后先用“先清理”让下一次读取更便宜。')],
         actions: warm,
       }
     case 'cold':
       return {
         id: 'cache',
-        title: 'Cold',
+        title: '已冷',
         means: [
-          ...(stake != null ? [plain('Next message re-reads '), loseRun(stake), plain(' at full price.')] : [plain('Next message re-reads the whole context at full price.')]),
+          ...(stake != null ? [plain('下一条消息将按全价重新读取 '), loseRun(stake), plain('。')] : [plain('下一条消息将按全价重新读取整个上下文。')]),
         ],
-        todo: [plain('Clean up first re-reads it once and makes later messages cheaper.')],
-        actions: [{ id: 'clean-first', label: 'Clean up first' }],
+        todo: [plain('“先清理”会重新读取一次，让后续消息更便宜。')],
+        actions: [{ id: 'clean-first', label: '先清理' }],
       }
     case 'refreshing':
-      return { id: 'cache', title: 'Refreshing', means: [plain('Every request in this turn keeps the cache warm.')], todo: [plain('Nothing to do.')], actions: [] }
+      return { id: 'cache', title: '刷新中', means: [plain('本回合的每次请求都会保持缓存温热。')], todo: [plain('无需操作。')], actions: [] }
     case 'warming':
-      return { id: 'cache', title: 'Keeping warm', means: [plain('A one-line warm-up is running.')], todo: [plain('Nothing to do.')], actions: [] }
+      return { id: 'cache', title: '保持温热中', means: [plain('正在运行一行式预热。')], todo: [plain('无需操作。')], actions: [] }
     default:
-      return { id: 'cache', title: 'Not started', means: [plain('The clock starts after the first reply.')], todo: [plain('Nothing to do.')], actions: [] }
+      return { id: 'cache', title: '尚未开始', means: [plain('缓存在首次回复后开始计时。')], todo: [plain('无需操作。')], actions: [] }
   }
 }
 
 function limitCard(id: 'fiveHour' | 'week', limit: Limit, now: number, opts: FormatOptions): Card {
   const p = Math.round(limit.percentUsed)
-  const name = id === 'fiveHour' ? '5-hour' : 'Weekly'
+  const name = id === 'fiveHour' ? '5 小时' : '每周'
   const when = renewal(limit.resetsAt, now, opts)
   const at = limit.resetsAt ? Date.parse(limit.resetsAt) : NaN
   if (!when || !Number.isFinite(at)) {
-    return { id, title: `${name} limit ${p}% used`, means: [plain('Renewal time not reported.')], todo: [plain('Nothing to do.')], actions: [] }
+    return { id, title: `${name}用量已使用 ${p}%`, means: [plain('未报告续期时间。')], todo: [plain('无需操作。')], actions: [] }
   }
   return {
     id,
-    title: `Renews ${when}`,
-    means: [plain(`${name} limit ${p}% used; resets ${when}, ${relative(at, now)}.`)],
-    todo: [plain(p >= LIMIT_WARN ? 'Clean up frees context sooner.' : 'Nothing to do.')],
+    title: `${when}续期`,
+    means: [plain(`${name}用量已使用 ${p}%；${when}重置，${relative(at, now)}。`)],
+    todo: [plain(p >= LIMIT_WARN ? '“清理”可更早释放上下文。' : '无需操作。')],
     actions: [],
   }
 }
@@ -203,18 +203,18 @@ function limitCard(id: 'fiveHour' | 'week', limit: Limit, now: number, opts: For
 export function cards(s: Snapshot, opts: FormatOptions = {}): Card[] {
   const q = s.quality
   const qualityActions: Action[] = [
-    { id: 'clean', label: 'Clean up' },
-    { id: 'fresh', label: s.freshArmed ? 'Click again to clear' : 'Start fresh' },
+    { id: 'clean', label: '清理' },
+    { id: 'fresh', label: s.freshArmed ? '再次点击以清空' : '重新开始' },
   ]
   const quality: Card = q
     ? {
         id: 'quality',
-        title: `Quality ${gradeOf(q.score)} ${Math.round(q.score)}`,
-        means: [plain(`How clean Claude's working context is, 0 to 100.${q.drag ? ` Biggest drag: ${q.drag}.` : ' Nothing is dragging it down.'}`)],
-        todo: [plain(q.score < QUALITY_FLOOR ? 'Clean up compacts and keeps your direction; Start fresh keeps a checkpoint first.' : 'Nothing to do.')],
+        title: `质量 ${gradeOf(q.score)} ${Math.round(q.score)}`,
+        means: [plain(`Claude 工作上下文的整洁程度，范围 0 到 100。${q.drag ? ` 最大拖累：${q.drag}。` : ' 没有拖累因素。'}`)],
+        todo: [plain(q.score < QUALITY_FLOOR ? '“清理”会压缩并保留你的方向；“重新开始”会先保存检查点。' : '无需操作。')],
         actions: qualityActions,
       }
-    : { id: 'quality', title: 'Quality --', means: [plain('The score appears after the first tool call.')], todo: [plain('Nothing to do.')], actions: qualityActions }
+    : { id: 'quality', title: '质量 --', means: [plain('首次工具调用后显示得分。')], todo: [plain('无需操作。')], actions: qualityActions }
 
   // With a smaller auto-compact ceiling the ring measures distance to compaction, while
   // quality follows the model window, so the card names both and makes no quality claim.
@@ -224,19 +224,19 @@ export function cards(s: Snapshot, opts: FormatOptions = {}): Card[] {
       ? model != null && model > s.contextWindow
         ? {
             id: 'context',
-            title: `${tokens(s.contextTokens)} of ${tokens(s.contextWindow)} before auto-compact`,
-            means: [plain(`${Math.round((s.contextTokens / model) * 100)}% of the ${tokens(model)} model window.`)],
-            todo: [plain('Near full, auto-compact may lose details; Clean up compacts sooner and keeps your direction.')],
+            title: `自动压缩前 ${tokens(s.contextTokens)} / ${tokens(s.contextWindow)}`,
+            means: [plain(`占 ${tokens(model)} 模型窗口的 ${Math.round((s.contextTokens / model) * 100)}%。`)],
+            todo: [plain('接近满载时自动压缩可能丢失细节；“清理”会更早压缩并保留你的方向。')],
             actions: [],
           }
         : {
             id: 'context',
-            title: `${tokens(s.contextTokens)} of ${tokens(s.contextWindow)} tokens`,
-            means: [plain('Quality holds best under half full.')],
-            todo: [plain('Past 80%, Clean up compacts and keeps your direction.')],
+            title: `${tokens(s.contextTokens)} / ${tokens(s.contextWindow)} token`,
+            means: [plain('占用不到一半时质量最佳。')],
+            todo: [plain('超过 80% 时，“清理”会压缩并保留你的方向。')],
             actions: [],
           }
-      : { id: 'context', title: 'Context --', means: [plain('The fill appears after the first reply.')], todo: [plain('Nothing to do.')], actions: [] }
+      : { id: 'context', title: '上下文 --', means: [plain('首次回复后显示占用量。')], todo: [plain('无需操作。')], actions: [] }
 
   const out = [quality, context, cacheCard(s.cache)]
   if (s.fiveHour) out.push(limitCard('fiveHour', s.fiveHour, s.now, opts))
@@ -278,7 +278,7 @@ function savingsBlock(s: Snapshot): SavingsBlock {
       last30Text: '--',
       daily: [],
       bars: [],
-      reason: s.savingsLoading ? null : 'Savings appear once Token Optimizer has measured some.',
+      reason: s.savingsLoading ? null : 'Token Optimizer 测量后即显示节省量。',
     }
   }
   const top = Math.max(1, ...sv.daily)
@@ -310,16 +310,16 @@ export function row(s: Snapshot, _opts: FormatOptions = {}): Row {
   const startS = q?.sessionStartEpoch ?? (s.startedAtMs != null ? s.startedAtMs / 1000 : null)
   if (startS != null) facts.push({ icon: 'clock', runs: [strong(duration(s.now / 1000 - startS))] })
   const tools = Math.max(q?.toolCalls ?? 0, s.toolCallsSeen ?? 0)
-  if (q?.toolCalls != null || (s.toolCallsSeen ?? 0) > 0) facts.push({ icon: 'tool', runs: [strong(String(tools)), plain(tools === 1 ? ' tool' : ' tools')] })
+  if (q?.toolCalls != null || (s.toolCallsSeen ?? 0) > 0) facts.push({ icon: 'tool', runs: [strong(String(tools)), plain(tools === 1 ? ' 次工具调用' : ' 次工具调用')] })
   const compacted = Math.max(q?.compactions ?? 0, s.compactionsSeen ?? 0)
-  if (compacted > 0) facts.push({ icon: 'compact', runs: [strong(`${compacted}×`), plain(' compacted')] })
+  if (compacted > 0) facts.push({ icon: 'compact', runs: [strong(`${compacted}×`), plain(' 已压缩')] })
   facts.push({
     icon: 'bookmark',
     runs: (s.checkpointEpoch ?? q?.checkpointEpoch) != null
-      ? [plain('Checkpoint '), strong(ago((s.checkpointEpoch ?? q!.checkpointEpoch!) * 1000, s.now))]
+      ? [plain('检查点 '), strong(ago((s.checkpointEpoch ?? q!.checkpointEpoch!) * 1000, s.now))]
       : s.earlierCheckpoint
-        ? [plain('Earlier checkpoint '), strong(ago(s.earlierCheckpoint.epoch * 1000, s.now))]
-        : [plain('No checkpoint yet')],
+        ? [plain('更早的检查点 '), strong(ago(s.earlierCheckpoint.epoch * 1000, s.now))]
+        : [plain('尚无检查点')],
   })
   return { facts, savings: savingsBlock(s) }
 }

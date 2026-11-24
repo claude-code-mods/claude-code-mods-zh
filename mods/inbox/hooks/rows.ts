@@ -25,8 +25,8 @@ export const NEEDS_YOU_GROUPS: {
   list: 'questions' | 'tasks'
   mark: { mark: string; tone: 'needsYou' | 'tasks' }
 }[] = [
-  { kind: 'question', title: 'Questions', list: 'questions', mark: NEEDS_YOU_MARKS.question },
-  { kind: 'task', title: 'Tasks', list: 'tasks', mark: NEEDS_YOU_MARKS.task },
+  { kind: 'question', title: '问题', list: 'questions', mark: NEEDS_YOU_MARKS.question },
+  { kind: 'task', title: '任务', list: 'tasks', mark: NEEDS_YOU_MARKS.task },
 ]
 
 export const CLOSED_SHOWN = 3
@@ -86,20 +86,20 @@ export type ActionEmphasis = 'primary' | 'normal' | 'quiet'
 export type ActionIcon = 'done' | 'retry' | 'open' | 'copy' | 'run'
 
 export const ROW_COPY = {
-  retry: 'Try again',
-  send: 'Send',
-  cancel: 'Cancel',
-  discard: 'Discard',
-  clickField: 'Click the field to type',
-  relevantFile: 'Relevant file: ',
-  allOptions: (count: number) => `All ${count} options`,
-  undo: 'Undo',
-  reopen: 'Reopen',
+  retry: '重试',
+  send: '发送',
+  cancel: '取消',
+  discard: '放弃',
+  clickField: '点击输入框以输入',
+  relevantFile: '相关文件：',
+  allOptions: (count: number) => `全部 ${count} 个选项`,
+  undo: '撤销',
+  reopen: '重新打开',
 } as const
 
 /** The stop banner's button: Resume, and Resuming… while its message is on its way. */
 export function resumeLabel(isSending: boolean): string {
-  return isSending ? 'Resuming…' : 'Resume'
+  return isSending ? '正在继续…' : '继续'
 }
 
 /**
@@ -236,7 +236,7 @@ export function actionLabel(
   fits?: (label: string) => boolean,
 ): string {
   if (!action.isPrimary) return action.label
-  const marked = `${action.label} (recommended)`
+  const marked = `${action.label}（推荐）`
 
   return fits && !fits(marked) ? action.label : marked
 }
@@ -362,20 +362,20 @@ export function deliveryLabel(step: SendStep, label: string, reply?: string): st
     const words = replyLine(reply)
     switch (step) {
       case 'sending':
-        return `Sending reply: ${words}`
+        return `正在发送回复：${words}`
       case 'queued':
-        return `Queued reply: ${words}`
+        return `回复已排队：${words}`
       case 'unconfirmed':
-        return `Reply not confirmed: ${words}`
+        return `回复未确认：${words}`
       case 'arrived':
-        return `Replied: ${words}`
+        return `已回复：${words}`
     }
   }
   switch (step) {
     case 'queued':
-      return `Queued: ${label}`
+      return `已排队：${label}`
     case 'unconfirmed':
-      return `Not confirmed: ${label}`
+      return `未确认：${label}`
     default:
       return label
   }
@@ -423,11 +423,11 @@ function isSendRefused(delivery: ClosedDelivery): delivery is { error: string; c
 
 /** A settled row's label with its message's step, as "Queued: Yes", or a reply's words as "Replied: Call it hello". */
 export function settledLabel(label: string, delivery: ClosedDelivery, reply?: string): string {
-  if (delivery && typeof delivery === 'object') return `${label} · Not sent: ${delivery.error}`
+  if (delivery && typeof delivery === 'object') return `${label} · 未发送：${delivery.error}`
   return deliveryLabel(sendStepOf(delivery), label, reply)
 }
 
 /** A closed record's outcome as a look shows it. A finding a question replaced says where it went. */
 export function outcomeLabel(c: { outcome: string; askedAs?: string }): string {
-  return c.askedAs ? 'Now a question in Asks' : capitalized(c.outcome)
+  return c.askedAs ? '现为“询问”中的问题' : capitalized(c.outcome)
 }

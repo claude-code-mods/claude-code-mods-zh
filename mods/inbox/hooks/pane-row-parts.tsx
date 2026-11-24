@@ -452,7 +452,7 @@ export function paneRowParts(
         </Box>
       )
     }
-    if (look !== 'terminal' || at === null) return <Button key={key} label="↺ Undo" onPress={onPress} />
+    if (look !== 'terminal' || at === null) return <Button key={key} label="↺ 撤销" onPress={onPress} />
     const cells = [...label]
     const keyAt = cells.indexOf(UNDO_KEY)
     const filled = Math.ceil((Math.max(0, SETTLED_MS - (now - at)) / SETTLED_MS) * cells.length)

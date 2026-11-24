@@ -48,6 +48,47 @@ export const TUNABLES = {
   'env.CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS': { check: oneOf('1', '0'), live: false, about: 'drop built-in git instructions' },
 }
 
+/** The same descriptions in the interface's language (lib/console.mjs, bin/tokendoctor-set). */
+export const ABOUT = {
+  autoCompactWindow: '自动压缩前上下文中的 token 数',
+  autoCompactEnabled: '自动压缩的开或关',
+  idleCompaction: '在一小时缓存到期前压缩长时间闲置的对话',
+  model: '新会话的默认模型',
+  advisorModel: '顾问模型',
+  effortLevel: '推理强度',
+  alwaysThinkingEnabled: '默认启用扩展思考',
+  fastMode: '快速模式（每个 token 价格更高）',
+  fastModePerSessionOptIn: '仅在会话中输入 /fast 后启用快速模式',
+  includeGitInstructions: '系统提示中的内置 git 指令和状态',
+  bashOutputMaxChars: '保留在上下文中的 Bash 输出',
+  promptSuggestionEnabled: '提示建议（每次回复后发一个小请求）',
+  skillListingBudgetFraction: '技能列表占用的上下文比例',
+  skillListingMaxDescChars: '列表中每个技能描述的字符数',
+  outputStyle: '输出风格',
+  cleanupPeriodDays: '对话记录保留的天数',
+  disableClaudeAiConnectors: '关闭 claude.ai 连接器',
+  promptCacheTtl: '主对话的提示缓存 TTL',
+  subagentPromptCacheTtl: '子代理的提示缓存 TTL',
+  'tokendoctor.slide': '在 Claude Code 会压缩的地方省略旧工具输出，而不是总结对话',
+  'tokendoctor.slideTo': '滑动释放上下文的程度，按 Claude Code 压缩点的百分比计算',
+  'env.CLAUDE_CODE_SUBAGENT_MODEL': '未单独指定模型的子代理所用模型',
+  'env.CLAUDE_CODE_EFFORT_LEVEL': '推理强度，优先于 /effort 和 effortLevel',
+  'env.CLAUDE_CODE_AUTO_COMPACT_WINDOW': '自动压缩窗口，优先于同名设置',
+  'env.CLAUDE_AUTOCOMPACT_PCT_OVERRIDE': '触发自动压缩的窗口百分比（只能降低）',
+  'env.CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS': '闲置压缩开始的上下文大小（默认 200,000）',
+  maxEffortLevel: '任何会话、技能或子代理可用的最高推理强度',
+  'env.MAX_MCP_OUTPUT_TOKENS': 'MCP 工具输出上限',
+  'env.BASH_MAX_OUTPUT_LENGTH': 'Bash 输出上限（bashOutputMaxChars 优先）',
+  'env.ENABLE_TOOL_SEARCH': '延迟加载 MCP 工具定义',
+  'env.CLAUDE_CODE_MAX_OUTPUT_TOKENS': '每次回复的最大输出 token 数',
+  'env.CLAUDE_CODE_FILE_READ_MAX_OUTPUT_TOKENS': 'Read 工具输出上限',
+  'env.CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS': '移除内置的 git 指令',
+}
+
+export function aboutOf(key) {
+  return ABOUT[key] ?? TUNABLES[key]?.about ?? key
+}
+
 // Parses a command-line value as JSON when it is one (true, 400000, "1h"), else keeps the text.
 export function parseValue(raw) {
   try {

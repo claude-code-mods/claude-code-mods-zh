@@ -142,7 +142,7 @@ export function collect(configDir, { days } = {}) {
 
   for (const { file, project: dir } of sessionFiles(configDir, { days })) {
     // A readable name: the folder without the home prefix or a usual parent; scratch and temp folders as one.
-    const project = /^-private-|^-tmp-|^-var-folders-/.test(dir) ? 'temporary folders' : dir.replace(home, '').replace(/^(Documents|Desktop|Projects|projects|code|src|dev|work|repos)-/, '') || dir
+    const project = /^-private-|^-tmp-|^-var-folders-/.test(dir) ? '临时文件夹' : dir.replace(home, '').replace(/^(Documents|Desktop|Projects|projects|code|src|dev|work|repos)-/, '') || dir
     const read = readOr(file, responses)
     if (!read) continue
     const seen = seenIn.get(dir) ?? seenIn.set(dir, new Set()).get(dir)
@@ -199,7 +199,7 @@ export function collect(configDir, { days } = {}) {
   return {
     generated: new Date().toISOString(),
     days: days ?? null,
-    units: `Dollars at the Claude API's list price of each model (${PRICES.source}, read ${PRICES.checked}); on a Pro or Max plan, what the same work would cost on the API, not what it took from the plan's limits. Requests Claude Code makes that its transcripts leave out (a summary compaction's own request, titles, page reads for WebFetch) are taken from its own session total where it holds, else estimated`,
+    units: `按各模型的 Claude API 标价计算的美元金额（${PRICES.source}，读取于 ${PRICES.checked}）；在 Pro 或 Max 套餐上，这是同样工作在 API 上的费用，而不是套餐额度里的实际扣减。Claude Code 发出但对话记录里没有的请求（总结压缩本身的请求、标题、WebFetch 的页面读取）在有自身会话总计时采用该总计，否则为估算值`,
     ownTotals: own,
     prices: PRICES,
     unpriced,

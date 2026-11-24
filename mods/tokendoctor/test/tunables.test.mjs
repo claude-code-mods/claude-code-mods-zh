@@ -43,11 +43,11 @@ test('tokendoctor-set dry-runs, then writes with a backup into a sandbox config'
     const run = (...a) => spawnSync(process.execPath, [bin, ...a], { encoding: 'utf8', env: { PATH: process.env.PATH, HOME: dir, CLAUDE_CONFIG_DIR: dir } })
     const dry = run('promptSuggestionEnabled', 'false')
     assert.equal(dry.status, 0, dry.stderr)
-    assert.match(dry.stdout, /Dry run/)
+    assert.match(dry.stdout, /试运行/)
     assert.equal(run('promptSuggestionEnabled', 'false', '--write').status, 0)
     assert.deepEqual(JSON.parse(readFileSync(join(dir, 'settings.json'), 'utf8')), { promptSuggestionEnabled: false })
     const w = run('autoCompactWindow', '400000', '--write')
-    assert.match(w.stdout, /backup: .*\.bak/)
+    assert.match(w.stdout, /备份：.*\.bak/)
     assert.equal(run('hooks', '{}', '--write').status, 2)
     assert.equal(JSON.parse(run('--list', '--json').stdout).length, Object.keys(TUNABLES).length)
   } finally {

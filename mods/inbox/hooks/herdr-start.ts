@@ -10,7 +10,7 @@ const message = (err: unknown) => (err instanceof Error ? err.message : String(e
 /** The line a host logs for what it did about the Herdr mod, or null when it did nothing. */
 function modLine(result: HerdrModResult): string | null {
   if (result.is === 'failed') return result.text
-  if (result.is === 'installed') return 'Installed the inbox mod in Herdr.'
+  if (result.is === 'installed') return '已在 Herdr 中安装收件箱插件。'
 
   return result.is === 'updated' ? 'Updated the inbox mod in Herdr to a newer build.' : null
 }

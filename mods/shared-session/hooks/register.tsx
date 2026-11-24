@@ -432,13 +432,13 @@ async function noteLatest($: $, latest: unknown) {
   if (live === 'running') return void selfUpdate($, latest)
   if (live === 'pinned') {
     return void $.ui.log(
-      `Shared Sessions ${latest} is out (this session runs ${mine}). Claude Desktop runs the copy installed from your local marketplace folder, so a release loads only when you quit and reopen it. To have releases load in place, add the marketplace from GitHub: ${await switchCommand($)}`,
+      `Shared Sessions ${latest} 已发布（当前会话运行的是 ${mine}）。Claude Desktop 使用从本地 marketplace 文件夹安装的版本，因此只有退出并重新打开后才会加载新版本。若想原位加载版本，请从 GitHub 添加 marketplace：${await switchCommand($)}`,
     )
   }
   $.ui.log(
     auto
-      ? `Shared Sessions ${latest} is out (this session runs ${mine}). It installs by itself; new sessions get it${live === 'next' ? ', and from then on updates load without a restart' : ''}.`
-      : `Shared Sessions ${latest} is out (this session runs ${mine}). Turn on Updates in the Room, or run: ${UPDATE_COMMAND}`,
+      ? `Shared Sessions ${latest} 已发布（当前会话运行的是 ${mine}）。它会自动安装，新会话即可使用${live === 'next' ? '，此后更新无需重启即可加载' : ''}。`
+      : `Shared Sessions ${latest} 已发布（当前会话运行的是 ${mine}）。请在 Room 中开启“自动更新”，或运行：${UPDATE_COMMAND}`,
   )
 }
 
@@ -557,7 +557,7 @@ async function selfUpdate($: $, latest: string) {
   )
   const got = /version=(\S+)/.exec(fetched.out)?.[1]
   const apply = Boolean(got && newerThan(got, mine))
-  if (apply) $.ui.log(`Updating Shared Sessions to ${got}. It reloads in place; nothing to restart.`)
+  if (apply) $.ui.log(`正在将 Shared Sessions 更新到 ${got}。更新会在原位加载，无需重启。`)
   if (got) {
     await sh(
       $,
@@ -579,7 +579,7 @@ async function selfUpdate($: $, latest: string) {
     // otherwise keep this session on its version unseen.
     if (!got && !/busy/.test(fetched.out) && failedFor !== latest) {
       failedFor = latest
-      $.ui.log(`Shared Sessions ${latest} is out, but this machine couldn't download it. Run: ${UPDATE_COMMAND} — the next session picks it up.`)
+      $.ui.log(`Shared Sessions ${latest} 已发布，但本机无法下载。请运行：${UPDATE_COMMAND} —— 下一个会话会使用它。`)
     }
   }
 }
@@ -604,7 +604,7 @@ async function catchUpFromInstalled($: $) {
   }
   const version = typeof installed?.version === 'string' ? installed.version : ''
   if (!version || !newerThan(version, mine) || typeof installed?.installPath !== 'string') return
-  $.ui.log(`Updating Shared Sessions to ${version} from the installed copy. It reloads in place; nothing to restart.`)
+  $.ui.log(`正在从已安装副本将 Shared Sessions 更新到 ${version}。更新会在原位加载，无需重启。`)
   await sh(
     $,
     [
@@ -632,7 +632,7 @@ async function serverTraces($: $): Promise<boolean> {
     return false
   }
 }
-const keptNote = (team: string | null) => `This server keeps its turns: ${team ? `everyone in ${team}` : 'you'} can search them later.`
+const keptNote = (team: string | null) => `此服务器会保留会话轮次：${team ? `${team} 的所有成员` : '你'}以后可以搜索它们。`
 
 // What the server says is newest, asked now and then: a long-open session
 // learns of a release without sharing or joining anything.
@@ -725,7 +725,7 @@ async function readUpdates($: $) {
   // marketplace's autoUpdate), or the folder named for them gone: in place now.
   const missing = named && dir ? !(await $.fs.exists(`${dir}/.claude-plugin/plugin.json`).catch(() => true)) : false
   if (on && (!named || missing) && !runsLive($) && (await enableLive($))) {
-    $.ui.log('Shared Sessions now updates in place: from your next new session on, a release loads without a restart.')
+    $.ui.log('Shared Sessions 现在会在原位更新：从下一个新会话起，版本加载无需重启。')
   }
 }
 
@@ -738,7 +738,7 @@ async function writeUpdates($: $, on: boolean) {
   try {
     if (await $.fs.exists(path)) settings = JSON.parse(await $.fs.read(path))
   } catch {
-    $.ui.toast(`Couldn't read ${path}, so nothing changed`)
+    $.ui.toast(`无法读取 ${path}，未做任何更改`)
     return
   }
   const known = (settings.extraKnownMarketplaces ?? {}) as Record<string, Record<string, unknown>>
@@ -747,17 +747,17 @@ async function writeUpdates($: $, on: boolean) {
   try {
     await $.fs.write(path, `${JSON.stringify(settings, null, 2)}\n`)
   } catch {
-    $.ui.toast("Couldn't change it here: use /plugin → Marketplaces → claude-share")
+    $.ui.toast("无法在此处更改：请使用 /plugin → Marketplaces → claude-share")
     return
   }
   await update($, updatesA, () => on)
   if (on) {
     const live = await enableLive($)
-    $.ui.toast(live ? (runsLive($) ? 'Updates: automatic, in place' : 'Updates: automatic. New sessions update in place') : 'Updates: automatic')
+    $.ui.toast(live ? (runsLive($) ? '更新：自动，原位加载' : '更新：自动。新会话将原位加载更新') : '更新：自动')
   } else {
     await nameLiveDir($, false)
     await update($, liveUpdatesA, () => (runsLive($) ? 'running' : null))
-    $.ui.toast(runsLive($) ? 'Updates: manual, from your next new session on' : 'Updates: manual')
+    $.ui.toast(runsLive($) ? '更新：手动，从下一个新会话起生效' : '更新：手动')
   }
 }
 
@@ -792,14 +792,14 @@ function secureServer(url: string): boolean {
 class PlainServer extends Error {
   constructor(url: string) {
     super(
-      `The share server ${url} is plain http, which would send everyone's tokens unencrypted. Use its https:// address (plain http works only for a server on this computer).`,
+      `共享服务器 ${url} 使用的是明文 http，会以未加密方式传输所有人的令牌。请使用它的 https:// 地址（明文 http 仅适用于本机上的服务器）。`,
     )
   }
 }
 // A room saved on such a server isn't taken up again (`resumeHosting`,
 // `resumeJoined`): its token would go with the first request.
 const plainSaved = (server: string) =>
-  `This session's room is on ${server}, plain http, which would send its tokens unencrypted, so it isn't taken up again. Share or join again through an https:// server.`
+  `当前会话的房间位于 ${server}，使用明文 http，会以未加密方式传输令牌，因此不会恢复。请通过 https:// 服务器重新分享或加入。`
 let myName: string | undefined
 // An entry held (`hold`) waits for its pictures to go up, and what follows it waits too.
 let outbox: { type: string; body: Record<string, unknown>; hold?: boolean }[] = []
@@ -882,16 +882,16 @@ type RunWords = {
 }
 const SAY: Record<RunOwner, RunWords> = {
   listener: {
-    unreachable: (_host, port) => `Couldn't forward localhost:${port}. Press Open in the Room to try again.`,
-    busy: 'Preview connection or request limit reached. Close unused preview tabs or wait a minute, then retry.',
-    refused: 'Preview authorization was refused. Press Open in the Room to reconnect.',
-    connect: () => 'The last channel could not connect to the host target. Mapping retained; target unverified.',
+    unreachable: (_host, port) => `无法转发 localhost:${port}。请在 Room 中按“打开”重试。`,
+    busy: '已达到预览连接或请求上限。请关闭不用的预览标签页，或稍等一分钟后重试。',
+    refused: '预览授权被拒绝。请在 Room 中按“打开”重新连接。',
+    connect: () => '上一个通道无法连接到主机目标。映射已保留；目标未验证。',
   },
   window: {
-    unreachable: (host, port) => `Couldn't reach ${host}'s localhost:${port} for the preview window. Press Open preview to try again.`,
-    busy: 'The preview window reached its connection or request limit. Close unused tabs in it or wait a minute, then reload the page.',
-    refused: "The preview window's authorization was refused. Press Open preview to reconnect.",
-    connect: (host, port) => `The preview window couldn't connect to ${host}'s localhost:${port}. Check that it's running there, then reload the page.`,
+    unreachable: (host, port) => `预览窗口无法访问 ${host} 的 localhost:${port}。请按“打开预览”重试。`,
+    busy: '预览窗口已达到连接或请求上限。请关闭窗口中不用的标签页，或稍等一分钟后重新加载页面。',
+    refused: "预览窗口的授权被拒绝。请按“打开预览”重新连接。",
+    connect: (host, port) => `预览窗口无法连接到 ${host} 的 localhost:${port}。请确认它在该处运行，然后重新加载页面。`,
   },
 }
 
@@ -1519,7 +1519,7 @@ function tooLarge($: $, batch: { type: string; body: Record<string, unknown> }[]
   if (singly) singly -= 1
   const pid = batch[0]?.type === 'prompt' ? batch[0].body.pid : undefined
   if (typeof pid === 'string' && ownPending.delete(pid)) unsent.set(pid, null)
-  noteOnce($, 'too-large', 'A message was too large to send to the room.', scope)
+  noteOnce($, 'too-large', '消息过大，无法发送到房间。', scope)
 }
 
 // Starts hearing about the room: the stream, or polls where it can't run.
@@ -1868,7 +1868,7 @@ async function absorb($: $, room: ShareRoom, mode: ShareMode, event: ServerEvent
       const back = (lostAt.get(who) ?? -Infinity) > event.ts - 30 * 60_000
       lostAt.delete(who)
       if (live && !mine && !back) {
-        $.ui.log(`${who} joined`)
+        $.ui.log(`${who} 已加入`)
         void cue($, 'join', `${who} joined your session`)
       }
       break
@@ -1881,7 +1881,7 @@ async function absorb($: $, room: ShareRoom, mode: ShareMode, event: ServerEvent
       const removed = body.reason === 'removed'
       await note({ ts: event.ts, who, kind: 'leave', text: lost ? 'timeout' : removed ? 'removed' : undefined })
       if (lost) lostAt.set(who, event.ts)
-      else if (live && !mine) $.ui.log(removed ? `${who} left: no longer in the team` : `${who} left`)
+      else if (live && !mine) $.ui.log(removed ? `${who} 已离开：不再是团队成员` : `${who} 已离开`)
       break
     }
     case 'prompt':
@@ -2377,7 +2377,7 @@ async function refreshStatus($: $) {
   statusShown = true
   const here = [...new Set(v.everyone.filter(p => p.online).map(p => p.name))]
   const w = v.working
-  $.ui.status(`● Live · ${v.mode === 'host' ? 'sharing' : `${v.room.host}'s session`} · ${listNames(here)} here${w ? ` · Claude for ${w.by}` : ''}`)
+  $.ui.status(`● 实时 · ${v.mode === 'host' ? '正在分享' : `${v.room.host} 的会话`} · ${listNames(here)} 在此${w ? ` · Claude 正为 ${w.by} 工作` : ''}`)
 }
 
 async function setPrefs($: $, change: Partial<SharePrefs>) {
@@ -2417,7 +2417,7 @@ async function updateHere($: $): Promise<{ ok: boolean; text: string }> {
   if (code !== 0)
     return say(
       false,
-      `Couldn't update Shared Sessions here (${out.trim().split('\n').pop() || 'no output'}). In a terminal on this computer, run: ${UPDATE_COMMAND}`,
+      `无法在此更新 Shared Sessions（${out.trim().split('\n').pop() || '无输出'}）。请在本机终端运行：${UPDATE_COMMAND}`,
     )
   let installed = ''
   try {
@@ -2427,14 +2427,14 @@ async function updateHere($: $): Promise<{ ok: boolean; text: string }> {
   const mine = await ownVersion($)
   if (runsLive($) && installed && newerThan(installed, mine)) {
     await catchUpFromInstalled($)
-    return say(true, `Shared Sessions ${installed} is installed here and loads into this session in place.`)
+    return say(true, `Shared Sessions ${installed} 已在此安装，并会在当前会话原位加载。`)
   }
   if (installed && newerThan(installed, mine))
     return say(
       true,
-      `Shared Sessions ${installed} is installed here. Start a new session to use it (in Claude Desktop, quit and reopen the app); with Updates on in the Room, later releases load in place.`,
+      `Shared Sessions ${installed} 已在此安装。请开启新会话以使用（在 Claude Desktop 中请退出并重新打开应用）；在 Room 中开启自动更新后，后续版本将原位加载。`,
     )
-  return say(true, `Shared Sessions is up to date here (${installed || mine}).`)
+  return say(true, `此处的 Shared Sessions 已是最新版本（${installed || mine}）。`)
 }
 
 // The Update button (the Team panel's header, the Room's Settings): the
@@ -2444,7 +2444,7 @@ async function updateHere($: $): Promise<{ ok: boolean; text: string }> {
 async function pressUpdate($: $) {
   if ((await read($, updatingA))?.state === 'running') return
   await update($, updatingA, () => ({ state: 'running' }))
-  const done = await updateHere($).catch(error => ({ ok: false, text: `Couldn't update Shared Sessions here: ${String((error as Error)?.message ?? error)}` }))
+  const done = await updateHere($).catch(error => ({ ok: false, text: `无法在此更新 Shared Sessions：${String((error as Error)?.message ?? error)}` }))
   const at = await $.clock.now()
   await update($, updatingA, () => ({ state: 'done' as const, ...done, at }))
   // The line goes after two minutes (a module a reload replaced loses this
@@ -2467,7 +2467,7 @@ async function updateRow($: $, el: UI, compact: boolean) {
   if (updating?.state === 'running')
     return (
       <Text key="updating" dimColor>
-        Updating Shared Sessions…
+        正在更新 Shared Sessions…
       </Text>
     )
   if (updating?.state === 'done' && now - updating.at < 120_000) {
@@ -2481,9 +2481,9 @@ async function updateRow($: $, el: UI, compact: boolean) {
         {updating.ok || compact ? null : (
           <Button
             key="copy-update"
-            label="Copy update command"
+            label="复制更新命令"
             plain
-            onPress={press => void copyText($, UPDATE_COMMAND, 'Update command copied: paste it in a terminal', press.surface)}
+            onPress={press => void copyText($, UPDATE_COMMAND, '更新命令已复制：请粘贴到终端中运行', press.surface)}
           />
         )}
       </Box>
@@ -2495,13 +2495,13 @@ async function updateRow($: $, el: UI, compact: boolean) {
     <Box key="update" flexDirection="row" gap={1} alignItems="center" justifyContent="space-between">
       <Box flexShrink={1} minWidth={0}>
         <Text color="claude" wrap="truncate-end">
-          {compact ? `● ${newer} is out` : `● Version ${newer} is out (this session runs ${mine})`}
+          {compact ? `● ${newer} 已发布` : `● 版本 ${newer} 已发布（当前会话运行的是 ${mine}）`}
         </Text>
       </Box>
       <Box flexShrink={0} flexDirection="row" gap={1}>
         {[
-          <Button key="update-now" label={inPlace ? 'Update and load here' : 'Install update'} variant="primary" onPress={() => void pressUpdate($)} />,
-          compact || updates ? null : <Button key="updates-on" label="Turn on Updates" plain dimColor onPress={() => void writeUpdates($, true)} />,
+          <Button key="update-now" label={inPlace ? '更新并在此加载' : '安装更新'} variant="primary" onPress={() => void pressUpdate($)} />,
+          compact || updates ? null : <Button key="updates-on" label="开启自动更新" plain dimColor onPress={() => void writeUpdates($, true)} />,
         ]}
       </Box>
     </Box>
@@ -2527,7 +2527,7 @@ async function noteBehind($: $, people: SharePerson[]) {
     notedBehind.add(`${p.name}@${p.version}`)
     if (!latest || !newerThan(latest, p.version!)) continue
     $.ui.log(
-      `${p.name} runs Shared Sessions ${p.version}, older than ${latest}: some of what you show (pictures, pages) may not reach them as it does here. They update with: ${UPDATE_COMMAND}`,
+      `${p.name} 使用的 Shared Sessions 版本为 ${p.version}，低于 ${latest}：你展示的部分内容（图片、页面）可能无法像在这里一样传给他们。他们可以用以下命令更新：${UPDATE_COMMAND}`,
     )
   }
 }
@@ -2821,7 +2821,7 @@ async function closeSteps($: $, s: RoomScope, live: boolean, how: Exit, opts: Ex
       await writeRoomCheckpoint($, place, guest ? await joinedPlace($, room) : await hostingPlace($, room))
     } catch (error) {
       $.ui.log(
-        `${guest ? "Couldn't save the joined session for reopening" : "Couldn't save the shared session for reopening"}: ${String((error as Error)?.message ?? error)}`,
+        `${guest ? "无法保存已加入的会话以便重新打开" : "无法保存已分享的会话以便重新打开"}: ${String((error as Error)?.message ?? error)}`,
       )
     }
   } else if (how !== 'ended') await deleteRoomCheckpoint($, place).catch(() => {})
@@ -2850,7 +2850,7 @@ async function closeSteps($: $, s: RoomScope, live: boolean, how: Exit, opts: Ex
   await update($, closingA, () => null)
   closeMark = 'down'
   // 7.
-  const said = how === 'ended' ? opts.log : how === 'keep' ? undefined : guest ? `Left ${room.host}'s session.` : 'Stopped sharing. The link no longer works.'
+  const said = how === 'ended' ? opts.log : how === 'keep' ? undefined : guest ? `已离开 ${room.host} 的会话。` : '已停止分享。链接不再有效。'
   if (said) $.ui.log(said)
   // What can wait, last in the bound: a window still opening closes what it
   // started, and left for good, the room's profile goes again (anything a
@@ -3458,15 +3458,15 @@ async function copyText($: $, text: string, done: string, surface?: RenderSurfac
 async function pressInvite($: $, url: string, surface?: RenderSurface) {
   const t = await read($, teamsA)
   if (!t.account) {
-    $.ui.toast('Sign in to invite teammates: the Team panel shows how')
+    $.ui.toast('登录后可邀请队友：Team 面板中有操作说明')
     return openTeam($)
   }
   const people = await read($, peopleA)
   const mates = (t.teammates ?? []).filter(m => !people.some(p => p.online && p.name === m.name))
   if (!mates.length) {
     const copied = await $.ui.copy({ text: url, surface }).catch(() => ({ isCopied: false }))
-    $.ui.toast(copied.isCopied ? 'No teammates to invite here yet · link copied' : 'No teammates to invite here yet: share the link instead')
-    if (!copied.isCopied) $.ui.log(`The share link: ${url}`)
+    $.ui.toast(copied.isCopied ? '此处暂时没有可邀请的队友 · 链接已复制' : '此处暂时没有可邀请的队友：请改为分享链接')
+    if (!copied.isCopied) $.ui.log(`分享链接：${url}`)
     return
   }
   await update($, roomTabA, () => 'people')
@@ -3475,8 +3475,8 @@ async function pressInvite($: $, url: string, surface?: RenderSurface) {
 
 async function copyLink($: $, url: string, surface?: RenderSurface) {
   const copied = await $.ui.copy({ text: url, surface }).catch(() => ({ isCopied: false }))
-  if (copied.isCopied) $.ui.toast('Link copied')
-  else $.ui.log(`The share link: ${url}`)
+  if (copied.isCopied) $.ui.toast('链接已复制')
+  else $.ui.log(`分享链接：${url}`)
 }
 
 // Stop sharing ends the room for everyone: the first press asks, a second
@@ -3821,7 +3821,7 @@ async function notMade($: $, back: Reclaim | null, error: unknown): Promise<neve
     const guest = back.saved.room.seat !== 'host'
     await writeRoomCheckpoint($, back.key, back.saved).catch(e =>
       $.ui.log(
-        `${guest ? "Couldn't save the joined session for reopening" : "Couldn't save the shared session for reopening"}: ${String((e as Error)?.message ?? e)}`,
+        `${guest ? "无法保存已加入的会话以便重新打开" : "无法保存已分享的会话以便重新打开"}: ${String((e as Error)?.message ?? e)}`,
       ),
     )
   }
@@ -3865,7 +3865,7 @@ async function settleReclaim($: $, back: Reclaim, forGood: boolean) {
   if (!forGood) {
     await writeRoomCheckpoint($, back.key, saved).catch(error =>
       $.ui.log(
-        `${guest ? "Couldn't save the joined session for reopening" : "Couldn't save the shared session for reopening"}: ${String((error as Error)?.message ?? error)}`,
+        `${guest ? "无法保存已加入的会话以便重新打开" : "无法保存已分享的会话以便重新打开"}: ${String((error as Error)?.message ?? error)}`,
       ),
     )
   } else {
@@ -3891,7 +3891,7 @@ async function resumeJoined($: $) {
     const current = () => reclaiming === back
     // Over while this was closed: only now does the sidebar row go back, and
     // the room's preview window profile goes.
-    const over = async (said = `${saved.room.host}'s session ended while this one was closed.`) => {
+    const over = async (said = `${saved.room.host} 的会话在当前会话关闭期间已结束。`) => {
       if (!current()) return
       reclaiming = null
       await update($, sidebarA, () => saved.sidebar ?? null)
@@ -4012,7 +4012,7 @@ async function resumeJoined($: $) {
     )
     for (const exchange of caught) laterRides.push({ text: exchange.prompt, ride: { kind: 'static', rows: exchange.rows } })
     startFeed($)
-    $.ui.log(caught.length ? `Back in ${room.host}'s session. What you missed follows.` : `Back in ${room.host}'s session.`)
+    $.ui.log(caught.length ? `已回到 ${room.host} 的会话。以下是你错过的内容。` : `已回到 ${room.host} 的会话。`)
     if (caught.length || running) scheduleRides($)
   } finally {
     if (reclaiming === back) reclaiming = null
@@ -4052,7 +4052,7 @@ async function resumeHosting($: $) {
       page = await eventsSince($, saved.room, saved.room.seq)
     } catch (error) {
       if (isGone(error)) {
-        if (current()) $.ui.log('The session you shared ended while this one was closed.')
+        if (current()) $.ui.log('你分享的会话在本会话关闭期间已结束。')
         return
       }
       // Unreachable for now: share on, and the feed keeps trying.
@@ -4060,7 +4060,7 @@ async function resumeHosting($: $) {
     // The session ended meanwhile (its place saved again, or its room
     // ended), or the room was given up for another: nothing more of it here.
     if (!current()) return
-    if (page?.ended) return void $.ui.log('The session you shared ended while this one was closed.')
+    if (page?.ended) return void $.ui.log('你分享的会话在本会话关闭期间已结束。')
     const room: ShareRoom = { ...saved.room, seq: page?.seq ?? saved.room.seq }
     const shares = sharesSaved(saved)
     await update($, roomA, v => (reclaiming === back ? room : v))
@@ -4116,7 +4116,7 @@ async function resumeHosting($: $) {
     }
     if (!s.live) return
     startFeed($)
-    $.ui.log(`Still sharing this session: ${room.url}`)
+    $.ui.log(`仍在分享此会话：${room.url}`)
   } finally {
     if (reclaiming === back) reclaiming = null
     tookBack($, back)
@@ -4730,7 +4730,7 @@ async function releaseHeld($: $, media: Media[]) {
   const missing = Math.max(held.names.length, media.length) - attachments.length
   if (missing > 0)
     $.ui.log(
-      `${missing === 1 ? 'An attachment' : `${missing} attachments`} didn't go with this message (over 8 MB, unreadable, or the room is full); the words did.`,
+      `${missing === 1 ? '一个附件' : `${missing} 个附件`}未能随此消息发送（超过 8 MB、无法读取或房间已满）；文字已发送。`,
     )
   send($, 'prompt', { text: held.text, pid: held.pid, ...(attachments.length ? { attachments } : {}) })
 }
@@ -4740,7 +4740,7 @@ async function stopTurn($: $, who: string) {
   if (!working) return
   try {
     await $.turn.abort({ turnId: working.turnId })
-    $.ui.toast(`${who} stopped the turn`)
+    $.ui.toast(`${who} 停止了本轮对话`)
   } catch {}
 }
 
@@ -5165,7 +5165,7 @@ async function bringHome($: $) {
     await resumeHosting($)
     await update($, cloudMoveA, () => null)
     if (home.changes) await applyCloudChanges($, { ...room, token: home.token }, home.changes)
-    else $.ui.log('Back home. The cloud host changed no files.')
+    else $.ui.log('已返回本机。云端主机没有修改任何文件。')
   } catch (error) {
     await update($, cloudMoveA, () => cloudMove('failed', String((error as Error)?.message ?? error).slice(0, 300)))
   }
@@ -5191,10 +5191,10 @@ async function applyCloudChanges($: $, room: ShareRoom, changes: ShareFileMeta) 
     120_000,
   )
   const applied = /applied=(\d+)/.exec(r.out)?.[1]
-  if (applied) $.ui.log(`Back home, with the cloud host's changes to ${applied} file${applied === '1' ? '' : 's'} in your project (also kept in ${rel}).`)
+  if (applied) $.ui.log(`已返回本机，云端主机对项目中 ${applied} 个文件的修改已应用（副本也保存在 ${rel}）。`)
   else if (/kept/.test(r.out))
-    $.ui.log(`Back home. The cloud host's changes don't apply cleanly over your files, so they're kept in ${rel}: apply them with git apply --3way ${rel}`)
-  else $.ui.log("Back home. The cloud host's changes couldn't be downloaded; they're in the Room's files for a while.")
+    $.ui.log(`已返回本机。云端主机的修改无法干净地应用到你的文件上，因此保存在 ${rel}：可用 git apply --3way ${rel} 应用它们`)
+  else $.ui.log("已返回本机。云端主机的修改无法下载；它们暂时保存在 Room 的文件中。")
 }
 
 // Two calls put to the host are one person's: one seat, or one account.
@@ -6113,7 +6113,7 @@ async function ensurePreview($: $, room: ShareRoom, port: number, title: string,
     // Still being told: the room would answer with the preview that Stop
     // then ends, whenever it arrives, so nothing is shared yet.
     if (s.endingPorts.has(port)) {
-      if (sameRoom(room, s)) $.ui.log(`Couldn't share localhost:${port} yet: the room is still being told it stopped. Try again in a moment.`)
+      if (sameRoom(room, s)) $.ui.log(`暂时无法分享 localhost:${port}：房间仍在确认它已停止。请稍后重试。`)
       return null
     }
     const known = (await read($, sharesA))[String(port)]
@@ -6131,7 +6131,7 @@ async function ensurePreview($: $, room: ShareRoom, port: number, title: string,
     const share = await writeShare($, s, port, old => shareOver(old, pid, said, made))
     return share && sameRoom(room, s) ? share : null
   } catch (error) {
-    if (sameRoom(room, s)) $.ui.log(`Couldn't share localhost:${port}: ${String((error as Error)?.message ?? error)}`)
+    if (sameRoom(room, s)) $.ui.log(`无法分享 localhost:${port}：${String((error as Error)?.message ?? error)}`)
     return null
   } finally {
     done()
@@ -6205,7 +6205,7 @@ async function allowForwarding($: $, item: ShareShown) {
     { offerRelated: 8_000 },
   )
   if (hostHere(room))
-    $.ui.toast(forwarded && 'pid' in forwarded ? forwardedSaid([port]) : (forwarded?.refused ?? `Couldn't allow forwarding localhost:${port}`))
+    $.ui.toast(forwarded && 'pid' in forwarded ? forwardedSaid([port]) : (forwarded?.refused ?? `无法允许转发 localhost:${port}`))
 }
 
 async function stopPreview($: $, pid: string) {
@@ -6224,7 +6224,7 @@ async function stopPreview($: $, pid: string) {
   if (!sameRoom(room, s) || (await endPreview($, room, s, pid, port))) return
   if (sameRoom(room, s))
     $.ui.toast(
-      `Stopped sharing ${validPort(port) ? `localhost:${port}` : 'that preview'}. The server couldn't be told yet, so guests may still see it listed, but nothing reaches it. The server is told again when this session reconnects, or when you press Stop again.`,
+      `已停止分享${validPort(port) ? `localhost:${port}` : '该预览'}。服务器尚未收到通知，因此访客可能仍会看到它，但无法访问。当前会话重连后或再次按“停止”时会再次通知服务器。`,
     )
 }
 
@@ -6396,7 +6396,7 @@ async function offerShow($: $, room: ShareRoom, page: LocalPage, opts: { title?:
       // Its own yes: the same-address question after it is a question of its own.
       await rememberHost($, room, m => ({ ...m, askedAt: Object.fromEntries(Object.entries(m.askedAt).filter(([p]) => Number(p) !== port)) }))
       shared = await sharePublic($, room, page, opts)
-      if (shared) $.ui.toast(`Sharing localhost:${port} with the room (stop it in the Room)`)
+      if (shared) $.ui.toast(`正在与房间分享 localhost:${port}（可在 Room 中停止）`)
       return { shared: [], refused: [] }
     })
   } finally {
@@ -7286,7 +7286,7 @@ async function openPublicPreview($: $, shown: ShareShown, surface?: RenderSurfac
   const live = async () => localRequestCurrent(room, s, pid, epoch)
   if (!(await live())) return
   const url = await previewTicket($, room, pid, shown.path)
-  if (!url) return void $.ui.toast('That preview has ended or is not reachable')
+  if (!url) return void $.ui.toast('该预览已结束或无法访问')
   await showPage($, room, url, surface, live, {
     copied: 'Public preview link copied: open it within 10 minutes',
     said: `Public preview link, for 10 minutes: ${url}`,
@@ -7537,7 +7537,7 @@ type Asked = { port: number; seen: boolean; late: (() => Promise<void>) | null }
 // over here; one whose host the window's proxy can't take, it leaves out
 // itself and says so (its `upstream` line, `runBrowserProxy`): both said in
 // the same words, once.
-const UPSTREAM_NOT_TAKEN = "The preview window doesn't use your proxy setting: it isn't an address its proxy can take (a host name or IP address, and a port)."
+const UPSTREAM_NOT_TAKEN = "预览窗口不使用你的代理设置：该地址不是它的代理可接受的格式（主机名或 IP 地址加端口）。"
 async function upstreamProxy($: $): Promise<Upstream | null> {
   const env = upstreamFromEnv({
     HTTPS_PROXY: await $.env.get('HTTPS_PROXY'),
@@ -7548,19 +7548,19 @@ async function upstreamProxy($: $): Promise<Upstream | null> {
     no_proxy: await $.env.get('no_proxy'),
   })
   if (env.userinfo)
-    noteOnce($, 'userinfo', "Your proxy setting has a user name or password, which the preview window's proxy doesn't use: sign-ins in the window may fail.")
+    noteOnce($, 'userinfo', "你的代理设置包含用户名和密码，但预览窗口的代理不会使用它们：窗口中的登录可能失败。")
   if (env.unsupported)
     noteOnce(
       $,
       'unsupported',
-      "The preview window doesn't use your https:// or socks4:// proxy setting: its proxy goes on only through http:// and socks5:// proxies.",
+      "预览窗口不使用你的 https:// 或 socks4:// 代理设置：它的代理仅通过 http:// 和 socks5:// 代理转发。",
     )
   if (env.invalid) noteOnce($, 'invalid', UPSTREAM_NOT_TAKEN)
   if (env.upstream) return env.upstream
   if ((await detectBrowser($)).platform !== 'darwin') return null
   const system = upstreamFromScutil((await sh($, 'scutil --proxy 2>/dev/null\n', WINDOW_STEP_MS)).out)
   if (system.invalid) noteOnce($, 'invalid', UPSTREAM_NOT_TAKEN)
-  if (system.pac) noteOnce($, 'pac', "PAC proxies aren't followed; Google sign-in may fail in the preview window.")
+  if (system.pac) noteOnce($, 'pac', "不会遵循 PAC 代理；预览窗口中的 Google 登录可能失败。")
   return system.upstream
 }
 
@@ -7699,7 +7699,7 @@ async function lanRefused($: $, proxy: BrowserProxy) {
   noteOnce(
     $,
     'lan',
-    `The preview window refused a request to your local network (a private address). Pages from ${room.host} can't reach your network; set SHARED_SESSION_PREVIEW_LAN=1 where Claude Code starts to allow it.`,
+    `预览窗口拒绝了对本地网络（私有地址）的请求。来自 ${room.host} 的页面无法访问你的网络；请在 Claude Code 启动处设置 SHARED_SESSION_PREVIEW_LAN=1 以允许。`,
   )
 }
 
@@ -8222,7 +8222,7 @@ async function readyProxy($: $, open: WindowOpen): Promise<BrowserProxy | Window
   // Without Node nothing here opens a forwarded preview (its listeners run
   // under Node too): only the public link, which goes through the room.
   if ('error' in proxy && proxy.error === 'NODE') {
-    $.ui.toast('Preview windows need Node 22.18 or later on this computer. Install it, then press Open preview again, or choose Public link in Room → Shown.')
+    $.ui.toast('预览窗口需要本机安装 Node 22.18 或更高版本。请安装后再次点击“打开预览”，或在 Room 的“已展示”中选择“公开链接”。')
     return 'done'
   }
   if ('error' in proxy) return { failed: "its proxy didn't start" }
@@ -8251,7 +8251,7 @@ async function readyProxy($: $, open: WindowOpen): Promise<BrowserProxy | Window
   // started, and nothing else, may go with it (`idleProxy`).
   if (!tunnel.run) {
     await idleProxy(open, proxy)
-    $.ui.toast(reseated ? RESEATED : (tunnel.error ?? 'That preview could not be opened.'))
+    $.ui.toast(reseated ? RESEATED : (tunnel.error ?? '该预览无法打开。'))
     return 'done'
   }
   await windowStep(open, syncBrowserRoutes($, s))
@@ -8895,7 +8895,7 @@ async function relayedNow($: $, s: RoomScope, port: number): Promise<boolean> {
   noteOnce(
     $,
     `relayed-${port}`,
-    `Teammates' connections to localhost:${port} are refused: it's another shared session's preview forwarded to this computer now, so it can't be shared on. Stop it in Room → Shown.`,
+    `队友对 localhost:${port} 的连接被拒绝：它目前是另一共享会话转发到本机的预览，无法继续分享。请在 Room → Shown 中停止它。`,
     s,
   )
   return true
@@ -9159,7 +9159,7 @@ async function offerSameAddress($: $, room: ShareRoom, port: number, path: strin
       allowed = Boolean(forwarded && 'pid' in forwarded)
       return allowed
         ? { shared: [port], refused: [] }
-        : { shared: [], refused: [(forwarded && 'refused' in forwarded && forwarded.refused) || `Couldn't allow forwarding localhost:${port}`] }
+        : { shared: [], refused: [(forwarded && 'refused' in forwarded && forwarded.refused) || `无法允许转发 localhost:${port}`] }
     })
     if (allowed && hostHere(room)) beside = found?.related ?? []
   } finally {
@@ -9274,7 +9274,7 @@ async function inPane($: $, url: string, what: string, instead: string): Promise
     noteOnce(
       $,
       `pane-refused ${what}`,
-      `Auto mode doesn't let the plugin open ${what} in Claude's browser, so they open ${instead}. Press Allow previews in Claude, in Room → Settings, to let it.`,
+      `自动模式不允许插件在 Claude 的浏览器中打开${what}，因此改为${instead}。请在 Room → Settings 中按“允许在 Claude 中预览”来放行。`,
     )
   if (refused && !(await paneAllowed($))) {
     say()
@@ -9445,7 +9445,7 @@ function elsewhereNote(room: ShareRoom, page: Forwarded, bound: Bound, why: Refu
 // else the Open goes on without it. `without`: why no window this time
 // (one just failed): the host's numbers, else elsewhere.
 async function openForwarded($: $, room: ShareRoom, s: RoomScope, shown: ShareShown, surface?: RenderSurface, without?: string): Promise<void> {
-  if (!isForwarded(shown)) return void $.ui.toast('That preview has ended or has no valid localhost address.')
+  if (!isForwarded(shown)) return void $.ui.toast('该预览已结束，或没有有效的 localhost 地址。')
   // The host away: nothing of theirs answers now, so nothing is bound or opened.
   if ((await read($, peopleA)).some(p => p.role === 'host' && !p.online))
     return void $.ui.toast(`${room.host} is offline, so their previews can't open now. Press Open again once they're back.`)
@@ -9469,7 +9469,7 @@ async function openForwarded($: $, room: ShareRoom, s: RoomScope, shown: ShareSh
   const elsewhere = async (why: RefusedPort, noWindow: string) => {
     const bound = await bindForOpen($, room, s, page, uses, 'elsewhere')
     if (!(await live())) return
-    if (!('url' in bound)) return void $.ui.toast('error' in bound ? bound.error : 'That preview could not be opened.')
+    if (!('url' in bound)) return void $.ui.toast('error' in bound ? bound.error : '该预览无法打开。')
     if (!(await showPage($, room, bound.url, surface, async () => (await live()) && (await localRunCurrent($, pid, bound.run))))) return
     const note = elsewhereNote(room, page, bound, why, noWindow)
     noteOnce($, `elsewhere ${note}`, note, s)
@@ -9479,7 +9479,7 @@ async function openForwarded($: $, room: ShareRoom, s: RoomScope, shown: ShareSh
   // apart from the host's); their Previews setting does, changed.
   const alwaysFailed = (reason: string) =>
     void $.ui.toast(
-      `Couldn't open the preview window: ${reason}. To open ${room.host}'s localhost:${page.port} without one, change Previews in Room → Settings.`,
+      `无法打开预览窗口：${reason}。若要在没有窗口的情况下打开 ${room.host} 的 localhost:${page.port}，请在 Room → Settings 中更改 Previews 设置。`,
     )
   const viaWindow = async (c: Extract<WindowChoice, { window: true }>, why: WindowWhy): Promise<void> => {
     const outcome = await openInWindow($, room, s, c, page, why)
@@ -9488,7 +9488,7 @@ async function openForwarded($: $, room: ShareRoom, s: RoomScope, shown: ShareSh
     // A port taken here: the page elsewhere, its note saying why there's no window.
     if ('refused' in why) return elsewhere(why, outcome.failed)
     // Open in the window before (its ports may be free here): the host's numbers, else elsewhere.
-    $.ui.toast(`Couldn't open the preview window: ${outcome.failed}.`)
+    $.ui.toast(`无法打开预览窗口：${outcome.failed}。`)
     return openForwarded($, room, s, page, surface, outcome.failed)
   }
   if (!without && (await previewOpenOf($)) === 'window') {
@@ -9568,12 +9568,12 @@ async function openShown($: $, shown: ShareShown, surface?: RenderSurface) {
   const room = await read($, roomA)
   if (!room) return
   const path = (await downloadShown($, room, shown.files ?? []))[0] ?? null
-  if (!path) return void $.ui.toast("Couldn't get that file")
+  if (!path) return void $.ui.toast("无法获取该文件")
   // A page opens in Claude's browser, where it runs (inside the project);
   // refused there (auto mode), in the Files pane as a file does.
   if (shown.kind === 'page' && (await inPane($, `file://${path}`, 'shared pages', 'in the Files pane'))) return
   const result = await desk($, 'ccd_view', 'show_pane', { pane: 'file', path })
-  if (result === null) $.ui.log(`Saved to ${path}`)
+  if (result === null) $.ui.log(`已保存到 ${path}`)
 }
 
 // Host: the public link's HTTP. A guest's browser asked a preview for
@@ -10043,7 +10043,7 @@ async function relayTcp($: $, room: ShareRoom, ask: Record<string, unknown>) {
         noteOnce(
           $,
           'tcp-node',
-          `Forwarding localhost:${port} to teammates needs Node 22.18 or later on this computer, and none was found. Install it; their next connection tries again.`,
+          `向队友转发 localhost:${port} 需要本机安装 Node 22.18 或更高版本，但未找到。请安装；他们的下一次连接会重试。`,
           s,
         )
     }
@@ -10268,7 +10268,7 @@ async function openRoom($: $, page?: RoomTab) {
   // screen. Desktop's side panel just comes forward. Opened before any
   // await: a press asks for it only while the press runs, and an open the
   // engine counts unasked waits undrawn below 144 columns.
-  const opened = $.ui.open({ id: ROOM, title: 'Shared session', focus: true, closeOnEscape: true, rows: 60 })
+  const opened = $.ui.open({ id: ROOM, title: '共享会话', focus: true, closeOnEscape: true, rows: 60 })
   // On the page asked for; else, with messages waiting, on the chat.
   if (page) await update($, roomTabA, () => page)
   else if ((await read($, unreadA)) > 0) await update($, roomTabA, () => 'chat')
@@ -10605,8 +10605,8 @@ function shareChoice($: $, el: UI, asking: ShareAsking, where: 'band' | 'room', 
   const keeps = kept ? ` ${keptNote(team)}` : ''
   const go = (opts: ShareOpts, surface?: RenderSurface) =>
     void inShareTurn($, () => share($, surface, opts)).catch(error => {
-      $.ui.toast("Couldn't share")
-      $.ui.log(`Couldn't share: ${String(error?.message ?? error)}`)
+      $.ui.toast("无法分享")
+      $.ui.log(`无法分享：${String(error?.message ?? error)}`)
     })
   const pick = (chosen: SharePolicy['prompts'], surface?: RenderSurface) =>
     prompts ? void update($, askingA, a => (a ? { ...a, teammates: chosen } : a)) : go({ watch: chosen === 'watch' }, surface)
@@ -10637,7 +10637,7 @@ function shareChoice($: $, el: UI, asking: ShareAsking, where: 'band' | 'room', 
   if (where === 'room') {
     return (
       <Box flexDirection="column" gap={1}>
-        <Text bold>Share this session?</Text>
+        <Text bold>要分享此会话吗？</Text>
         <Text dimColor>{what}</Text>
         {buttons}
       </Box>
@@ -10648,7 +10648,7 @@ function shareChoice($: $, el: UI, asking: ShareAsking, where: 'band' | 'room', 
   return (
     <Box flexDirection="row" flexWrap="wrap" gap={2} alignItems="center" justifyContent="space-between" paddingRight={surface === 'terminal' ? 4 : 0}>
       <Box flexDirection="column" flexGrow={1} flexShrink={1} minWidth={36}>
-        <Text bold>Share this session?</Text>
+        <Text bold>要分享此会话吗？</Text>
         <Text dimColor>{what}</Text>
       </Box>
       {buttons}
@@ -10746,7 +10746,7 @@ async function flashCopied($: $) {
 // A teammate's name put in the prompt box, to mention them.
 async function mention($: $, name: string) {
   const filled = await $.prompt.fill({ text: `@${name} `, mode: 'insert' }).catch(() => null)
-  if (!filled?.isFilled) $.ui.toast(`Type @${name} in your prompt to mention them`)
+  if (!filled?.isFilled) $.ui.toast(`在提示框中输入 @${name} 即可提及对方`)
 }
 
 // ---------------------------------------------------------------------------
@@ -10899,10 +10899,10 @@ function nowOf(el: UI, v: View, colors: Map<string, string>) {
       return v.mode === 'host' ? (
         <Text wrap="truncate-end">
           {named(waitingWho(w))}
-          <Text dimColor>{` is waiting for your OK on ${w.waitingFor}`}</Text>
+          <Text dimColor>{` 正在等待你批准 ${w.waitingFor}`}</Text>
         </Text>
       ) : (
-        <Text dimColor wrap="truncate-end">{`waiting for ${host} to allow ${w.waitingFor}`}</Text>
+        <Text dimColor wrap="truncate-end">{`等待 ${host} 允许 ${w.waitingFor}`}</Text>
       )
     }
     if (v.mode === 'guest' && w.doing)
@@ -10919,7 +10919,7 @@ function nowOf(el: UI, v: View, colors: Map<string, string>) {
       )
     return (
       <Text wrap="truncate-end">
-        <Text color="claude">Claude is working for </Text>
+        <Text color="claude">Claude 正在为 </Text>
         {named(w.by)}
       </Text>
     )
@@ -11222,7 +11222,7 @@ async function newInvite($: $) {
   if (!t.current) return
   await teamCall($, `/api/teams/${t.current}/invite`, { method: 'POST' })
   await refreshTeams($)
-  $.ui.toast('New invite link. The old one no longer works')
+  $.ui.toast('已生成新的邀请链接，旧链接已失效')
 }
 
 async function leaveTeam($: $) {
@@ -11247,7 +11247,7 @@ async function openTeam($: $, page?: 'live' | 'people' | 'settings') {
   teamOpen = true
   // Opened before any await, as the Room is (openRoom). A session with no
   // panels (a headless run) still answers in words.
-  const opened = $.ui.open({ id: TEAM, title: 'Team', focus: true, closeOnEscape: true, rows: 60 }).catch(() => {})
+  const opened = $.ui.open({ id: TEAM, title: '团队', focus: true, closeOnEscape: true, rows: 60 }).catch(() => {})
   if (page) await update($, teamTabA, () => page)
   await opened
   void refreshTeams($).catch(() => {})
@@ -11392,16 +11392,16 @@ async function stopFromTeam($: $, roomId: string) {
   if (!(await pressedTwice($, `stop:${roomId}`))) return
   const server = await serverOf($)
   const saved = await signInFor($, server)
-  if (!saved) return void $.ui.toast('Sign in first: /team')
+  if (!saved) return void $.ui.toast('请先登录：/team')
   let over = true
   try {
     await api($, server, `/api/rooms/${roomId}/end`, { method: 'POST', account: saved.token })
-    $.ui.toast('Stopped sharing. The link no longer works.')
+    $.ui.toast('已停止分享。链接不再有效。')
   } catch (error) {
     // Already over: it only had to leave the list.
     if (!(error instanceof ApiError && (error.status === 404 || error.status === 410))) {
       over = false
-      $.ui.toast("Couldn't stop it")
+      $.ui.toast('无法停止分享')
       $.ui.log(`Couldn't stop sharing: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
@@ -11417,13 +11417,13 @@ async function leaveFromTeam($: $, roomId: string) {
   if (!(await pressedTwice($, `leave:${roomId}`))) return
   const server = await serverOf($)
   const saved = await signInFor($, server)
-  if (!saved) return void $.ui.toast('Sign in first: /team')
+  if (!saved) return void $.ui.toast('请先登录：/team')
   try {
     await api($, server, `/api/rooms/${roomId}/leave`, { method: 'POST', account: saved.token })
-    $.ui.toast('You left that session.')
+    $.ui.toast('你已离开该会话。')
   } catch (error) {
     if (!(error instanceof ApiError && (error.status === 404 || error.status === 410))) {
-      $.ui.toast("Couldn't leave it")
+      $.ui.toast('无法离开该会话')
       $.ui.log(`Couldn't leave: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
@@ -11445,7 +11445,7 @@ async function pressedTwice($: $, key: string): Promise<boolean> {
 // The Team panel's Open: the session here that's in that room.
 async function openHere($: $, roomId: string) {
   const hold = await heldElsewhere($, roomId)
-  if (!hold) return void $.ui.toast('That session has closed')
+  if (!hold) return void $.ui.toast('该会话已关闭')
   if (!(await openHeld($, hold))) $.ui.toast(alreadyIn(hold, false))
 }
 
@@ -11463,7 +11463,7 @@ async function joinHere($: $, url: string) {
     scheduleRides($)
     void continueJoins($, joined.room.id).catch(() => {})
   } catch (error) {
-    $.ui.toast("Couldn't join")
+    $.ui.toast('无法加入')
     $.ui.log(joinFailure(error, link[1]).replace(/\*\*/g, ''))
   }
 }
@@ -11949,18 +11949,18 @@ export const register: Register = (on, options) => {
     // Not /share: Claude has its own. Every name here is the plugin's alone.
     await $.command.register({
       name: 'share-session',
-      description: 'Share this session (with your team when signed in): /share-session [all | new] [link] [watch]',
+      description: '分享此会话（登录后将分享给团队）：/share-session [all | new] [link] [watch]',
     })
-    await $.command.register({ name: 'team', description: "Your team's shared sessions, one click to join: /team [signin | create <name> | invite | signout]" })
-    await $.command.register({ name: 'invite', description: 'Invite a teammate into this shared session, in their Claude Code: /invite <name>' })
-    await $.command.register({ name: 'stop-sharing', description: 'Stop sharing this session, or leave the one you joined' })
-    await $.command.register({ name: 'room', description: 'Open the Room: who is here, activity, side chat' })
-    await $.command.register({ name: 'share-file', description: 'Show a file to everyone in the shared session: /share-file <path>' })
+    await $.command.register({ name: 'team', description: "团队的共享会话，一键加入：/team [signin | create <name> | invite | signout]" })
+    await $.command.register({ name: 'invite', description: '邀请队友加入此共享会话（在他们自己的 Claude Code 中）：/invite <name>' })
+    await $.command.register({ name: 'stop-sharing', description: '停止分享此会话，或离开你加入的会话' })
+    await $.command.register({ name: 'room', description: '打开 Room：谁在这里、动态、侧边聊天' })
+    await $.command.register({ name: 'share-file', description: '向共享会话中的所有人展示文件：/share-file <path>' })
     await $.command.register({
       name: 'share-preview',
-      description: "Let teammates open this machine's localhost: /share-preview <port|http://localhost:port/path> [title]",
+      description: "让队友打开本机的 localhost：/share-preview <port|http://localhost:port/path> [title]",
     })
-    await $.command.register({ name: 'who', description: "Who's in this shared session and what each is doing" })
+    await $.command.register({ name: 'who', description: "谁在这个共享会话中，各自在做什么" })
     void readUpdates($)
     // Signed in: the team and what's shared with it, for Share and the Team button.
     void serverOf($)
@@ -12141,7 +12141,7 @@ export const register: Register = (on, options) => {
     const mode = await read($, modeA)
     if (mode !== 'idle') await closeRoom($, mode === 'host' ? 'stop' : 'leave')
     return {
-      text: mode === 'idle' ? 'This session is not shared.' : mode === 'host' ? 'Stopped sharing. The link no longer works.' : 'Left the shared session.',
+      text: mode === 'idle' ? 'This session is not shared.' : mode === 'host' ? '已停止分享。链接不再有效。' : 'Left the shared session.',
     }
   })
 
@@ -13130,7 +13130,7 @@ export const register: Register = (on, options) => {
               <Text bold color={color} hover={{ scope: `person-${said.who}`, inverse: true }}>
                 {said.who}
               </Text>
-              <Text dimColor>{`relayed a message from ${relayed.from}`}</Text>
+              <Text dimColor>{`转发了来自 ${relayed.from} 的消息`}</Text>
             </Box>
             <Markdown key="said" text={`${quoted}${more}`} />
           </Box>
@@ -13410,7 +13410,7 @@ export const register: Register = (on, options) => {
           <Text size="footnote" dimColor>
             Sign in, and your teammates' live sessions show up here, a press from joining. What you share goes to them.
           </Text>
-          {t.invite ? <Text color="claude">Your invite is waiting: you join the team as soon as you're signed in.</Text> : null}
+          {t.invite ? <Text color="claude">你的邀请正在等待：登录后即会加入团队。</Text> : null}
           {t.error ? <Text color="error">{t.error}</Text> : null}
           {signing ? (
             <Box flexDirection="column" gap={1} marginTop={1}>
@@ -13433,7 +13433,7 @@ export const register: Register = (on, options) => {
               ))}
             </Box>
           ) : t.loaded ? (
-            <Text dimColor>This share server has no sign-in, so teams aren't available on it. Sharing by link still works.</Text>
+            <Text dimColor>此共享服务器没有登录功能，因此无法使用团队。通过链接分享仍然可用。</Text>
           ) : (
             <Text dimColor>Loading…</Text>
           )}
@@ -13479,7 +13479,7 @@ export const register: Register = (on, options) => {
       Input ? (
         <Input
           key="team-new"
-          placeholder="Team name"
+          placeholder="团队名称"
           submitLabel="Create team"
           autoFocus={autoFocus || undefined}
           onSubmit={(value: string) =>
@@ -13489,7 +13489,7 @@ export const register: Register = (on, options) => {
           }
         />
       ) : (
-        <Text dimColor>/team create &lt;name&gt;</Text>
+        <Text dimColor>/team create &lt;名称&gt;</Text>
       )
 
     if (!team) {
@@ -13558,7 +13558,7 @@ export const register: Register = (on, options) => {
           </Box>
           <Box flexShrink={0} flexDirection="row" gap={1}>
             {inIt ? (
-              <Text color="claude">{mode === 'host' ? 'This session' : "You're in it"}</Text>
+              <Text color="claude">{mode === 'host' ? '本会话' : '你已在其中'}</Text>
             ) : mine ? (
               [
                 here[s.id] ? <Button key={`open-${s.id}`} label="Open" plain onPress={() => void openHere($, s.id)} /> : null,
@@ -13635,7 +13635,7 @@ export const register: Register = (on, options) => {
               <Select
                 key="share-to"
                 value={t.byLink ? 'link' : team.id}
-                options={[...t.teams.map(x => ({ value: x.id, label: `To ${x.name}` })), { value: 'link', label: 'By link alone' }]}
+                options={[...t.teams.map(x => ({ value: x.id, label: `发送给 ${x.name}` })), { value: 'link', label: '仅通过链接' }]}
                 onSelect={(value: string) => void setCurrentTeam($, value === 'link' ? null : value)}
               />,
             )
@@ -13660,9 +13660,9 @@ export const register: Register = (on, options) => {
     const tabs = tabsOf(
       el,
       [
-        { id: 'live', label: 'Live', count: liveCount + invites.length || undefined, news: invites.length > 0 || joinable.length > 0 },
-        { id: 'people', label: 'People', count: t.members.length || undefined },
-        { id: 'settings', label: 'Settings' },
+        { id: 'live', label: '动态', count: liveCount + invites.length || undefined, news: invites.length > 0 || joinable.length > 0 },
+        { id: 'people', label: '成员', count: t.members.length || undefined },
+        { id: 'settings', label: '设置' },
       ],
       tab,
       id => void update($, teamTabA, () => id),
@@ -13689,9 +13689,9 @@ export const register: Register = (on, options) => {
             ),
           )}
           {t.sessions.map(sessionRow)}
-          {t.sessions.length ? null : <Text dimColor>{`Nothing is shared with ${team.name} right now. A session someone shares with it shows up here.`}</Text>}
+          {t.sessions.length ? null : <Text dimColor>{`目前没有任何内容分享给 ${team.name}。有人分享给它的会话会显示在这里。`}</Text>}
           {joinable.length > 1 ? (
-            <Text dimColor>{mode === 'idle' ? 'Join all: the first joins here, the rest in new sessions.' : 'Join all: each opens in a new session.'}</Text>
+            <Text dimColor>{mode === 'idle' ? '全部加入：第一个在此处加入，其余在新会话中加入。' : '全部加入：每个都在新会话中打开。'}</Text>
           ) : null}
         </Box>
       </Box>
@@ -13733,7 +13733,7 @@ export const register: Register = (on, options) => {
           {owner ? (
             <Box flexDirection="row" gap={1} alignItems="center">
               <Button key="invite-new" label="Replace invite link" plain dimColor onPress={() => void newInvite($).catch(fail('replace the link'))} />
-              <Text dimColor>The old link stops working</Text>
+              <Text dimColor>旧链接将失效</Text>
             </Box>
           ) : null}
         </Box>
@@ -13753,8 +13753,8 @@ export const register: Register = (on, options) => {
                     key="team-access"
                     value={team.access}
                     options={[
-                      { value: 'members', label: 'Only people in the team' },
-                      { value: 'link', label: 'Anyone with the link' },
+                      { value: 'members', label: '仅团队成员' },
+                      { value: 'link', label: '任何持有链接的人' },
                     ]}
                     onSelect={(value: string) => void changeTeam($, { access: value === 'link' ? 'link' : 'members' }).catch(fail('change it'))}
                   />,
@@ -13802,8 +13802,8 @@ export const register: Register = (on, options) => {
                   key="invite-notify"
                   value={(await $.store.get(NOTIFY_KEY).catch(() => undefined)) === false ? 'quiet' : 'notify'}
                   options={[
-                    { value: 'notify', label: 'Notify me' },
-                    { value: 'quiet', label: 'Just show them' },
+                    { value: 'notify', label: '通知我' },
+                    { value: 'quiet', label: '仅显示' },
                   ]}
                   onSelect={(value: string) => void $.store.set(NOTIFY_KEY, value !== 'quiet').then(() => $.ui.invalidate('ui.render'))}
                 />,
@@ -13851,15 +13851,15 @@ export const register: Register = (on, options) => {
       if (v.asking) return shareChoice($, el, v.asking, 'room', e.surface, await shareTeamName($))
       return (
         <Box flexDirection="column" gap={1}>
-          <Text bold>This session isn't shared</Text>
-          <Text dimColor>Share it, and teammates join from their own Claude Code with a link. They see the conversation live and can prompt Claude here.</Text>
+          <Text bold>此会话尚未分享</Text>
+          <Text dimColor>分享后，队友可以用链接从自己的 Claude Code 加入。他们能实时看到对话，并可在此处提示 Claude。</Text>
           {takingBackNow() || (await closingNow($)) ? null : (
             <Box flexDirection="row" marginTop={1}>
               <Button
                 key="room-share"
                 label="Share this session"
                 variant="primary"
-                onPress={press => void requestShare($, press.surface).catch(error => $.ui.log(`Couldn't share: ${String(error?.message ?? error)}`))}
+                onPress={press => void requestShare($, press.surface).catch(error => $.ui.log(`无法分享：${String(error?.message ?? error)}`))}
               />
             </Box>
           )}
@@ -13890,7 +13890,7 @@ export const register: Register = (on, options) => {
           <Text bold color={colorOf(approving.who)}>
             {approving.who}
           </Text>
-          <Text>{' wants Claude to run '}</Text>
+          <Text>{' 希望 Claude 运行 '}</Text>
           <Text bold>{approving.what}</Text>
         </Text>
         {waiting ? <Markdown key="approval-whole" text={waiting.whole} /> : null}
@@ -13945,7 +13945,7 @@ export const register: Register = (on, options) => {
                   <Text bold color={colorOf(ask.who)}>
                     {ask.who}
                   </Text>
-                  <Text>{' wants the cloud host to run '}</Text>
+                  <Text>{' 希望云端主机运行 '}</Text>
                   <Text bold>{ask.what}</Text>
                 </Text>
                 {ask.preview ? <Markdown key={`cloud-ask-whole-${ask.id}`} text={ask.preview} /> : null}
@@ -13968,9 +13968,9 @@ export const register: Register = (on, options) => {
             />
             <Box flexShrink={1} minWidth={0}>
               {cloudMove?.stage === 'failed' ? (
-                <Text color="error">{cloudMove.note ?? "Couldn't bring it home."}</Text>
+                <Text color="error">{cloudMove.note ?? '无法取回本机。'}</Text>
               ) : (
-                <Text dimColor>Takes the session back here, with the cloud host's changes to your files.</Text>
+                <Text dimColor>将会话取回本机，并带回云端主机对你文件的更改。</Text>
               )}
             </Box>
           </Box>
@@ -13979,10 +13979,10 @@ export const register: Register = (on, options) => {
     const cloudMoveBlock =
       !isHost || runnerHere ? null : cloudMove?.stage === 'token' ? (
         <Box key="cloud-token" flexDirection="column" gap={1} borderStyle="round" borderDimColor paddingX={1}>
-          <Text weight="semibold">Move to cloud signs in to Claude as you</Text>
+          <Text weight="semibold">“移到云端”将以你的身份登录 Claude</Text>
           <Box flexDirection="row" gap={1} alignItems="center" justifyContent="space-between">
             <Box flexShrink={1} minWidth={0}>
-              <Text>1. In a terminal, run claude setup-token and approve it in your browser.</Text>
+              <Text>1. 在终端中运行 claude setup-token，并在浏览器中批准。</Text>
             </Box>
             <Button
               key="cloud-copy-command"
@@ -13991,7 +13991,7 @@ export const register: Register = (on, options) => {
               onPress={press => void copyText($, 'claude setup-token', 'Command copied: run it in a terminal', press.surface)}
             />
           </Box>
-          <Text>2. Copy the token it prints, then press Use copied token.</Text>
+          <Text>2. 复制它输出的令牌，然后按“使用已复制的令牌”。</Text>
           <Text dimColor>
             The token stays on this computer and goes to the cloud host when you move; it's never shown. Teammates' prompts there use your Claude plan, and
             every call of theirs asks you first. Revoke it any time at claude.ai.
@@ -14013,7 +14013,7 @@ export const register: Register = (on, options) => {
         </Text>
       ) : cloudMove?.stage === 'failed' ? (
         <Box key="cloud-failed" flexDirection="column" gap={1}>
-          <Text color="error">{cloudMove.note ?? "Couldn't move the session."}</Text>
+          <Text color="error">{cloudMove.note ?? '无法移动该会话。'}</Text>
           <Box flexDirection="row" gap={1}>
             <Button key="cloud-retry" label="Try again" variant="secondary" onPress={() => void moveToCloud($)} />
             <Button key="cloud-dismiss" label="Cancel" plain dimColor onPress={() => void update($, cloudMoveA, () => null)} />
@@ -14023,7 +14023,7 @@ export const register: Register = (on, options) => {
         <Box key="cloud-move" flexDirection="row" gap={1} alignItems="center">
           <Button key="cloud-move" label="Move to cloud" variant="secondary" onPress={() => void moveToCloud($)} />
           <Box flexShrink={1} minWidth={0}>
-            <Text dimColor>Keeps the session running for everyone when this computer sleeps. You approve teammates' calls from wherever you are.</Text>
+            <Text dimColor>当这台电脑休眠时，仍为所有人保持会话运行。你可以在任何地方批准队友的调用。</Text>
           </Box>
         </Box>
       )
@@ -14169,7 +14169,7 @@ export const register: Register = (on, options) => {
             />
           </Box>
         ) : (
-          <Text wrap="truncate-end">{`Claude is working for ${w.by}`}</Text>
+          <Text wrap="truncate-end">{`Claude 正在为 ${w.by} 工作`}</Text>
         )}
       </Box>
     ) : null
@@ -14177,11 +14177,11 @@ export const register: Register = (on, options) => {
     const tabs = tabsOf(
       el,
       [
-        { id: 'people', label: 'People', count: online },
-        { id: 'chat', label: 'Chat', count: v.unread || undefined, news: v.unread > 0 },
-        { id: 'timeline', label: 'Timeline', count: turns.length || undefined },
-        ...(changes.length ? [{ id: 'changes' as const, label: 'Changes', count: changes.length }] : []),
-        ...(shown.length ? [{ id: 'shown' as const, label: 'Shown', count: shown.length }] : []),
+        { id: 'people', label: '成员', count: online },
+        { id: 'chat', label: '聊天', count: v.unread || undefined, news: v.unread > 0 },
+        { id: 'timeline', label: '时间线', count: turns.length || undefined },
+        ...(changes.length ? [{ id: 'changes' as const, label: '更改', count: changes.length }] : []),
+        ...(shown.length ? [{ id: 'shown' as const, label: '已展示', count: shown.length }] : []),
         { id: 'settings', label: newer || pinRefused || paneRefused ? 'Settings ●' : 'Settings' },
       ],
       tab,
@@ -14197,9 +14197,9 @@ export const register: Register = (on, options) => {
       const joined = joinedAt(p.name)
       const asked = prompts(p.name)
       const doing = p.active ? (
-        <Text color={v.working?.waitingFor ? 'permission' : 'claude'}>{v.working?.waitingFor ? 'Waiting for an OK' : 'Claude is working'}</Text>
+        <Text color={v.working?.waitingFor ? 'permission' : 'claude'}>{v.working?.waitingFor ? '等待批准' : 'Claude 正在工作'}</Text>
       ) : !p.online ? (
-        <Text dimColor>away</Text>
+        <Text dimColor>离开</Text>
       ) : behind(p) ? (
         <Text color="warning">{`on ${p.version} · update to ${latest}`}</Text>
       ) : (
@@ -14289,7 +14289,7 @@ export const register: Register = (on, options) => {
               {/* Invited, and still not here: asked again, it shows in their Claude
                 Code anew (and notifies them again), even if they'd set it aside. */}
               <Box flexDirection="row" gap={1} alignItems="center" flexShrink={0}>
-                {invited[m.id] ? <Text color="success">{`Invited ${ago(invited[m.id] ?? now, now)}`}</Text> : null}
+                {invited[m.id] ? <Text color="success">{`已邀请 ${ago(invited[m.id] ?? now, now)}`}</Text> : null}
                 <Button
                   key={`invite-${m.id}`}
                   label={invited[m.id] ? 'Invite again' : 'Invite'}
@@ -14341,7 +14341,7 @@ export const register: Register = (on, options) => {
       <Box flexDirection="column" gap="lg">
         <Box flexDirection="column" gap="sm">
           {people.map(personRow)}
-          {isHost && people.length <= 1 ? <Text dimColor>Nobody else here yet. The link opens this session in their Claude Code.</Text> : null}
+          {isHost && people.length <= 1 ? <Text dimColor>还没有其他人在此。链接会在他们的 Claude Code 中打开此会话。</Text> : null}
         </Box>
         {inviteBlock}
         {turns.length ? (
@@ -14511,17 +14511,17 @@ export const register: Register = (on, options) => {
         {lines.length ? (
           lines.map((l, i) => (l.chat ? chatRow(l.chat, i) : l.event ? eventRow(l.event, i) : null))
         ) : (
-          <Text dimColor>Nothing yet. Say hi: everyone here sees it, and Claude doesn't.</Text>
+          <Text dimColor>暂无消息。打个招呼吧：这里的所有人都能看到，Claude 不会看到。</Text>
         )}
         {Input ? (
           <Input
             key={`chat-input-${chat.length}`}
-            placeholder="Message everyone (Claude doesn't read this)"
+            placeholder="向所有人发消息（Claude 不会读取）"
             submitLabel="Send"
             onSubmit={(value: string) => void postChat($, value)}
           />
         ) : (
-          <Text dimColor>Chat from Claude Code on desktop or in a terminal.</Text>
+          <Text dimColor>可从桌面或终端中的 Claude Code 发起聊天。</Text>
         )}
       </Box>
     )
@@ -14577,7 +14577,7 @@ export const register: Register = (on, options) => {
                   </Box>
                 </Box>
                 {forwarded && item.dependency === undefined && validPort(item.port) && !local?.localPort ? (
-                  <Text key={`address-${item.key}`} dimColor>{`Opens ${previewUrl(item.host, item.port, item.path, item.scheme)}${inWindow}`}</Text>
+                  <Text key={`address-${item.key}`} dimColor>{`打开 ${previewUrl(item.host, item.port, item.path, item.scheme)}${inWindow}`}</Text>
                 ) : null}
                 {item.kind === 'preview' && !item.closed && item.tcp && item.dependency !== undefined && validPort(item.port) ? (
                   <Text key={`dependency-${item.key}`} dimColor>
@@ -14624,8 +14624,8 @@ export const register: Register = (on, options) => {
             key="updates"
             value={updates ? 'auto' : 'manual'}
             options={[
-              { value: 'auto', label: 'Install by themselves' },
-              { value: 'manual', label: 'Only when I update' },
+              { value: 'auto', label: '自动安装' },
+              { value: 'manual', label: '仅在我更新时' },
             ]}
             onSelect={(value: string) => void writeUpdates($, value === 'auto')}
           />,
@@ -14647,7 +14647,7 @@ export const register: Register = (on, options) => {
         {pinRefused ? (
           <Box flexDirection="row" gap={1} alignItems="center" justifyContent="space-between">
             <Box flexShrink={1} minWidth={0}>
-              <Text dimColor>Auto mode won't let shared sessions pin themselves in the sidebar.</Text>
+              <Text dimColor>自动模式下，共享会话不会在侧边栏中固定自身。</Text>
             </Box>
             <Button key="allow-pin" label="Allow pinning" plain onPress={() => void allowDeskTools($)} />
           </Box>
@@ -14663,8 +14663,8 @@ export const register: Register = (on, options) => {
                     key="policy-prompts"
                     value={v.policy.prompts}
                     options={[
-                      { value: 'everyone', label: 'Prompt Claude' },
-                      { value: 'watch', label: 'Only watch and chat' },
+                      { value: 'everyone', label: '提示 Claude' },
+                      { value: 'watch', label: '仅观看和聊天' },
                     ]}
                     onSelect={(value: string) => void setPolicyHere($, { prompts: value === 'watch' ? 'watch' : 'everyone' })}
                   />,
@@ -14679,9 +14679,9 @@ export const register: Register = (on, options) => {
                     // A cloud host asks about every call when told nothing: it holds your Claude sign-in.
                     value={cloudSettings && v.policy.approvals === 'none' ? 'all' : v.policy.approvals}
                     options={[
-                      { value: 'edits', label: 'Anything but reading this project' },
-                      { value: 'all', label: 'Every tool, reads too' },
-                      ...(cloudSettings ? [] : [{ value: 'none', label: 'Nothing' }]),
+                      { value: 'edits', label: '除读取本项目外的所有操作' },
+                      { value: 'all', label: '所有工具，包括读取' },
+                      ...(cloudSettings ? [] : [{ value: 'none', label: '无' }]),
                     ]}
                     onSelect={(value: string) => void setPolicyHere($, { approvals: value === 'all' || value === 'none' ? value : 'edits' })}
                   />,
@@ -14695,8 +14695,8 @@ export const register: Register = (on, options) => {
                     key="policy-files"
                     value={v.policy.files ?? 'on'}
                     options={[
-                      { value: 'on', label: 'Goes to everyone' },
-                      { value: 'off', label: cloudSettings ? 'Stays in the cloud host' : 'Stays with me' },
+                      { value: 'on', label: '对所有人可见' },
+                      { value: 'off', label: cloudSettings ? '保留在云端主机' : '保留在我这里' },
                     ]}
                     onSelect={(value: string) => void setPolicyHere($, { files: value === 'off' ? 'off' : 'on' })}
                   />,
@@ -14704,7 +14704,7 @@ export const register: Register = (on, options) => {
               : null}
             {(cloudSettings ? cloudTrusted : trusted).length ? (
               <Box flexDirection="row" gap={1} alignItems="center" justifyContent="space-between">
-                <Text dimColor wrap="truncate-end">{`Always allowed: ${listNames(cloudSettings ? cloudTrusted : [...new Set(trusted.map(t => t.who))])}`}</Text>
+                <Text dimColor wrap="truncate-end">{`始终允许：${listNames(cloudSettings ? cloudTrusted : [...new Set(trusted.map(t => t.who))])}`}</Text>
                 <Button
                   key="untrust"
                   label="Ask again"
@@ -14725,8 +14725,8 @@ export const register: Register = (on, options) => {
                   key="auto-open"
                   value={(await read($, autoOpenA)) ? 'auto' : 'ask'}
                   options={[
-                    { value: 'auto', label: 'Open it here' },
-                    { value: 'ask', label: 'Ask me first' },
+                    { value: 'auto', label: '在此处打开' },
+                    { value: 'ask', label: '先询问我' },
                   ]}
                   onSelect={(value: string) => void update($, autoOpenA, () => value !== 'ask')}
                 />,
@@ -14740,15 +14740,15 @@ export const register: Register = (on, options) => {
                   key="preview-open"
                   value={previewOpen}
                   options={[
-                    ...(desktop ? [{ value: 'pane', label: "Claude's browser, or a separate window when ports are taken" }] : []),
-                    { value: 'browser', label: 'Your browser, or a separate window when ports are taken' },
-                    { value: 'window', label: 'Always a separate window' },
+                    ...(desktop ? [{ value: 'pane', label: 'Claude 的浏览器；端口被占用时使用独立窗口' }] : []),
+                    { value: 'browser', label: '你的浏览器；端口被占用时使用独立窗口' },
+                    { value: 'window', label: '始终使用独立窗口' },
                   ]}
                   onSelect={(value: string) => void setPreviewOpen($, value)}
                 />,
               )
             : null}
-          {!isHost && forwards && windowing && !windowing.window ? <Text dimColor>{`A separate window can't open here: ${windowing.reason}.`}</Text> : null}
+          {!isHost && forwards && windowing && !windowing.window ? <Text dimColor>{`无法在此打开独立窗口：${windowing.reason}。`}</Text> : null}
           {paneRefused ? (
             <Box flexDirection="row" gap={1} alignItems="center" justifyContent="space-between">
               <Box flexShrink={1} minWidth={0}>
@@ -14770,8 +14770,8 @@ export const register: Register = (on, options) => {
                   key="tool-rows"
                   value={await read($, toolRowsA)}
                   options={[
-                    { value: 'grouped', label: 'Grouped, as the terminal folds its own' },
-                    { value: 'each', label: 'Each shown, with its result' },
+                    { value: 'grouped', label: '分组显示，与终端自身的折叠方式一致' },
+                    { value: 'each', label: '逐条显示，并附上结果' },
                   ]}
                   onSelect={(value: string) => void update($, toolRowsA, () => (value === 'each' ? 'each' : 'grouped'))}
                 />,
@@ -14786,7 +14786,7 @@ export const register: Register = (on, options) => {
                   value={prefs.relayPeers ? 'relay' : 'keep'}
                   options={[
                     { value: 'relay', label: `Go to ${room.host}’s Claude` },
-                    { value: 'keep', label: 'Stay here' },
+                    { value: 'keep', label: '留在此处' },
                   ]}
                   onSelect={(value: string) => void setPrefs($, { relayPeers: value !== 'keep' })}
                 />,
@@ -14800,9 +14800,9 @@ export const register: Register = (on, options) => {
                   key="pref-sounds"
                   value={prefs.sounds}
                   options={[
-                    { value: 'mentions', label: 'Mentions and my turns' },
-                    { value: 'all', label: 'Those and joins' },
-                    { value: 'off', label: 'None' },
+                    { value: 'mentions', label: '提及我和我的轮次' },
+                    { value: 'all', label: '上述内容及加入事件' },
+                    { value: 'off', label: '无' },
                   ]}
                   onSelect={(value: string) => void setPrefs($, { sounds: value === 'all' || value === 'off' ? value : 'mentions' })}
                 />,
@@ -14816,8 +14816,8 @@ export const register: Register = (on, options) => {
                   key="pref-voice"
                   value={prefs.voice ? 'on' : 'off'}
                   options={[
-                    { value: 'off', label: 'Nothing' },
-                    { value: 'on', label: 'Joins and mentions' },
+                    { value: 'off', label: '无' },
+                    { value: 'on', label: '加入和提及' },
                   ]}
                   onSelect={(value: string) => void setPrefs($, { voice: value === 'on' })}
                 />,
@@ -14831,8 +14831,8 @@ export const register: Register = (on, options) => {
                   key="pref-status"
                   value={prefs.statusLine ? 'on' : 'off'}
                   options={[
-                    { value: 'off', label: 'Off' },
-                    { value: 'on', label: 'Who’s here' },
+                    { value: 'off', label: '关闭' },
+                    { value: 'on', label: '在场成员' },
                   ]}
                   onSelect={(value: string) => void setPrefs($, { statusLine: value === 'on' })}
                 />,
@@ -14867,7 +14867,7 @@ export const register: Register = (on, options) => {
               variant={v.confirming === 'stop' ? 'primary' : 'secondary'}
               onPress={() => void confirmStop($)}
             />
-            {v.confirming === 'stop' ? <Text color="error">Press again to end the room. The link stops working.</Text> : null}
+            {v.confirming === 'stop' ? <Text color="error">再次按下将结束房间。链接随即失效。</Text> : null}
           </Box>
         ) : (
           <Box flexDirection="row">
@@ -14939,7 +14939,7 @@ export const register: Register = (on, options) => {
               <Text bold color={color}>
                 {invite.from.name}
               </Text>
-              <Text>{' invites you'}</Text>
+              <Text>{' 邀请了你'}</Text>
               <Text dimColor>{` · ${tidyTitle(invite.room.title)}${invites.length > 1 ? ` · ${invites.length - 1} more in Team` : ''}`}</Text>
             </Text>,
           ],
@@ -14976,8 +14976,8 @@ export const register: Register = (on, options) => {
               plain
               onPress={press => {
                 void requestShare($, press.surface).catch(error => {
-                  $.ui.toast("Couldn't share")
-                  $.ui.log(`Couldn't share: ${String(error?.message ?? error)}`)
+                  $.ui.toast("无法分享")
+                  $.ui.log(`无法分享：${String(error?.message ?? error)}`)
                 })
               }}
             />
@@ -15018,7 +15018,7 @@ export const register: Register = (on, options) => {
             <Text bold color={color}>
               {approving.who}
             </Text>
-            <Text>{' wants Claude to run '}</Text>
+            <Text>{' 希望 Claude 运行 '}</Text>
             <Text bold>{approving.what}</Text>
             {approving.more ? <Text dimColor>{` · ${approving.more} more waiting`}</Text> : null}
           </Text>,
@@ -15072,7 +15072,7 @@ export const register: Register = (on, options) => {
             <Text bold color={color}>
               {cloudAsk.who}
             </Text>
-            <Text>{' wants the cloud host to run '}</Text>
+            <Text>{' 希望云端主机运行 '}</Text>
             <Text bold>{cloudAsk.what}</Text>
             {cloudAsks.length > 1 ? <Text dimColor>{` · ${cloudAsks.length - 1} more waiting`}</Text> : null}
           </Text>,

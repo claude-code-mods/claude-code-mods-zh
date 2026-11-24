@@ -64,49 +64,49 @@ export function galleryPane(look: Look, columns: number) {
 
   return (
     <Box flexDirection="column">
-      {section('Your prompt', promptRow(look, 'add rate limiting to the hub api'))}
+      {section('你的提示符', promptRow(look, 'add rate limiting to the hub api'))}
       {section(
-        'Tool rows: finished, running, failed',
+        '工具行：完成、运行中、失败',
         toolRow(look, { tool: 'Bash', input: {}, ...done }, 'run', 'pnpm test --filter hub', { ms: 2140 }),
         toolRow(look, { tool: 'Read', input: {}, ...done, isRunning: true }, 'read', 'docs/protocols.md', {}),
         toolRow(look, { tool: 'Edit', input: {}, ...done, isErrored: true }, 'write', 'apps/hub/src/server.ts', {}),
       )}
-      {section('Folded group of reads and searches', groupRow(look, [{ tool: 'Read', input: {}, ...done }, { tool: 'Read', input: {}, ...done }, { tool: 'Grep', input: {}, ...done }]))}
+      {section('折叠的读取与搜索分组', groupRow(look, [{ tool: 'Read', input: {}, ...done }, { tool: 'Read', input: {}, ...done }, { tool: 'Grep', input: {}, ...done }]))}
       {svg === undefined
-        ? section('Edit diff card', <Text color={palette.muted}>Desktop only; the terminal keeps Claude Code's diff.</Text>)
-        : section('Edit diff card', diffCard(look, svg, DIFF, 'apps/hub/src/server.ts', width))}
+        ? section('编辑差异卡片', <Text color={palette.muted}>仅桌面端；终端保留 Claude Code 原生差异视图。</Text>)
+        : section('编辑差异卡片', diffCard(look, svg, DIFF, 'apps/hub/src/server.ts', width))}
       {svg === undefined
         ? section(
-            'Shell output card: ok, failed with stderr, folded',
+            '终端输出卡片：成功、失败（含 stderr）、折叠',
             shellRows(look, 'pnpm test --filter hub', { stdout: 'Test Files  12 passed (12)\n     Tests  148 passed (148)', stderr: '', interrupted: false }, false, SHELL_FOLD),
             shellRows(look, 'pnpm tsc', { stdout: 'src/server.ts', stderr: 'error TS2322: Type string is not assignable to number', interrupted: false, exitCode: 2 }, true, SHELL_FOLD),
             shellRows(look, 'seq 40', { stdout: Array.from({ length: 40 }, (_, i) => String(i + 1)).join('\n'), stderr: '', interrupted: false }, false, SHELL_FOLD),
           )
         : section(
-            'Shell output card: ok, failed',
+            '终端输出卡片：成功、失败',
             terminalCard(look, svg, { stdout: 'Test Files  12 passed (12)\n     Tests  148 passed (148)', stderr: '', interrupted: false }, false, width),
             terminalCard(look, svg, { stdout: '', stderr: 'error TS2322: Type string is not assignable to number', interrupted: false }, true, width, 'copy-output-failed'),
           )}
       {svg === undefined
-        ? section('Code block, highlighted', codeRows(look, 'ts', CODE))
-        : section('Code block card', codeCard(look, 'ts', CODE, svg, width))}
-      {section('Table', replyRows(look, [TABLE], width, svg))}
+        ? section('代码块（高亮）', codeRows(look, 'ts', CODE))
+        : section('代码块卡片', codeCard(look, 'ts', CODE, svg, width))}
+      {section('表格', replyRows(look, [TABLE], width, svg))}
       {svg === undefined
-        ? section('Spinner', spinnerRow(look, look.skin.spinner[0] ?? 'Working', 3, 12_000))
+        ? section('转圈提示', spinnerRow(look, look.skin.spinner[0] ?? 'Working', 3, 12_000))
         : section(
-            'Spinner: thinking, tool running, writing, waiting',
-            desktopSpinnerRow(look, svg, 'thinking', 'Thinking'),
-            desktopSpinnerRow(look, svg, 'tool-use', 'Running pnpm test'),
-            desktopSpinnerRow(look, svg, 'responding', 'Writing the reply'),
-            desktopSpinnerRow(look, svg, 'requesting', 'Waiting for the model'),
+            '转圈提示：思考、工具运行中、正在写、等待中',
+            desktopSpinnerRow(look, svg, 'thinking', '思考中'),
+            desktopSpinnerRow(look, svg, 'tool-use', '正在运行 pnpm test'),
+            desktopSpinnerRow(look, svg, 'responding', '正在写回复'),
+            desktopSpinnerRow(look, svg, 'requesting', '等待模型响应'),
           )}
       {section(
-        'Band above the prompt: normal, then nudging to compact',
+        '提示符上方的状态带：正常，然后提示压缩',
         usageBand(look, [{ label: 'context', percent: 42 }, { label: '5h', percent: 18 }], look.prefs.compact, () => undefined),
         usageBand(look, [{ label: 'context', percent: 85 }, { label: '5h', percent: 61 }], look.prefs.compact, () => undefined),
       )}
-      {section('Band above a question', askBand(look, ['Approach', 'Store']))}
-      {section('Turn footer (terminal)', footerRow(look, look.skin.done[0] ?? 'Done', 41_000, { tools: 6, added: 18, removed: 3 }))}
+      {section('问题上方的状态带', askBand(look, ['方案', '存储']))}
+      {section('回合页脚（终端）', footerRow(look, look.skin.done[0] ?? 'Done', 41_000, { tools: 6, added: 18, removed: 3 }))}
     </Box>
   )
 }

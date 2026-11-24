@@ -97,24 +97,24 @@ export function draftingRequest({ goal, worktree, base, root, lang }) {
 
 const COPY = {
   en: {
-    filled: (bound) => `A request for Claude to draft the scope is in your prompt box — press Enter to send it. ${bound ? 'The current task stays in force until you accept the new scope.' : 'Nothing is bound yet.'}`,
-    mixed: (bound) => `The request was added after text you typed meanwhile; both are in your prompt box. Edit it before you press Enter. ${bound ? 'The current task stays in force until you accept the new scope.' : 'Nothing is bound yet.'}`,
-    copy: (bound) => `Send this to Claude to have it draft the scope (${bound ? 'the current task stays in force until you accept the new one' : 'nothing is bound yet'}):`,
-    typo: (v) => `Did you mean "/agentctl ${v}"? To start a task, describe it: /agentctl <what you are doing>`,
-    extra: (v) => `"/agentctl ${v}" takes no such arguments. ${v === 'proposal' ? 'It shows a waiting draft; to make one, describe the work: /agentctl <what you are doing>' : 'See /agentctl help.'}`,
-    acceptLine: (d) => `Accept this scope: /agentctl accept ${d} — it binds the scope only; it does not start any work.`,
-    accepted: 'Scope bound. Next: ask Claude to start the work.',
-    runChecks: (checks) => `To leave evidence, run each check as written: ${checks.join(' · ')} — a pipe, redirect or wrapper keeps a run from counting, and added arguments may check less than declared.`,
-    wholeScope: '/agentctl policy shows the whole scope.',
-    noTaskLast: 'No task is bound, so there is no hand-over yet. Start one: /agentctl <what you are doing>',
-    noHandover: 'This task has no saved hand-over yet: /agentctl handoff saves one.',
+    filled: (bound) => `已把请 Claude 起草范围的请求放进输入框——按 Enter 送出。${bound ? '接受新范围之前，当前任务照旧生效。' : '目前尚未绑定任何范围。'}`,
+    mixed: (bound) => `请求接在你刚才打的字后面，两者都在输入框里；送出前请先整理。${bound ? '接受新范围之前，当前任务照旧生效。' : '目前尚未绑定任何范围。'}`,
+    copy: (bound) => `把这段送给 Claude 让它起草范围（${bound ? '接受新范围之前，当前任务照旧生效' : '目前尚未绑定任何范围'}）：`,
+    typo: (v) => `你是要用「/agentctl ${v}」吗？要开始任务，请描述它：/agentctl <你要做的事>`,
+    extra: (v) => `「/agentctl ${v}」不接受这些参数。${v === 'proposal' ? '它只显示等待中的草稿；要起草，请描述工作：/agentctl <你要做的事>' : '见 /agentctl help。'}`,
+    acceptLine: (d) => `确认此范围：/agentctl accept ${d} — 只会绑定范围，不会开始任何工作。`,
+    accepted: '范围已绑定。下一步：请 Claude 开始这项工作。',
+    runChecks: (checks) => `要留下证据，请照原样执行每条检查：${checks.join(' · ')} — 加 pipe、redirect 或外层包装就不算；多加参数可能只检查到一部分。`,
+    wholeScope: '完整范围：/agentctl policy',
+    noTaskLast: '目前没有绑定任务，所以还没有交接记录。开始一个：/agentctl <你要做的事>',
+    noHandover: '这个任务还没有存过交接：/agentctl handoff 会存一份。',
     next: {
-      none: 'Next: describe the work — /agentctl <what you are doing>. Built-in refusals (direct git push, production writes) apply even now.',
-      proposal: (d) => `Next: review /agentctl proposal, then /agentctl accept ${d}`,
-      task: 'Next: ask Claude to work; /agentctl handoff saves where things stand.',
-      taskThenChecks: (checks) => `Next: ask Claude to work, then to run the checks exactly as written: ${checks.join(' · ')}. Once they are current: /agentctl handoff`,
-      rerun: (checks) => `Next: not current on this tree — ask Claude to run exactly as written: ${checks.join(' · ')}. Then: /agentctl handoff`,
-      checksCurrent: 'Next: every declared check is current on this tree — /agentctl handoff saves the hand-over.',
+      none: '下一步：描述工作 — /agentctl <你要做的事>。内置规则（直接 git push、production 写入）现在就会拦。',
+      proposal: (d) => `下一步：查看 /agentctl proposal，再执行 /agentctl accept ${d}`,
+      task: '下一步：请 Claude 开始工作；/agentctl handoff 会存下当前进度。',
+      taskThenChecks: (checks) => `下一步：请 Claude 开始工作，完成后逐字执行检查：${checks.join(' · ')}。检查都是最新的之后：/agentctl handoff`,
+      rerun: (checks) => `下一步：这些检查在当前代码树上不是最新的 — 请 Claude 逐字执行：${checks.join(' · ')}。之后：/agentctl handoff`,
+      checksCurrent: '下一步：声明的检查在当前代码树上都是最新的 — /agentctl handoff 会存下交接。',
     },
   },
   zh: {
@@ -148,7 +148,7 @@ export function copy(lang) {
 // shortened. An argv no quoting can carry is shown as its JSON array instead, which says to run it as
 // those words.
 export function checkLine(argv) {
-  return renderArgv(argv) ?? `${JSON.stringify(argv)} (as these words)`
+  return renderArgv(argv) ?? `${JSON.stringify(argv)}（按这些词执行）`
 }
 
 // The task's declared checks, as the command lines Claude must run as written.
@@ -183,19 +183,19 @@ export function helpText(lang, advanced) {
     ].join('\n')
   }
   return advanced ? [
-    'Advanced:',
-    '  /agentctl task show | set <json> | clear — view or set the task directly',
-    '  /agentctl policy — the scope in force and its limits',
-    '  /agentctl events [n] — recent refusals and calls left to the host',
-    '  /agentctl handoff · last — save a hand-over · show the last one',
-    '  /agentctl stop — cancel the turn and save a hand-over',
-    '  /agentctl status --details · discard — full status · drop a draft',
+    '进阶：',
+    '  /agentctl task show | set <json> | clear — 直接查看或设置任务',
+    '  /agentctl policy — 当前生效范围及其限制',
+    '  /agentctl events [n] — 最近的拒绝与交给宿主的调用',
+    '  /agentctl handoff · last — 保存交接 · 显示上次交接',
+    '  /agentctl stop — 取消当前回合并保存交接',
+    '  /agentctl status --details · discard — 完整状态 · 丢弃草稿',
   ].join('\n') : [
-    'agentctl keeps Claude inside a scope you confirm and records check evidence.',
-    '  /agentctl <what you are doing> — Claude drafts a scope (binds nothing)',
-    '  /agentctl accept <digest> — you confirm it (starts no work)',
-    '  /agentctl — where things stand and what to do next',
-    'More: /agentctl help advanced',
+    'agentctl 让 Claude 在你确认的范围内工作，并记录检查证据。',
+    '  /agentctl <你要做的事> — Claude 起草范围（不会绑定）',
+    '  /agentctl accept <digest> — 你确认范围（不会开始工作）',
+    '  /agentctl — 当前状态与下一步',
+    '更多：/agentctl help advanced',
   ].join('\n')
 }
 

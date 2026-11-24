@@ -6,7 +6,7 @@ const BAR_FULL = '▓'
 const BAR_EMPTY = '░'
 const DASH = '—'
 
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const
+const DAYS = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'] as const
 
 const pad2 = (value: number) => String(value).padStart(2, '0')
 
@@ -63,7 +63,7 @@ export const resetTextOf = (
   const atMs = resetsAt * 1000
 
   if (atMs <= nowMs) {
-    return 'resets due'
+    return '重置已到期'
   }
 
   const at = new Date(atMs)
@@ -75,7 +75,7 @@ export const resetTextOf = (
     at.getMonth() === now.getMonth() &&
     at.getDate() === now.getDate()
 
-  return today ? `resets ${clock}` : `resets ${DAYS[at.getDay()]} ${clock}`
+  return today ? `${clock} 重置` : `${DAYS[at.getDay()]} ${clock} 重置`
 }
 
 const windowLabel = (key: WindowKey) => key.padEnd(5)
@@ -86,7 +86,7 @@ const poolLines = (pool: PoolStatus, nowMs: number): string[] =>
 
     const row =
       `  ${windowLabel(key)} ${barOf(window.remaining)} ` +
-      `${percentOf(window.remaining)} left`
+      `剩余 ${percentOf(window.remaining)}`
 
     const reset = resetTextOf(window.resetsAt, nowMs)
 
@@ -139,8 +139,8 @@ export function reportText(
   const providers = providerLines(report.providers)
 
   const legend =
-    `  headroom left, averaged over the pool's accounts; a shared figure, ` +
-    `not a promise about your next request`
+    `  剩余余量，按池中各账户取平均；这是共享数值，` +
+    `并不保证你的下一次请求一定被受理`
 
   return [
     head,

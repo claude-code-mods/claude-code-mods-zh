@@ -13,12 +13,12 @@ const models = require('./models.js')
 // manifest.json), `modelVariable` what the council scripts read; the router
 // is the one provider that takes a roster of models, one council seat each.
 const PROVIDERS = [
-  { name: 'gemini', title: 'Gemini', field: 'Gemini API key', keyVariable: 'GEMINI_API_KEY', modelVariable: 'GEMINI_MODEL' },
-  { name: 'openai', title: 'OpenAI', field: 'OpenAI API key', keyVariable: 'OPENAI_API_KEY', modelVariable: 'OPENAI_MODEL' },
-  { name: 'grok', title: 'Grok', field: 'xAI API key (Grok)', keyVariable: 'XAI_API_KEY', modelVariable: 'GROK_MODEL' },
-  { name: 'perplexity', title: 'Perplexity', field: 'Perplexity API key', keyVariable: 'PERPLEXITY_API_KEY', modelVariable: 'PERPLEXITY_MODEL' },
-  { name: 'kimi', title: 'Kimi', field: 'Kimi API key', keyVariable: 'KIMI_API_KEY', modelVariable: 'KIMI_MODEL' },
-  { name: 'openrouter', title: 'OpenRouter', field: 'OpenRouter API key', keyVariable: 'OPENROUTER_API_KEY', modelVariable: 'OPENROUTER_MODELS', roster: true },
+  { name: 'gemini', title: 'Gemini', field: 'Gemini API 密钥', keyVariable: 'GEMINI_API_KEY', modelVariable: 'GEMINI_MODEL' },
+  { name: 'openai', title: 'OpenAI', field: 'OpenAI API 密钥', keyVariable: 'OPENAI_API_KEY', modelVariable: 'OPENAI_MODEL' },
+  { name: 'grok', title: 'Grok', field: 'xAI API 密钥（Grok）', keyVariable: 'XAI_API_KEY', modelVariable: 'GROK_MODEL' },
+  { name: 'perplexity', title: 'Perplexity', field: 'Perplexity API 密钥', keyVariable: 'PERPLEXITY_API_KEY', modelVariable: 'PERPLEXITY_MODEL' },
+  { name: 'kimi', title: 'Kimi', field: 'Kimi API 密钥', keyVariable: 'KIMI_API_KEY', modelVariable: 'KIMI_MODEL' },
+  { name: 'openrouter', title: 'OpenRouter', field: 'OpenRouter API 密钥', keyVariable: 'OPENROUTER_API_KEY', modelVariable: 'OPENROUTER_MODELS', roster: true },
 ]
 const ROSTER_MAX = 12
 const VERBOSITIES = ['brief', 'standard', 'detailed']
@@ -412,7 +412,7 @@ function questionProblem(question) {
   return ''
 }
 
-const NO_SEATS = 'No council seat is set up: no provider has a key and no CLI agent is installed. In Claude Desktop, API keys go in Settings, Extensions, Claude Council, Configure.'
+const NO_SEATS = '尚未设置任何议事厅席位：没有提供方配置了密钥，也没有安装 CLI 代理。在 Claude Desktop 中，API 密钥请填入“设置 → 扩展 → Claude Council → 配置”。'
 
 // The council as one object over a plugin root and what readKeys made of
 // the keys Desktop gave. Every tool function takes the call's AbortSignal
@@ -907,8 +907,8 @@ function openCouncil({ root, keys, tooShort, redact, timeoutsMs = TIMEOUTS_MS })
     const result = await runScript('check-status.sh', [], { cwd: runDirectory(), env: scriptEnvironment(keys, choices), timeoutMs: timeoutsMs.status, signal })
     if (result.stopped) return refused(stopText('status check', result.stopped, timeoutsMs.status))
     const report = stripAnsi(`${result.stdout}\n${result.stderr}`).trim() || `The status check exited ${result.exitCode} with no output.`
-    const short = tooShort.map(provider => `The ${provider.field} field holds under ${KEY_MIN_LENGTH} characters, too short to be a key, so ${provider.title} has no key.`)
-    const where = 'In Claude Desktop, API keys go in Settings, Extensions, Claude Council, Configure, not in exported variables. Models are chosen with the council_settings tool.'
+    const short = tooShort.map(provider => `${provider.field} 字段中的值不足 ${KEY_MIN_LENGTH} 个字符，过短，不能作为密钥，因此 ${provider.title} 没有可用密钥。`)
+    const where = '在 Claude Desktop 中，API 密钥请填入“设置 → 扩展 → Claude Council → 配置”，而不是通过导出变量提供。模型可通过 council_settings 工具选择。'
     const notes = [...short, notice, where].filter(Boolean)
     return { text: `${report}\n\n${notes.join('\n')}`, isError: result.exitCode !== 0 }
   }
@@ -920,17 +920,17 @@ function openCouncil({ root, keys, tooShort, redact, timeoutsMs = TIMEOUTS_MS })
       const choice = choices[provider.name]
       // Every line says it, both ways: a model reading only the lines that
       // say "no key" has concluded that no provider has one.
-      const key = keys.has(provider.name) ? 'key set' : 'no key'
-      if (provider.roster && choice.length > 0) return `${provider.title}: ${choice.join(', ')} (${choice.length} seat${choice.length === 1 ? '' : 's'}, ${key})`
-      if (!provider.roster && choice !== '') return `${provider.title}: ${choice} (${key})`
-      return `${provider.title}: ${defaults[provider.name]} (default, ${key})`
+      const key = keys.has(provider.name) ? '已设置密钥' : '无密钥'
+      if (provider.roster && choice.length > 0) return `${provider.title}：${choice.join(', ')}（${choice.length} 个席位，${key}）`
+      if (!provider.roster && choice !== '') return `${provider.title}：${choice}（${key}）`
+      return `${provider.title}：${defaults[provider.name]}（默认，${key}）`
     })
     const notes = []
     if (notice) notes.push(notice)
     notes.push(drawsPanel
-      ? 'Change them in the panel shown with this result; a change applies to the next council question.'
-      : 'This app does not show the settings panel, so these models cannot be changed here.')
-    return { text: `Council models:\n${lines.join('\n')}\n\n${notes.join('\n')}` }
+      ? '请在本结果附带显示的面板中修改；更改将在下一次议事厅提问时生效。'
+      : '此应用不显示设置面板，因此无法在此处修改这些模型。')
+    return { text: `议事厅模型：\n${lines.join('\n')}\n\n${notes.join('\n')}` }
   }
 
   async function panelData(input, signal) {
@@ -953,7 +953,7 @@ function openCouncil({ root, keys, tooShort, redact, timeoutsMs = TIMEOUTS_MS })
       } catch (err) {
         // The keys go before the cut: an error can quote the key it was
         // sent, and the cut could leave the first part of one.
-        row.listError = `Could not load the model list (${redact(String(err?.message ?? err)).slice(0, 120)})`
+        row.listError = `无法加载模型列表（${redact(String(err?.message ?? err)).slice(0, 120)}）`
       }
       return row
     }))

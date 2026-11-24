@@ -9,12 +9,12 @@ const BOARD_COLUMNS = 3;
 * What a card draws for a title that projected to nothing (ISS-1311): dimmed,
 * never shimmered, and a render choice only, so the cache keeps the empty string.
 */
-const UNTITLED = "(untitled)";
+const UNTITLED = "（无标题）";
 /** What a column with nothing in it says, rather than drawing a blank frame. */
 const EMPTY_COLUMNS = {
-  "board-open": { symbol: "◇", title: "Queue clear", short: "Queue clear", hint: "Add your next story." },
-  "board-inprogress": { symbol: "○", title: "Ready to begin", short: "Ready to start", hint: "Start a story from Open." },
-  "board-done": { symbol: "·", title: "Progress starts here", short: "Room to grow", hint: "Completed work gathers here." },
+  "board-open": { symbol: "◇", title: "队列已清空", short: "队列已清空", hint: "添加下一个故事。" },
+  "board-inprogress": { symbol: "○", title: "可以开始", short: "可以开始", hint: "从“待办”开始一个故事。" },
+  "board-done": { symbol: "·", title: "进展从这里开始", short: "尚有空间", hint: "已完成的工作汇集于此。" },
 } as const;
 type BoardColumnKey = keyof typeof EMPTY_COLUMNS;
 /**
@@ -48,12 +48,12 @@ const MIN_COLUMN_WIDTH = 12;
 * nonzero one carries and the short label it falls back to.
 */
 /** What the issues line says when every bucket is empty. */
-const NO_ISSUES = "issues: none";
+const NO_ISSUES = "问题：无";
 const SEVERITY_ORDER = [
-  { key: "critical", long: "critical", short: "crit", tone: "red" },
-  { key: "high", long: "high", short: "high", tone: "yellow" },
-  { key: "medium", long: "medium", short: "med", tone: null },
-  { key: "low", long: "low", short: "low", tone: null },
+  { key: "critical", long: "严重", short: "严重", tone: "red" },
+  { key: "high", long: "高", short: "高", tone: "yellow" },
+  { key: "medium", long: "中", short: "中", tone: null },
+  { key: "low", long: "低", short: "低", tone: null },
 ] as const;
 /**
 * The colour an issue's id carries on a board row, by severity.
@@ -200,7 +200,7 @@ export function rowBudget(e: any, stacked: boolean): {
 */
 function headingContent(dashboard: DashboardState, elements: any, label: string, count: number, width: number, stage: StageMark | null = null): unknown[] {
   const tail = ` ${count}`;
-  const emphasis = dashboard.motion.count(label === "In progress" ? "inProgress" : label === "Done" ? "done" : "open");
+  const emphasis = dashboard.motion.count(label === "进行中" ? "inProgress" : label === "已完成" ? "done" : "open");
   const tag = headingTag(label, count, stage, width);
   return [
     paneText(dashboard, elements.Text, { children: truncate(label, Math.max(1, width - tail.length)) }),
@@ -284,8 +284,8 @@ function cardRow(dashboard: DashboardState, elements: any, card: SidebarBoardCar
   const effect = dashboard.motion.card(card.key);
   const ready = effect.ready && !card.blocked && !done;
   // T-486 U2-5: a withdrawn ticket is finished but was never delivered; its Done card says so.
-  const withdrawn = done && card.withdrawn ? (width >= 32 ? "[Withdrawn] " : "[W] ") : "";
-  const blocked = withdrawn !== "" ? withdrawn : card.blocked ? (width >= 32 ? "[Blocked] " : "[!] ") : ready ? (width >= 32 ? "✓ Ready " : "✓ ") : "";
+  const withdrawn = done && card.withdrawn ? (width >= 32 ? "[已撤回] " : "[W] ") : "";
+  const blocked = withdrawn !== "" ? withdrawn : card.blocked ? (width >= 32 ? "[已受阻] " : "[!] ") : ready ? (width >= 32 ? "✓ 就绪 " : "✓ ") : "";
   const tag = stage !== null && stage.key === card.key
     && cellWidth(card.id) + 1 + cellWidth(stage.text) + cellWidth(blocked) + 2 <= width ? stage.text : "";
   const id = truncate(card.id, Math.max(1, width - cellWidth(tag) - cellWidth(blocked) - 3));
@@ -388,7 +388,7 @@ function emptyColumnRows(dashboard: DashboardState, elements: any, column: Board
 export function inProgressBoard(dashboard: DashboardState, elements: any, width: number, body: number): unknown {
   const cards = dashboard.projection?.board.inProgress ?? [];
   const shown = Math.min(COLUMN_CARD_CAP, Math.max(0, body - (cards.length > body ? 1 : 0)));
-  return boardColumn(dashboard, elements, "board-inprogress", "In progress", COLUMN_STYLES.inProgress,
+  return boardColumn(dashboard, elements, "board-inprogress", "进行中", COLUMN_STYLES.inProgress,
     cards, width, shown, Math.max(1, Math.min(body, cards.length || 2)), sessionStage(dashboard, cards, shown));
 }
 
@@ -424,9 +424,9 @@ export function compactBoard(dashboard: DashboardState, elements: any, board: Si
     key: "board",
     flexDirection: "column",
     children: [
-      line("board-open", "Open", COLUMN_STYLES.open, board.open),
-      line("board-inprogress", "In progress", COLUMN_STYLES.inProgress, board.inProgress, sessionStage(dashboard, board.inProgress, 0)),
-      line("board-done", "Done", COLUMN_STYLES.done, board.done),
+      line("board-open", "待办", COLUMN_STYLES.open, board.open),
+      line("board-inprogress", "进行中", COLUMN_STYLES.inProgress, board.inProgress, sessionStage(dashboard, board.inProgress, 0)),
+      line("board-done", "已完成", COLUMN_STYLES.done, board.done),
     ],
   });
 }
@@ -442,9 +442,9 @@ export function compactBoard(dashboard: DashboardState, elements: any, board: Si
 *
 * Nothing in progress and the strip shows the Open column the same way
 * (ISS-1254): the owner's project had no work in hand and the strip said
-* "In progress 0, none", which is a count and not the work; the next thing to
+* "进行中 0，无", which is a count and not the work; the next thing to
 * pick up is what the strip is for then. An active session's stage (T-532)
-* still gets a row there, "In progress 0 [Pick]", above Open, which gives up
+* still gets a row there, "进行中 0 [挑选]", above Open, which gives up
 * a card for it so the strip stays five rows; the Open cards never carry it.
 */
 export function narrowBoard(dashboard: DashboardState, elements: any, board: SidebarProjection["board"], width: number): unknown {
@@ -452,7 +452,7 @@ export function narrowBoard(dashboard: DashboardState, elements: any, board: Sid
   const fallback = inProgress.length === 0;
   const cards = fallback ? (board.open as readonly SidebarBoardCard[]) : inProgress;
   const stage = sessionStage(dashboard, inProgress, NARROW_BOARD_CARDS);
-  const stageRow = fallback && headingTag("In progress", 0, stage, width) !== "";
+  const stageRow = fallback && headingTag("进行中", 0, stage, width) !== "";
   const limit = stageRow ? NARROW_BOARD_CARDS - 1 : NARROW_BOARD_CARDS;
   const rows: unknown[] = [];
   if (stageRow) {
@@ -460,14 +460,14 @@ export function narrowBoard(dashboard: DashboardState, elements: any, board: Sid
       key: "narrow-stage-heading",
       ...COLUMN_STYLES.inProgress,
       wrap: "truncate",
-      children: headingContent(dashboard, elements, "In progress", 0, width, stage),
+      children: headingContent(dashboard, elements, "进行中", 0, width, stage),
     }));
   }
   rows.push(paneText(dashboard, elements.Text, {
     key: "narrow-heading",
     ...(fallback ? COLUMN_STYLES.open : COLUMN_STYLES.inProgress),
     wrap: "truncate",
-    children: headingContent(dashboard, elements, fallback ? "Open" : "In progress", cards.length, width, fallback ? null : stage),
+    children: headingContent(dashboard, elements, fallback ? "待办" : "进行中", cards.length, width, fallback ? null : stage),
   }));
   if (cards.length === 0) {
     rows.push(...emptyColumnRows(dashboard, elements, fallback ? "board-open" : "board-inprogress", width, 1, false));
@@ -482,7 +482,7 @@ export function narrowBoard(dashboard: DashboardState, elements: any, board: Sid
         key: "narrow-tail",
         dimColor: true,
         wrap: "truncate",
-        children: truncate(`... ${cards.length - limit} more`, width),
+        children: truncate(`…还有 ${cards.length - limit} 个`, width),
       }));
     }
   }
@@ -534,9 +534,9 @@ export function boardNode(dashboard: DashboardState, elements: any, board: Sideb
     flexDirection: stacked ? "column" : "row",
     gap: stacked ? 0 : COLUMN_GAP,
     children: [
-      boardColumn(dashboard, elements, "board-open", "Open", COLUMN_STYLES.open, board.open, widths[0]!, shown, height),
-      boardColumn(dashboard, elements, "board-inprogress", "In progress", COLUMN_STYLES.inProgress, board.inProgress, widths[1]!, shown, height, sessionStage(dashboard, board.inProgress, shown)),
-      boardColumn(dashboard, elements, "board-done", "Done", COLUMN_STYLES.done, board.done, widths[2]!, shown, height),
+      boardColumn(dashboard, elements, "board-open", "待办", COLUMN_STYLES.open, board.open, widths[0]!, shown, height),
+      boardColumn(dashboard, elements, "board-inprogress", "进行中", COLUMN_STYLES.inProgress, board.inProgress, widths[1]!, shown, height, sessionStage(dashboard, board.inProgress, shown)),
+      boardColumn(dashboard, elements, "board-done", "已完成", COLUMN_STYLES.done, board.done, widths[2]!, shown, height),
     ],
   });
 }
@@ -587,7 +587,7 @@ export function compactLineNode(dashboard: DashboardState, elements: any, column
   const runs: unknown[] = [wordmarkNode(dashboard, elements)];
   let used = 9;
   if (room >= 30) {
-    const status = item ? "In progress" : "Ready";
+    const status = item ? "进行中" : "就绪";
     runs.push(text({ dimColor: true, children: "  │  " }));
     runs.push(text({ color: item ? "cyan" : undefined, children: status }));
     used += 5 + status.length;
@@ -595,7 +595,7 @@ export function compactLineNode(dashboard: DashboardState, elements: any, column
       runs.push(text({ dimColor: true, children: `  ${item.id}  ` }));
       used += cellWidth(item.id) + 4;
       if (item.blocked && room - used >= 15) {
-        runs.push(text({ color: "yellow", children: "[Blocked] " }));
+        runs.push(text({ color: "yellow", children: "[已受阻] " }));
         used += 10;
       }
       const untitled = item.title === "";
@@ -658,17 +658,17 @@ export function contextLabel(context: number | null, width: number, meterValue =
   if (width <= 0)
     return "";
   if (context === null || !Number.isFinite(context))
-    return truncate(width < 6 ? "--" : width < 14 ? "-- ctx" : "context --", width);
+    return truncate(width < 6 ? "--" : width < 14 ? "-- 上下文" : "上下文 --", width);
   const value = Math.max(0, Math.min(100, Math.round(context)));
   if (width < 14) {
-    const compact = `${value}% ctx`;
+    const compact = `${value}% 上下文`;
     return truncate(cellWidth(compact) <= width ? compact : `${value}%`, width);
   }
   const cells = width >= 48 ? 8 : width >= 32 ? 4 : 0;
   const meterPercent = meterValue !== null && Number.isFinite(meterValue) ? Math.max(0, Math.min(100, meterValue)) : value;
   const filled = Math.round(meterPercent / 100 * cells);
   const meter = cells ? ` [${"━".repeat(filled)}${"·".repeat(cells - filled)}]` : "";
-  return `context${meter} ${value}%`;
+  return `上下文${meter} ${value}%`;
 }
 export function contextNode(dashboard: DashboardState, elements: any, context: number | null, width: number): unknown {
   const high = context !== null && Number.isFinite(context) && context >= 80;
@@ -702,12 +702,12 @@ export function footerNode(dashboard: DashboardState, elements: any, bySeverity:
       ],
     });
   }
-  const long = `issues: ${SEVERITY_ORDER.map((s, i) => `${counts[i]} ${s.long}`).join(", ")}`;
+  const long = `问题：${SEVERITY_ORDER.map((s, i) => `${counts[i]} ${s.long}`).join(", ")}`;
   const short = SEVERITY_ORDER.map((s, i) => `${counts[i]} ${s.short}`).join(" ");
   const abbreviated = cellWidth(long) > room;
   const parts: unknown[] = [];
   if (!abbreviated)
-    parts.push(paneText(dashboard, elements.Text, { children: "issues: " }));
+    parts.push(paneText(dashboard, elements.Text, { children: "问题：" }));
   SEVERITY_ORDER.forEach((severity, index) => {
     const count = counts[index] ?? 0;
     const props: Record<string, unknown> = {

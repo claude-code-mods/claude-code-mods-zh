@@ -84,7 +84,7 @@ export const register: Register = (on, options) => {
     })
     await $.command.register({
       name: 'tokendoctor',
-      description: 'Show and change token settings by name (no model call)',
+      description: '按名称查看和修改 token 设置（不调用模型）',
       argumentHint: '[window|slide|cache|effort|model|subagents|all|fix|undo] [value|reset]',
     })
     void audit($)
@@ -92,7 +92,7 @@ export const register: Register = (on, options) => {
         // Where Claude Code's guard sends compaction past the mods a person installs, the slide would
         // be on and never run: say so once, with the way out (lib/guard.mjs).
         const blocked = slideOn && found.find(f => f.id === 'slide-blocked-by-guard')
-        if (blocked) $.ui.toast('tokendoctor: the slide cannot run under this login, Claude Code will summarize. /tokendoctor slide says why.', { timeoutMs: 12_000 })
+        if (blocked) $.ui.toast('tokendoctor：当前登录下无法运行 slide，Claude Code 会进行总结。输入 /tokendoctor slide 查看原因。', { timeoutMs: 12_000 })
       })
       .catch(() => {})
     return result
@@ -119,12 +119,12 @@ export const register: Register = (on, options) => {
     const before = menu.display(menu.current(merged, p.entry.key))
     const v = change.op.op === 'set' ? change.op.value : undefined
     const out = await bin($, 'tokendoctor-set', [p.entry.key, ...(v === undefined ? ['--unset'] : [JSON.stringify(v)]), '--scope', p.scope, '--write'])
-    if (/no change/.test(out)) return { text: `${p.entry.name} is already ${menu.display(v)} in ${p.scope} settings.` }
+    if (/no change/.test(out)) return { text: `${p.entry.name} 在 ${p.scope} 设置里已经是 ${menu.display(v)}。` }
     if (!/\bwritten\b/.test(out)) return { text: out.trim() }
     void audit($).catch(() => {})
     const backup = /backup: (\S+)/.exec(out)?.[1]
-    const when = menu.live(p.entry.key) ? 'Applies now.' : 'Takes effect in the next session.'
-    return { text: `${p.entry.name}: ${before} → ${menu.display(v)} in ${p.scope} settings. ${when}${backup ? `\nBackup: ${backup}` : ''}` }
+    const when = menu.live(p.entry.key) ? '立即生效。' : '下次会话生效。'
+    return { text: `${p.entry.name}：${before} → ${menu.display(v)}（${p.scope} 设置）。${when}${backup ? `\n备份：${backup}` : ''}` }
   })
 
   on('prompt.autocomplete', async ($, e, next) => {
@@ -174,14 +174,14 @@ export const register: Register = (on, options) => {
     const least = Math.max(1, Math.round(now - dropped - window * 0.6))
     const s = slide(messages, now + added - target - dropped, perChar, least)
     if (!s) {
-      $.ui.toast('tokendoctor: nothing left to elide, so the conversation is summarized')
+      $.ui.toast('tokendoctor：已经没有可省略的内容，改为总结这段对话')
       return summarize()
     }
     const after = Math.min(Math.round(window * 0.9), now - s.freed - dropped + added)
     $.ui.toast(
-      `tokendoctor slid the window: ${k(now)} → ${k(after)}, ${s.elided} old tool outputs elided` +
-        `${s.turns ? `, the ${s.turns} oldest turns removed` : ''}` +
-        `${dropped >= 1000 ? `, images and thinking dropped (${k(dropped)})` : ''}, no summary`,
+      `tokendoctor 已滑动窗口：${k(now)} → ${k(after)}，省略了 ${s.elided} 条旧工具输出` +
+        `${s.turns ? `，移除了最早的 ${s.turns} 轮` : ''}` +
+        `${dropped >= 1000 ? `，丢弃了图片和思考内容（${k(dropped)}）` : ''}，未做总结`,
     )
     afterSlide = s.messages.length
     measure = now - s.freed - dropped
@@ -280,7 +280,7 @@ async function undo($: EngineInterface, n: string | undefined) {
     const journal = safeJson(await bin($, 'tokendoctor-undo', ['--json']))
     return Array.isArray(journal) ? menu.undoList(journal as menu.JournalEntry[]) : String(journal)
   }
-  if (!/^\d+$/.test(n)) return 'Put back which one? /tokendoctor undo lists them by number.'
+  if (!/^\d+$/.test(n)) return '要恢复哪一条？/tokendoctor undo 会按编号列出。'
   const out = await bin($, 'tokendoctor-undo', [n, '--write'])
   void audit($).catch(() => {})
   return out.trim()
@@ -290,14 +290,14 @@ async function undo($: EngineInterface, n: string | undefined) {
 async function fix($: EngineInterface, id: string | undefined, scope: string | undefined) {
   if (!id) {
     const fixable = (await audit($)).filter(f => f.fixes)
-    if (!fixable.length) return 'The audit has no fixes to apply.'
-    return ['The audit has fixes for:', ...fixable.map(f => `  /tokendoctor fix ${f.id.padEnd(28)} ${f.title}`)].join('\n')
+    if (!fixable.length) return '审计结果没有可应用的修复。'
+    return ['审计结果可修复以下问题：', ...fixable.map(f => `  /tokendoctor fix ${f.id.padEnd(28)} ${f.title}`)].join('\n')
   }
   const args = [id, ...(scope ? ['--scope', scope] : [])]
   const plan = await bin($, 'tokendoctor-apply', args)
   if (!plan.startsWith('Would change')) return plan.trim()
   const shown = plan.replace(/\n+Dry run.*$/s, '').trim()
-  if (!(await confirm($, shown))) return `Not changed.\n${shown}`
+  if (!(await confirm($, shown))) return `未修改。\n${shown}`
   const out = await bin($, 'tokendoctor-apply', [...args, '--write'])
   void audit($).catch(() => {})
   return out.trim()
@@ -307,11 +307,11 @@ async function fix($: EngineInterface, id: string | undefined, scope: string | u
 // be asked (a -p run).
 async function confirm($: EngineInterface, change: string) {
   try {
-    const answer = await $.ui.ask(`tokendoctor wants to change a setting:\n${change}\nApply it?`, {
+    const answer = await $.ui.ask(`tokendoctor 想修改一项设置：\n${change}\n要应用吗？`, {
       header: 'tokendoctor',
-      options: ['Apply', 'Cancel'],
+      options: ['应用', '取消'],
     })
-    return answer === 'Apply'
+    return answer === '应用'
   } catch {
     return false
   }

@@ -160,27 +160,27 @@ export const register: Register = on => {
     void $.process.run(['sh', '-c', CLEAN_SH, state.TMP]).then(() => trimFrames($))
     await $.command.register({
       name: 'show-your-work',
-      description: 'Settings for show-your-work; /show-your-work tour for the tour, /show-your-work update to check for updates, /show-your-work diagnose for recent problems',
+      description: 'show-your-work 设置；/show-your-work tour 查看导览，/show-your-work update 检查更新，/show-your-work diagnose 查看最近的问题',
       argumentHint: '[settings|tour|update|diagnose]',
     })
     await $.command.register({
       name: 'img',
-      description: 'Show an image or video in the chat: /img <path>',
+      description: '在聊天中展示图片或视频：/img <path>',
       argumentHint: '<path>',
     })
     await $.command.register({
       name: 'page',
-      description: 'Show a local HTML page in your terminal: /page <path>. Open page opens the live page.',
+      description: '在终端中展示本地 HTML 页面：/page <path>。“打开页面”将在浏览器中打开实时页面。',
       argumentHint: '<path>',
     })
     await $.command.register({
       name: 'audio',
-      description: 'Play an audio file in your terminal: /audio <path>',
+      description: '在终端中播放音频文件：/audio <path>',
       argumentHint: '<path>',
     })
     await $.command.register({
       name: 'doc',
-      description: 'Show a PDF, Markdown or Mermaid document in your terminal: /doc <path>',
+      description: '在终端中展示 PDF、Markdown 或 Mermaid 文档：/doc <path>',
       argumentHint: '<path>',
     })
     await $.tool.register({
@@ -263,12 +263,12 @@ export const register: Register = on => {
       const found = name ? await findPasted($, name) : null
       if (!found) {
         return {
-          text: 'Pasted images reach Claude, not mods, so /img cannot read one. Drag the file into the prompt (that types its path) or type the path: /img ~/path/to/file.png',
+          text: '粘贴的图片会发送给 Claude，而不会传给模组，因此 /img 无法读取。请将文件拖入输入框（会自动输入路径），或手动输入路径：/img ~/path/to/file.png',
         }
       }
       arg = found
     }
-    if (!arg) return { text: 'Usage: /img <path>' }
+    if (!arg) return { text: '用法：/img <path>' }
     try {
       const shown = await prepare($, arg)
       // Drawn in the chat, in this command's own row, by the CommandOutput hook.
@@ -279,7 +279,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('img_command', { kind: shown.frames ? 'video' : 'image' })
-      return { text: `Showing ${shown.title}.\n${MARK}#${id}` }
+      return { text: `正在展示 ${shown.title}。\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, expand(arg, state.cwd, state.home), state.home)
       track('show_failed', { from: 'img_command', reason: REASONS[n.kind] })
@@ -290,8 +290,8 @@ export const register: Register = on => {
   on('command.run', { command: 'page' }, async ($, invoked) => {
     await setUp($)
     const arg = expand(invoked.args.trim(), state.cwd, state.home)
-    if (!invoked.args.trim()) return { text: 'Usage: /page <path to a local .html file>' }
-    if (!isPage(arg)) return { text: 'Pages are .html or .htm files. For images and videos use /img <path>.' }
+    if (!invoked.args.trim()) return { text: '用法：/page <本地 .html 文件路径>' }
+    if (!isPage(arg)) return { text: '页面必须是 .html 或 .htm 文件。图片和视频请使用 /img <path>。' }
     try {
       const shown = await prepare($, arg, `Page · ${arg.split('/').pop()}`)
       const id = keyOf(`${arg}|${await $.clock.now()}`).slice(0, 10)
@@ -299,7 +299,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('page_command', { kind: 'image' })
-      return { text: `Previewing ${shown.title}. Open page opens it in your browser.\n${MARK}#${id}` }
+      return { text: `正在预览 ${shown.title}。“打开页面”将在浏览器中打开。\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, arg, state.home)
       track('show_failed', { from: 'page_command', reason: REASONS[n.kind] })
@@ -310,8 +310,8 @@ export const register: Register = on => {
   on('command.run', { command: 'audio' }, async ($, invoked) => {
     await setUp($)
     const arg = expand(invoked.args.trim(), state.cwd, state.home)
-    if (!invoked.args.trim()) return { text: 'Usage: /audio <path to a local .mp3 or .wav file>' }
-    if (!isAudio(arg)) return { text: 'Audio is .mp3 or .wav files. For images and videos use /img <path>, for HTML pages /page <path>.' }
+    if (!invoked.args.trim()) return { text: '用法：/audio <本地 .mp3 或 .wav 文件路径>' }
+    if (!isAudio(arg)) return { text: '音频必须是 .mp3 或 .wav 文件。图片和视频请使用 /img <path>，HTML 页面请使用 /page <path>。' }
     try {
       const shown = await prepare($, arg)
       const id = keyOf(`${arg}|${await $.clock.now()}`).slice(0, 10)
@@ -319,7 +319,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('audio_command', { kind: shown.frames ? 'audio' : 'image' })
-      return { text: `Showing ${shown.title}.${soundUsable() ? ' Press Play to hear it.' : ''}\n${MARK}#${id}` }
+      return { text: `正在展示 ${shown.title}。${soundUsable() ? '按“播放”即可收听。' : ''}\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, arg, state.home)
       track('show_failed', { from: 'audio_command', reason: REASONS[n.kind] })
@@ -330,8 +330,8 @@ export const register: Register = on => {
   on('command.run', { command: 'doc' }, async ($, invoked) => {
     await setUp($)
     const arg = expand(invoked.args.trim(), state.cwd, state.home)
-    if (!invoked.args.trim()) return { text: 'Usage: /doc <path to a local .pdf, .md or .mmd file>' }
-    if (!isDocument(arg)) return { text: 'Documents are .pdf, .md, .markdown, .mmd or .mermaid files. For images, videos and audio use /img <path>, for HTML pages /page <path>.' }
+    if (!invoked.args.trim()) return { text: '用法：/doc <本地 .pdf、.md 或 .mmd 文件路径>' }
+    if (!isDocument(arg)) return { text: '文档必须是 .pdf、.md、.markdown、.mmd 或 .mermaid 文件。图片、视频和音频请使用 /img <path>，HTML 页面请使用 /page <path>。' }
     try {
       const shown = await prepareDocument($, arg, arg.split('/').pop()!)
       const id = keyOf(`${arg}|${await $.clock.now()}`).slice(0, 10)
@@ -339,7 +339,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('doc_command', { kind: 'document' })
-      return { text: `Showing ${shown.title} (${shown.pages?.count ?? 1} page${(shown.pages?.count ?? 1) === 1 ? '' : 's'}).\n${MARK}#${id}` }
+      return { text: `正在展示 ${shown.title}（共 ${shown.pages?.count ?? 1} 页）。\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, arg, state.home)
       track('show_failed', { from: 'doc_command', reason: REASONS[n.kind] })
@@ -352,7 +352,7 @@ export const register: Register = on => {
       path?: string; title?: string; change?: string; pr?: string; changes?: KeyChange[]; summary?: Summary[]; url?: string; checks?: Check[]
       compare?: string; compare_checks?: Check[]; label?: string; compare_label?: string; overlay?: Overlay; versions?: unknown; previous?: string; changes_title?: string
     }
-    if (!input.path) return { deny: 'A path is needed.' }
+    if (!input.path) return { deny: '需要提供路径。' }
     await setUp($)
     // The history's copy of a file that then can't be shown goes again.
     let copied = ''
@@ -465,7 +465,7 @@ export const register: Register = on => {
       track('show_failed', { from: String((e as { tool?: string }).tool ?? '').endsWith('video') ? 'show_video' : String((e as { tool?: string }).tool ?? '').endsWith('audio') ? 'show_audio' : String((e as { tool?: string }).tool ?? '').endsWith('document') ? 'show_document' : 'show_image', reason: REASONS[n.kind] })
       return { deny: `show-your-work: ${n.message}` }
     }
-  }).catch(() => ({ deny: 'show-your-work: it could not be shown.' }))
+  }).catch(() => ({ deny: 'show-your-work：无法显示。' }))
 
   // The call's own row: one short line, not the whole input.
   on('ui.render', { component: 'ToolUse' }, ($, e, next) => {
@@ -484,7 +484,7 @@ export const register: Register = on => {
       const n = notices.get((props as { tool_use_id?: string }).tool_use_id ?? '') ??
         (textOf(props.output).includes(NO_FFMPEG) ? noticeOf(new Error(NO_FFMPEG), '') : undefined)
       if (!n) return next(e)
-      return NoticeBox($.ui.resolve(e) as Ui, $, (e.viewport?.columns ?? 100) - 8, { ...n, copy: n.prompt, label: 'Copy prompt', action: `copy_${n.kind}_prompt` })
+      return NoticeBox($.ui.resolve(e) as Ui, $, (e.viewport?.columns ?? 100) - 8, { ...n, copy: n.prompt, label: '复制提示词', action: `copy_${n.kind}_prompt` })
     }
     // Scrolled out of view: stop playing.
     const one = player(e.requestId)
@@ -531,7 +531,7 @@ export const register: Register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Text } = $.ui.resolve(e)
     const shown = await read($, current)
-    if (!shown) return <Text dimColor>Nothing to show yet. Run /img path/to/file</Text>
+    if (!shown) return <Text dimColor>暂无可展示内容。请运行 /img path/to/file</Text>
 
     return Viewer($, e, atStep(shown, PANE), PANE, true, paneSize(e.viewport, e.props as PaneProps))
   })
@@ -547,17 +547,17 @@ export const register: Register = on => {
     if (/^diagnose$/i.test(invoked.args.trim())) return { text: diagnosis(await $.clock.now()) }
     if (/^update$/i.test(invoked.args.trim())) {
       void openUpdate($).catch(() => undefined)
-      return { text: 'Checking for show-your-work updates.' }
+      return { text: '正在检查 show-your-work 更新。' }
     }
     // /show-your-work settings (or setting) opens them, never closes them.
     const isSettings = /^settings?$/i.test(invoked.args.trim())
     // Run again while they're open, the settings close.
     if (!isSettings && (await $.ui.panes()).some(pane => pane.id === WELCOME)) {
       await $.ui.close({ id: WELCOME })
-      return { text: 'Closed the show-your-work settings.' }
+      return { text: '已关闭 show-your-work 设置。' }
     }
     await openSettings($)
-    return { text: 'Opened the show-your-work settings.' }
+    return { text: '已打开 show-your-work 设置。' }
   })
 
   on('ui.render', { component: 'Pane', requestId: UPDATE }, async ($, e) => {
@@ -607,7 +607,7 @@ export const register: Register = on => {
       }
       if (e.requestId !== state.tourSite) {
         const { Text } = $.ui.resolve(e) as Ui
-        return <Text dimColor>This tour moved to a newer one below.</Text>
+        return <Text dimColor>此导览已移至下方的新导览。</Text>
       }
       // A plugin reload resets the module's state. setUp reads the Claude Code
       // version again, which decides whether buttons can have coloured text.

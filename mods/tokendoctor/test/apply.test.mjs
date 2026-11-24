@@ -81,7 +81,7 @@ test('a template is copied once and never overwrites an existing agent', () => {
   assert.match(readFileSync(target, 'utf8'), /^---\nname: Explore\n/)
   writeFileSync(target, 'mine')
   const again = planFix({ scope: 'project', template: 'Explore' }, project)
-  assert.match(describePlan(again), /already exists/)
+  assert.match(describePlan(again), /已存在，不会覆盖/)
   assert.deepEqual(writePlan(again), { written: false, reason: 'exists' })
   assert.equal(readFileSync(target, 'utf8'), 'mine')
 })
@@ -109,7 +109,7 @@ test('the diff of a compact one-line file shows only the real change and notes t
   const text = describePlan(plan)
   assert.match(text, /^\+\s+"autoCompactWindow": 300000$/m)
   assert.doesNotMatch(text, /^-\s+"env"/m)
-  assert.match(text, /re-indented/)
+  assert.match(text, /重新缩进/)
 })
 
 test('an already-normalised file gets no re-indent note', () => {
@@ -117,7 +117,7 @@ test('an already-normalised file gets no re-indent note', () => {
   mkdirSync(join(project, '.claude'))
   writeFileSync(path, '{\n  "model": "sonnet"\n}\n')
   const plan = planFix({ scope: 'project', ops: [{ op: 'set', key: 'x', value: 1 }] }, project)
-  assert.doesNotMatch(describePlan(plan), /re-indented/)
+  assert.doesNotMatch(describePlan(plan), /重新缩进/)
 })
 
 test('dropHooks removes only the matching entries and empties no event it did not touch', () => {
@@ -143,7 +143,7 @@ test('the status line script is installed once, executable, and never overwritte
   assert.match(readFileSync(plan.path, 'utf8'), /^#!\/bin\/bash/)
   writeFileSync(plan.path, 'mine')
   const again = planFix({ scope: 'user', script: 'statusline.sh' }, project)
-  assert.match(describePlan(again), /already exists/)
+  assert.match(describePlan(again), /已存在，不会覆盖/)
   assert.deepEqual(writePlan(again), { written: false, reason: 'exists' })
   assert.equal(readFileSync(plan.path, 'utf8'), 'mine')
 })

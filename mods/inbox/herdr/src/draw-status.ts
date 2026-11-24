@@ -49,7 +49,7 @@ function foldOf(
 ): Pick<Extract<Block, { kind: 'status' }>, 'fold'> {
   if (p.foldCount === 0) return {}
   const isFolded = isParentCollapsed(p, isCollapsed)
-  const toggle = button(`${p.id} fold`, isFolded ? 'Unfold' : 'Fold', 'quiet', {
+  const toggle = button(`${p.id} fold`, isFolded ? '展开' : '折叠', 'quiet', {
     is: 'collapse',
     id: p.id,
     isCollapsed: !isFolded,

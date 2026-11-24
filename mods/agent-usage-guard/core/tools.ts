@@ -35,7 +35,7 @@ export function scheduleGate(state: SessionState, peers: readonly PeerRecord[], 
   if (!config.enabled || !isScheduling(request.tool) || overrideCovers(state, now, 'agents')) return ALLOW
   const limit = highestLimit(state, peers, now)
   if (!limit || limit.percent < config.limitDenyPercent) return ALLOW
-  const base = `This ${request.tool} call was refused: ${limitDetail(limit)}, and the turn it starts would run into the limit. Finish the step in progress instead; the user can lift this with /agent-guard allow.`
+  const base = `此 ${request.tool} 调用被拒绝：${limitDetail(limit)}，且它启动的后续轮次将遇到该限制。请先完成当前步骤；用户可以通过 /agent-guard allow 解除限制。`
   return refuse(state, config, now, 'schedule', `schedule:${request.tool}`, base, false)
 }
 
@@ -50,10 +50,10 @@ export type ToolRequest = {
 /** How long "keep going" lasts if the loop never compacts. */
 const HEAVY_LEASE_MS = 60 * 60 * 1000
 
-const HEAVY_CONTINUE = 'Keep going'
-const HEAVY_COMPACT = 'Compact after this turn'
-const HEAVY_STOP = 'Stop this turn'
-const HEAVY_STOP_AGENT = 'Stop this agent'
+const HEAVY_CONTINUE = '继续执行'
+const HEAVY_COMPACT = '本轮结束后压缩'
+const HEAVY_STOP = '停止本轮'
+const HEAVY_STOP_AGENT = '停止此智能体'
 
 export function toolGate(state: SessionState, config: Config, now: number, request: ToolRequest): Verdict {
   if (!config.enabled || EXEMPT_TOOLS.has(request.tool)) return ALLOW
@@ -61,7 +61,7 @@ export function toolGate(state: SessionState, config: Config, now: number, reque
 
   const failure = state.failures[request.fingerprint]
   if (!lifted && failure && failure.count >= config.failureMax && now - failure.last < config.windowMs) {
-    const base = `This exact ${request.tool} call failed ${failure.count} times in a row, most recently at ${shortClock(failure.last)}. Change the input or the approach, or report the failure, instead of repeating it.`
+    const base = `此 ${request.tool} 调用以完全相同的参数连续失败 ${failure.count} 次，最近一次是在 ${shortClock(failure.last)}。请更改输入或方法，或报告失败，不要继续重复。`
     return refuse(state, config, now, 'retry', `retry:${request.fingerprint}`, base, false)
   }
 
@@ -78,9 +78,9 @@ export function toolGate(state: SessionState, config: Config, now: number, reque
     return ALLOW
   }
 
-  const detail = `${request.label} made ${count(heavy.length, 'tool call')} in the last ${duration(config.windowMs)} above ${tokens(config.toolContext)} context tokens, and each one re-reads the ${tokens(context)}`
+  const detail = `${request.label}在最近 ${duration(config.windowMs)} 内，于超过 ${tokens(config.toolContext)} 上下文 token 的情况下发起了 ${heavy.length} 次工具调用，每次都会重新读取 ${tokens(context)}`
   if (!state.canAsk) {
-    const base = `${sentence(detail)}. Nobody can approve more in this session. ${request.loop === MAIN ? 'End the turn; the session needs /compact.' : 'Finish with what you have and report back.'}`
+    const base = `${sentence(detail)}。此会话中没有人可以批准更多调用。${request.loop === MAIN ? '结束本轮；该会话需要运行 /compact。' : '用现有结果收尾并汇报。'}`
     return refuse(state, config, now, 'tool-budget', `tool-budget:${request.loop}`, base, false)
   }
   return {
@@ -88,7 +88,7 @@ export function toolGate(state: SessionState, config: Config, now: number, reque
     family: 'heavy',
     loop: request.loop,
     trips: [{ rule: 'tool-budget', detail, leaseKey: `heavy:${request.loop}`, leaseUntil: now + HEAVY_LEASE_MS }],
-    question: `${sentence(detail)}. Keep working at ${tokens(context)} context?`,
+    question: `${sentence(detail)}。是否要在 ${tokens(context)} 上下文下继续工作？`,
     options: request.loop === MAIN ? [HEAVY_CONTINUE, HEAVY_COMPACT, HEAVY_STOP] : [HEAVY_CONTINUE, HEAVY_STOP_AGENT],
   }
 }
@@ -117,8 +117,8 @@ export function resolveHeavyAsk(
 /** Refuses a call in a loop the user stopped; `typed` is what they wrote in place of choosing. */
 function refuseStopped(state: SessionState, config: Config, now: number, loop: LoopId, typed?: string): Deny {
   const isMain = loop === MAIN
-  const said = typed === undefined ? `The user stopped this ${isMain ? 'turn' : 'agent'}` : `The user answered "${typed}"`
-  const next = isMain ? 'End the turn now and recommend /compact before the next task.' : 'Stop working and report back what you have.'
-  const base = `${said} at ${tokens(loopOf(state, loop).context ?? 0)} context tokens. ${next}`
+  const said = typed === undefined ? `用户停止了此${isMain ? '轮次' : '智能体'}` : `用户回答“${typed}”`
+  const next = isMain ? '立即结束本轮，并建议在下一个任务前运行 /compact。' : '停止工作并汇报已有结果。'
+  const base = `${said}，当时上下文为 ${tokens(loopOf(state, loop).context ?? 0)} tokens。${next}`
   return refuse(state, config, now, 'stopped', `stopped:${loop}`, base, false)
 }

@@ -272,22 +272,22 @@ export async function renderOpenItems(
   return (
     <Box flexDirection="column">
       <Box>
-        <Text bold>⏺ Open items </Text>
+        <Text bold>⏺ 待处理项 </Text>
         <Box columnGap={1}>
           {resolvable ? (
-            <Button key="resolve" label="Resolve" hotkey={RESOLVE_HOTKEY} onPress={() => runResolve($)} />
+            <Button key="resolve" label="处理" hotkey={RESOLVE_HOTKEY} onPress={() => runResolve($)} />
           ) : null}
           {expandable ? (
             <Button
               key="details"
-              label={expanded ? 'Hide details' : 'Show details'}
+              label={expanded ? '隐藏详情' : '显示详情'}
               hotkey={DETAILS_HOTKEY}
               onPress={() => update($, detailsShown, shown => !shown)}
             />
           ) : null}
         </Box>
         {hotkeys.length > 0 && e.surface === 'terminal' ? (
-          <Text dimColor>{` (ctrl+x tab, then ${hotkeys.join(' or ')})`}</Text>
+          <Text dimColor>{` （ctrl+x tab，然后 ${hotkeys.join(' 或 ')}）`}</Text>
         ) : null}
       </Box>
       {items.map((item, index) => {
@@ -314,6 +314,6 @@ async function runResolve($: EngineInterface) {
   try {
     await $.command.run({ command: RESOLVE_COMMAND })
   } catch {
-    $.ui.toast(`/${RESOLVE_COMMAND} did not start. Run it yourself.`, TOAST)
+    $.ui.toast(`/${RESOLVE_COMMAND} 未启动。请自行运行。`, TOAST)
   }
 }

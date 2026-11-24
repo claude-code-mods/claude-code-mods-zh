@@ -55,13 +55,13 @@ export function findGuardEntry(entries: readonly GuardEntry[], toolUseId: string
 
 /** The route of a checked call, in plain words. */
 export const routeWords: Record<string, string> = {
-  'no-rules': 'no rule',
-  'no-candidate': 'no rule matched',
-  cache: 'cached',
+  'no-rules': '无规则',
+  'no-candidate': '无匹配规则',
+  cache: '已缓存',
   jev: 'Jev',
-  'jev-failed': 'Jev did not answer',
-  'no-key': 'no key',
-  'no-time': 'no time',
+  'jev-failed': 'Jev 未回答',
+  'no-key': '无密钥',
+  'no-time': '无时间',
   error: 'error',
 }
 
@@ -136,20 +136,20 @@ export function plainDecision(d: Decision): string {
   const r = `${d.reason ?? ''} ${d.detail ?? ''}`
   if (d.action === 'deferred') {
     const n = /(\d+) background subagent/.exec(r)?.[1]
-    return n ? `Waiting: ${n} background subagent${n === '1' ? ' has' : 's have'} not reported back` : 'Waiting: the turn is still running'
+    return n ? `等待：${n} 个后台子代理尚未返回` : '等待：本回合仍在运行'
   }
-  if (d.action === 'error') return `Failed: ${short(d.detail || d.reason || 'the decision ended in an error')}`
+  if (d.action === 'error') return `失败：${short(d.detail || d.reason || '判断因错误结束')}`
   if (d.action !== 'skipped') return `${d.action}: ${short(d.reason ?? d.detail ?? '')}`
-  if (/^empty turn/.test(d.reason ?? d.detail ?? '')) return 'Not saved: an empty turn'
+  if (/^empty turn/.test(d.reason ?? d.detail ?? '')) return '未保存：空回合'
   const dup = d.duplicate_of ?? /duplicate of ([a-z0-9]{6})/.exec(r)?.[1]
-  if (dup) return `Not saved: already in memory as ${dup}`
-  if (/injection=|instructions aimed at an AI/.test(r)) return 'Not saved: it read as instructions aimed at an AI'
-  if (/chit_chat/.test(r)) return 'Not saved: small talk'
-  if (/source=assistant_reply|assistant_meta|may come from the assistant/.test(r)) return "Not saved: only a bug, an architecture note or a dead end is taken from Claude's reply"
-  if (/status \w+: nothing decided|turn was stopped/.test(r)) return 'Not saved: the turn was stopped'
-  if (/kind=none/.test(r)) return 'Not saved: nothing worth keeping'
-  if (/content=[\d.]+<[\d.]+/.test(r)) return 'Not saved: too little of a fact in it'
-  if (/importance=\w+<\w+/.test(r)) return 'Not saved: not important enough'
-  return 'Not saved'
+  if (dup) return `未保存：记忆中已存在 ${dup}`
+  if (/injection=|instructions aimed at an AI/.test(r)) return '未保存：它被识别为针对 AI 的指令'
+  if (/chit_chat/.test(r)) return '未保存：闲聊'
+  if (/source=assistant_reply|assistant_meta|may come from the assistant/.test(r)) return '未保存：Claude 的回复中只有错误、架构说明或死路会被采纳'
+  if (/status \w+: nothing decided|turn was stopped/.test(r)) return '未保存：该回合被停止'
+  if (/kind=none/.test(r)) return '未保存：没有值得保留的内容'
+  if (/content=[\d.]+<[\d.]+/.test(r)) return '未保存：事实信息太少'
+  if (/importance=\w+<\w+/.test(r)) return '未保存：不够重要'
+  return '未保存'
 }
 const short = (s: string) => (s.length > 120 ? `${s.slice(0, 119)}…` : s)

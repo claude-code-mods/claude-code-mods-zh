@@ -46,7 +46,7 @@ function App({
   if (!tabState.view || !lists)
     return tabState.readError !== null ? (
       <Banner
-        banner={bannerOf('read-failed', `Could not read the inbox. ${tabState.readError}`)}
+        banner={bannerOf('read-failed', `无法读取收件箱。${tabState.readError}`)}
         label="Reload"
         press={() => void (tabState.isConnected ? read() : initialize())}
       />
@@ -273,7 +273,7 @@ function initialize(): Promise<boolean> {
     })
     .catch(() => {
       if (tabState.isActive && !tabState.isDisposed) {
-        tabState.readError = 'The inbox could not connect to Codex.'
+        tabState.readError = '收件箱无法连接到 Codex。'
         draw()
       }
       return false

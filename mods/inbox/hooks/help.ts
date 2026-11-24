@@ -6,8 +6,8 @@ import { versionLabel } from './banners'
 import { shownTabs } from './tabs'
 
 export const FINDING_GROUPS: Record<Finding['kind'], { title: string; mark: string; tone: 'issue' | 'opportunity' }> = {
-  issue: { title: 'Issues', mark: '▲', tone: 'issue' },
-  opportunity: { title: 'Opportunities', mark: '✦', tone: 'opportunity' },
+  issue: { title: '问题', mark: '▲', tone: 'issue' },
+  opportunity: { title: '机会', mark: '✦', tone: 'opportunity' },
 }
 
 /** The mark a group title on the Asks tab leads with, as a Finds group title leads with its kind's mark. */
@@ -59,7 +59,7 @@ export type LegendEntry = { mark: string; tone: ToneName | null; isRunning: bool
  * The words of the two marks that mean a thing stopped before it finished. The terminal and omp draw both as ⊘, so
  * their Help lines start alike.
  */
-const stoppedWords = (what: string) => `Stopped before it finished: ${what}`
+const stoppedWords = (what: string) => `在完成前停止：${what}`
 
 /** Every mark a look draws on a row or a group title, once each, with what it means wherever it appears. */
 export const MARK_LEGEND: readonly LegendEntry[] = [
@@ -67,37 +67,37 @@ export const MARK_LEGEND: readonly LegendEntry[] = [
     mark: RUNNING_MARK,
     tone: 'working',
     isRunning: true,
-    words: 'Working. It moves while the work runs or your message is on its way.',
+    words: '正在工作。工作进行中或你的消息正在发送时，此标记会动。',
   },
-  { mark: IDLE_MARK.mark, tone: IDLE_MARK.tone, isRunning: false, words: 'Working, with nothing running right now' },
-  { mark: SUBJECT_MARKS.queued.mark, tone: null, isRunning: false, words: 'Queued: not started yet' },
+  { mark: IDLE_MARK.mark, tone: IDLE_MARK.tone, isRunning: false, words: '正在工作，但当前没有运行中的任务' },
+  { mark: SUBJECT_MARKS.queued.mark, tone: null, isRunning: false, words: '已排队：尚未开始' },
   {
     mark: SUBJECT_MARKS['waits-on-other'].mark,
     tone: null,
     isRunning: false,
-    words: 'Waits on something other than you, such as a build or a review',
+    words: '等待你以外的事项，例如构建或审查',
   },
-  { mark: HELD_MARK.mark, tone: HELD_MARK.tone, isRunning: false, words: 'Waits on you' },
+  { mark: HELD_MARK.mark, tone: HELD_MARK.tone, isRunning: false, words: '等待你处理' },
   {
     mark: NEEDS_YOU_MARKS.question.mark,
     tone: NEEDS_YOU_MARKS.question.tone,
     isRunning: false,
-    words: 'A question the agent asked you',
+    words: '智能体向你提出的问题',
   },
   {
     mark: NEEDS_YOU_MARKS.task.mark,
     tone: NEEDS_YOU_MARKS.task.tone,
     isRunning: false,
-    words: 'A step only you can do',
+    words: '只有你能完成的步骤',
   },
-  { mark: SUBJECT_MARKS.done.mark, tone: 'done', isRunning: false, words: 'Done, or handed to the agent' },
+  { mark: SUBJECT_MARKS.done.mark, tone: 'done', isRunning: false, words: '已完成，或已移交给智能体' },
   { mark: SUBJECT_MARKS.dropped.mark, tone: null, isRunning: false, words: stoppedWords('dropped work') },
-  { mark: CLOSED_MARKS.dismissed, tone: null, isRunning: false, words: 'Dismissed by you' },
+  { mark: CLOSED_MARKS.dismissed, tone: null, isRunning: false, words: '已被你忽略' },
   {
     mark: FINDING_GROUPS.issue.mark,
     tone: FINDING_GROUPS.issue.tone,
     isRunning: false,
-    words: 'Something is wrong: an issue or a failing check',
+    words: '出现问题：缺陷或检查失败',
   },
   {
     mark: PR_MARKS.cancelled.text,
@@ -109,7 +109,7 @@ export const MARK_LEGEND: readonly LegendEntry[] = [
     mark: FINDING_GROUPS.opportunity.mark,
     tone: FINDING_GROUPS.opportunity.tone,
     isRunning: false,
-    words: 'Opportunity: something that could be better',
+    words: '机会：可以做得更好的地方',
   },
 ]
 
@@ -118,11 +118,11 @@ export const MARK_LEGEND: readonly LegendEntry[] = [
  * every look. `icon` is that mark where a look draws only text. `close` is the control's text while Help shows.
  */
 export const HELP_COPY = {
-  name: 'Help',
+  name: '帮助',
   icon: '?',
-  keys: 'Keys',
-  indicators: 'Indicators',
-  version: 'Inbox',
+  keys: '按键',
+  indicators: '标记',
+  version: '收件箱',
 } as const
 
 /** The words at the right end of Help's Keys title that say which inbox build this is. */
@@ -143,8 +143,8 @@ export const FOLD_ALL_KEY = 'w'
 
 /** The PRs tab's own keys, which `hooks/pr-order.ts:prOrderActions` and `hooks/pr-tab.ts:prClearActions` bind from any row of the tab. */
 const PR_TAB_HELP_KEYS: HelpKey[] = [
-  { keys: 'g', does: 'On PRs, rank the PRs again, once a ranked PR changed' },
-  { keys: 'm', does: 'On PRs, clear the merged and closed PRs' },
+  { keys: 'g', does: '在 PR 页，已排序的 PR 发生变化后重新排序' },
+  { keys: 'm', does: '在 PR 页，清除已合并和已关闭的 PR' },
 ]
 
 /**
@@ -155,57 +155,57 @@ export function helpKeys(look: Look): HelpKey[] {
   const tabKeys = shownTabs()
     .map(t => t.hotkey)
     .join(' ')
-  const switchTabs = { keys: tabKeys, does: 'Switch tabs' }
-  const undoKey = { keys: UNDO_KEY, does: 'Undo the last close' }
-  const collapseKey = { keys: COLLAPSE_KEY, does: 'Collapse or expand the selected row' }
-  const foldAllKey = { keys: FOLD_ALL_KEY, does: 'Fold every fold on the tab, or open them all' }
+  const switchTabs = { keys: tabKeys, does: '切换标签页' }
+  const undoKey = { keys: UNDO_KEY, does: '撤销上一次关闭' }
+  const collapseKey = { keys: COLLAPSE_KEY, does: '折叠或展开选中的行' }
+  const foldAllKey = { keys: FOLD_ALL_KEY, does: '折叠或展开当前标签页的所有分组' }
   switch (look) {
     case 'desktop':
       return []
     case 'terminal':
       return [
         switchTabs,
-        { keys: 'j k', does: 'Select the next or previous row' },
+        { keys: 'j k', does: '选择下一行或上一行' },
         collapseKey,
         foldAllKey,
         undoKey,
         ...PR_TAB_HELP_KEYS,
-        { keys: 'ctrl+x tab', does: 'Move focus to the line above the prompt, then the pane, then the prompt' },
+        { keys: 'ctrl+x tab', does: '将焦点依次移到输入框上方、面板、输入框' },
       ]
     case 'codex':
       return [
         switchTabs,
-        { keys: 'j k ↑ ↓', does: 'Select the next or previous row' },
+        { keys: 'j k ↑ ↓', does: '选择下一行或上一行' },
         collapseKey,
         foldAllKey,
         undoKey,
         ...PR_TAB_HELP_KEYS,
-        { keys: '?', does: 'Open or close help' },
-        { keys: 'esc', does: 'Close help, or leave a reply field' },
+        { keys: '?', does: '打开或关闭帮助' },
+        { keys: 'esc', does: '关闭帮助，或退出回复输入框' },
       ]
     case 'omp':
       return [
-        { keys: `tab ${tabKeys}`, does: 'Switch tabs' },
-        { keys: '↑ ↓ j k', does: 'Move between rows, or scroll a page' },
-        { keys: '← →', does: 'Pick a button' },
-        { keys: '↵', does: 'Press the picked button' },
-        { keys: 't', does: 'Reply to the selected row' },
+        { keys: `tab ${tabKeys}`, does: '切换标签页' },
+        { keys: '↑ ↓ j k', does: '在行之间移动，或滚动页面' },
+        { keys: '← →', does: '选择按钮' },
+        { keys: '↵', does: '按下选中的按钮' },
+        { keys: 't', does: '回复选中的行' },
         collapseKey,
         foldAllKey,
         undoKey,
         ...PR_TAB_HELP_KEYS,
-        { keys: '?', does: 'Open or close help' },
-        { keys: 'esc', does: 'Close help, then the panel' },
+        { keys: '?', does: '打开或关闭帮助' },
+        { keys: 'esc', does: '先关闭帮助，再关闭面板' },
       ]
     case 'herdr':
       return [
-        { keys: '← →', does: 'Switch tabs' },
-        { keys: 'j k', does: 'Select the next or previous row' },
+        { keys: '← →', does: '切换标签页' },
+        { keys: 'j k', does: '选择下一行或上一行' },
         collapseKey,
         foldAllKey,
         undoKey,
         ...PR_TAB_HELP_KEYS,
-        { keys: 'esc', does: "Move focus back to the agent's terminal" },
+        { keys: 'esc', does: '将焦点移回智能体终端' },
       ]
   }
 }

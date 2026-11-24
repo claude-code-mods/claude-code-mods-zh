@@ -6,67 +6,67 @@
   "userConfig": {
     "apiKey": {
       "type": "string",
-      "title": "Your TypeSafe API key",
-      "description": "Your own TypeSafe API key from typesafe.ai (direct System One). A Vercel AI Gateway key is not a TypeSafe key — use gatewayApiKey or AI_GATEWAY_API_KEY instead. Leave unset to use TYPESAFE_API_KEY. Caliber does not provide a key.",
+      "title": "你的 TypeSafe API 密钥",
+      "description": "你自己的 TypeSafe API 密钥（来自 typesafe.ai，直连 System One）。Vercel AI Gateway 密钥不是 TypeSafe 密钥——请改用 gatewayApiKey 或 AI_GATEWAY_API_KEY。留空则使用 TYPESAFE_API_KEY。Caliber 不提供密钥。",
       "sensitive": true
     },
     "gatewayApiKey": {
       "type": "string",
-      "title": "Your Vercel AI Gateway API key",
-      "description": "Your own Vercel AI Gateway key (AI_GATEWAY_API_KEY). This is not a TypeSafe key. Leave unset to use AI_GATEWAY_API_KEY from the environment. Caliber does not provide a key.",
+      "title": "你的 Vercel AI Gateway API 密钥",
+      "description": "你自己的 Vercel AI Gateway 密钥（AI_GATEWAY_API_KEY）。这不是 TypeSafe 密钥。留空则使用环境中的 AI_GATEWAY_API_KEY。Caliber 不提供密钥。",
       "sensitive": true
     },
     "gatewayBaseUrl": {
       "type": "string",
-      "title": "Vercel AI Gateway evaluation base URL",
-      "description": "Override the Gateway evaluation prefix. Defaults to https://ai-gateway.vercel.sh/v4/ai — not the OpenAI-compatible /v1 path."
+      "title": "Vercel AI Gateway 评测基础 URL",
+      "description": "覆盖 Gateway 评测前缀。默认值为 https://ai-gateway.vercel.sh/v4/ai——不是 OpenAI 兼容的 /v1 路径。"
     },
     "keepThreshold": {
       "type": "number",
-      "title": "Keep threshold",
-      "description": "Minimum Jev probability that a tool call or tool result is still needed; below it the item is removed.",
+      "title": "保留阈值",
+      "description": "工具调用或工具结果仍被需要的最小 Jev 概率；低于该值则删除此项。",
       "default": 0.5
     },
     "preserveRecentMessages": {
       "type": "number",
-      "title": "Recent messages to preserve",
-      "description": "Number of newest messages pinned from compaction.",
+      "title": "保留的最近消息数",
+      "description": "从压缩中固定保留的最新消息条数。",
       "default": 6
     },
     "compactAtPercent": {
       "type": "number",
-      "title": "Compaction percentage",
-      "description": "Context percentage at which turn.complete requests compaction.",
+      "title": "压缩百分比",
+      "description": "turn.complete 请求压缩时的上下文百分比。",
       "default": 60
     },
     "minReductionRatio": {
       "type": "number",
-      "title": "Minimum reduction ratio",
-      "description": "Minimum estimated character reduction required to replace history.",
+      "title": "最小缩减比例",
+      "description": "替换历史记录所需的最小预计字符缩减量。",
       "default": 0.25
     },
     "maxStateTokens": {
       "type": "number",
-      "title": "Maximum Jev state tokens",
-      "description": "Estimated token budget for the conversation state sent with every Jev request.",
+      "title": "最大 Jev 状态 token 数",
+      "description": "每次 Jev 请求所发送的会话状态的预估 token 预算。",
       "default": 25000
     },
     "maxRequestTokens": {
       "type": "number",
-      "title": "Maximum Jev request tokens",
-      "description": "Estimated token budget for state plus questions in one Jev request.",
+      "title": "最大 Jev 请求 token 数",
+      "description": "单次 Jev 请求中状态加问题的预估 token 预算。",
       "default": 30000
     },
     "truncateHeadChars": {
       "type": "number",
-      "title": "Truncated tool result head",
-      "description": "Characters of a tool result kept when Jev decides its full output is no longer needed; 0 keeps only the note.",
+      "title": "截断的工具结果开头",
+      "description": "当 Jev 判定工具结果的完整输出不再需要时保留的开头字符数；0 表示只保留说明。",
       "default": 300
     },
     "model": {
       "type": "string",
-      "title": "Jev model",
-      "description": "Jev model. Direct TypeSafe uses jev-latest; Vercel AI Gateway remaps jev / jev-latest to the canonical typesafe-ai/jev (the only Jev id on GET /v1/models).",
+      "title": "Jev 模型",
+      "description": "Jev 模型。直连 TypeSafe 使用 jev-latest；Vercel AI Gateway 会将 jev / jev-latest 重映射为规范的 typesafe-ai/jev（GET /v1/models 上唯一的 Jev id）。",
       "default": "jev-latest"
     }
   }

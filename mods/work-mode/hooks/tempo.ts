@@ -292,7 +292,7 @@ export function parseTempo(arg: string): TempoParse {
     // off next to other words adds nothing: the words already replace the whole state.
     if (w === 'off') continue
     const mode = WORDS[w]
-    if (!mode) return { kind: 'error', message: `Unknown mode "${w}".` }
+    if (!mode) return { kind: 'error', message: `未知模式“${w}”。` }
     picked.add(mode)
   }
   return { kind: 'set', modes: ORDER.filter(m => picked.has(m)) }
@@ -442,20 +442,20 @@ async function modeTexts($: EngineInterface, list: readonly TempoMode[]): Promis
 /** The reply /work-mode prints after a switch. */
 export function switchReply(m: readonly TempoMode[], note: string | undefined, cfg: WorkModeConfig = getConfig()): string {
   const tail = note ? ` (${note})` : ''
-  if (m.length === 0) return 'Work mode off: back to normal.' + tail
+  if (m.length === 0) return '工作模式已关闭：恢复正常。' + tail
   if (m.length === 1 && m[0] === 'converge')
-    return 'Work mode wrap: no new branches, replies show new decisions plus an open count. /work-mode off to stop.' + tail
+    return '工作模式 wrap：不新开分支，回复末尾显示新决策和未解决数量。使用 /work-mode off 关闭。' + tail
   return (
-    `Work mode ${m.map(x => SHORT[x]).join(' + ')}: ` +
+    `工作模式 ${m.map(x => SHORT[x]).join(' + ')}：` +
     (m.includes('autonomous')
-      ? 'no mid-task questions on internal reversible steps; compatible PreToolUse gates deny with a how-to instead of asking; hard stops go to a pending list. '
+      ? '对内部可逆步骤不在任务中途提问；兼容的 PreToolUse 关卡会给出操作方法并拒绝，而不是询问；硬性停止项进入待处理列表。'
       : '') +
     (m.includes('dispatch')
-      ? `The delegation reminder (${cfg.dispatch.pickerHint}) reaches the model once, with its next tool result or prompt. `
+      ? `委派提醒（${cfg.dispatch.pickerHint}）会在下一次工具结果或提示时发送一次给模型。`
       : '') +
-    (m.includes('converge') ? 'No new branches; replies end with decisions plus recommendations. ' : '') +
-    (both(m) ? 'Delegation only finishes work already open. ' : '') +
-    '/work-mode off to stop.' +
+    (m.includes('converge') ? '不新开分支；回复以决策和建议结尾。' : '') +
+    (both(m) ? '委派仅用于完成已经开启的工作。' : '') +
+    '使用 /work-mode off 关闭。' +
     tail
   )
 }
@@ -471,10 +471,10 @@ export function registerTempo(on: On): void {
         const question =
           cfg.locale === 'zh-TW'
             ? `Work mode 目前：${label}。勾選要開的模式（可複選，會取代目前的設定）：`
-            : `Work mode is now: ${label}. Tick the modes to turn on (any mix; it replaces the current set):`
+            : `当前工作模式：${label}。勾选要启用的模式（可任意组合；会替换当前设置）：`
         const answer = await $.ui.ask(question, {
           options: pickerLabels(current, cfg),
-          header: 'Work mode',
+          header: '工作模式',
           multiSelect: true,
         })
         parsed = parseTempo(pickedArgs(answer, cfg))
@@ -483,11 +483,11 @@ export function registerTempo(on: On): void {
         $.ui.log(`tempo picker unavailable: ${String(err).slice(0, 300)}`, { to: 'debug' })
       }
     }
-    const usage = 'Use /work-mode with any of auto, out, wrap (any order), or off.'
+    const usage = '可用 /work-mode 设置 auto、out、wrap（任意顺序）或 off。'
     if (parsed.kind === 'error') return { text: `${parsed.message} ${usage}` }
     if (parsed.kind === 'status') {
       const label = tempoLabel(await read($, modes)) ?? 'off'
-      return { text: `Work mode: ${label}. ${usage}` }
+      return { text: `工作模式：${label}。${usage}` }
     }
     const prev = await read($, modes)
     const prevSent = await read($, sent)

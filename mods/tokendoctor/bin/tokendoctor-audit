@@ -54,10 +54,10 @@ if (flag('--json')) {
   facts.docs = index ? { read: docs.fetchedAt, stale: docs.stale, settingsKeys: index.settings.size, envVars: index.env.size } : null
   console.log(JSON.stringify({ facts, findings }, null, 2))
 } else if (!findings.length) {
-  console.log('No findings.')
+  console.log('没有问题。')
 } else {
   for (const f of findings) {
     console.log(`[${f.severity}] ${f.id}: ${f.title}\n  ${f.detail}\n  ${f.doc}${f.fixes ? `\n  fix: tokendoctor-apply ${f.id}` : ''}\n`)
   }
 }
-if (!flag('--json') && !snapshot.docs) console.log('(The current docs could not be read, so keys Claude Code ignores were not checked.)')
+if (!flag('--json') && !snapshot.docs) console.log('（无法读取最新文档，因此未检查 Claude Code 会忽略的设置键。）')

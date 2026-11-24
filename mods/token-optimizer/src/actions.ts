@@ -38,9 +38,9 @@ const DASHBOARD_BUSY_GRACE_MS = 30_000
  */
 export const DASHBOARD_ARGS = ['dashboard', '--user'] as const
 /** The band's note line while the dashboard opens. */
-export const DASHBOARD_OPENING = 'Opening the dashboard.'
+export const DASHBOARD_OPENING = '正在打开仪表盘。'
 /** The note after it failed, shown for NOTE_MS. */
-export const DASHBOARD_FAILED = 'Could not open the dashboard.'
+export const DASHBOARD_FAILED = '无法打开仪表盘。'
 
 export type Busy = 'clean' | 'fresh-capture' | 'fresh-clear' | 'dashboard' | null
 
@@ -85,9 +85,9 @@ export function handoffFate(h: Handoff, at: { sessionId: string; cwd: string; st
   if (h.cwd !== at.cwd) return 'skip'
   if (h.pendingSince !== undefined) {
     // Being stamped right now; one a crash left half-saved is dropped after a minute.
-    return at.now - h.pendingSince > PENDING_MAX_MS ? { drop: 'its save never finished' } : 'skip'
+    return at.now - h.pendingSince > PENDING_MAX_MS ? { drop: '保存未能完成' } : 'skip'
   }
-  if (at.now - h.createdAt > HANDOFF_TTL_MS) return { drop: 'it is more than 10 minutes old' }
+  if (at.now - h.createdAt > HANDOFF_TTL_MS) return { drop: '已超过 10 分钟' }
   if (at.sessionId === '' || at.sessionId === h.fromSessionId) return 'skip'
   return at.startedAt !== null && at.startedAt >= h.createdAt ? 'attach' : 'skip'
 }
@@ -120,7 +120,7 @@ export function canOpenDashboard(ui: UiState, now: number): boolean {
 }
 
 /** measure.py prints this and still exits 0 when the OS opener failed. */
-const BROWSER_FAILED = 'Could not auto-open browser'
+const BROWSER_FAILED = '无法自动打开浏览器'
 
 /** The dashboard run failed: it threw or timed out (`null`), exited non-zero, or could not open the browser. */
 export function dashboardFailed(result: { exitCode: number; stdout: string } | null): boolean {
@@ -146,7 +146,7 @@ export function noteNow(ui: UiState, now: number): string | null {
 }
 
 /** Clean up's note when its /compact left no sign that a compaction happened, and gave no reason. */
-export const CLEAN_UNCONFIRMED = 'Clean up could not confirm a compaction.'
+export const CLEAN_UNCONFIRMED = '清理无法确认是否发生了压缩。'
 
 /**
  * What the band saw around Clean up's /compact. `landed`: its own
@@ -176,7 +176,7 @@ export function cleanUpOutcome(ev: CompactEvidence): { ok: true } | { ok: false;
   if (ev.landed || windowReset) return { ok: true }
   const said = ev.said.trim().split('\n')[0]?.trim() ?? ''
   if (said === '') return { ok: false, line: CLEAN_UNCONFIRMED }
-  return { ok: false, line: `Clean up skipped: ${said.replace(/\.$/, '')}.` }
+  return { ok: false, line: `已跳过清理：${said.replace(/\.$/, '')}。` }
 }
 
 /** The live window's tokens from a `$.session.usage()` reading, null when the engine has none. */
@@ -251,12 +251,12 @@ export type WarmOutcome =
 
 /** One line for the Keep warm outcome; a lapsed cache names what the warm-up cost. */
 export function warmToast(o: WarmOutcome): string {
-  if (!o.ok) return `Keep warm did not run: ${o.reason}.`
-  if (o.lapsed) return `The cache had already dropped, so the warm-up re-read ${tokens(o.contextTokens)} tokens at full price.`
+  if (!o.ok) return `未能保持温热：${o.reason}。`
+  if (o.lapsed) return `缓存已失效，预热按全价重新读取了 ${tokens(o.contextTokens)} 个 token。`
   // The receipt: what the warm-up read from the cache, and that the clock restarted.
-  const read = o.cacheRead && o.cacheRead > 0 ? `: re-read ${tokens(o.cacheRead)} tokens from the cache at a tenth of the price` : ''
-  const clock = o.lifetimeS ? ` The clock is back to ${Math.round(o.lifetimeS / 60)}m.` : ''
-  return `Cache kept warm${read}.${clock}`
+  const read = o.cacheRead && o.cacheRead > 0 ? `：以十分之一的价格从缓存中重新读取了 ${tokens(o.cacheRead)} 个 token` : ''
+  const clock = o.lifetimeS ? ` 计时已恢复为 ${Math.round(o.lifetimeS / 60)} 分钟。` : ''
+  return `缓存已保持温热${read}。${clock}`
 }
 
 const TYPED = new Set(['composer', 'sdk', 'bridge', 'unclassified'])
@@ -278,7 +278,7 @@ export type HandoffResult = { ok: true; handoff: Handoff } | { ok: false; reason
  * Why Start fresh stopped when no launcher was a real Python 3 (#261): on
  * Windows that is usually the Store's python shortcuts standing in for one.
  */
-export const NO_PYTHON_REASON = 'no working Python 3 was found (the Microsoft Store python shortcuts are not one; install Python 3 from python.org)'
+export const NO_PYTHON_REASON = '找不到可用的 Python 3（Microsoft Store 的 python 快捷方式不是 Python 3；请从 python.org 安装 Python 3）'
 
 /** The host's runner rejects with an error of this name when no Python 3 starts. */
 function isNoPython(error: unknown): boolean {
@@ -301,28 +301,28 @@ export async function prepareHandoff(
   try {
     captured = await port.run(['compact-capture', '--trigger', 'start-fresh', '--budget-seconds', String(CAPTURE_BUDGET_SECONDS)], stdin)
   } catch (error) {
-    return fail(isNoPython(error) ? NO_PYTHON_REASON : 'the checkpoint could not be saved')
+    return fail(isNoPython(error) ? NO_PYTHON_REASON : '无法保存检查点')
   }
-  if (captured.exitCode !== 0) return fail('the checkpoint could not be saved')
+  if (captured.exitCode !== 0) return fail('无法保存检查点')
   const path = checkpointPathFrom(captured.stdout)
-  if (!path) return fail('the checkpoint could not be saved')
+  if (!path) return fail('无法保存检查点')
 
   let contents: string
   try {
     contents = await port.read(path)
   } catch {
-    return fail('the saved checkpoint could not be read')
+    return fail('无法读取已保存的检查点')
   }
-  if (isStubCheckpoint(contents)) return fail('the checkpoint came out empty')
+  if (isStubCheckpoint(contents)) return fail('检查点内容为空')
 
   let lean: { exitCode: number; stdout: string }
   try {
     lean = await port.run(['resume-lean', input.sessionId, '--print'])
   } catch {
-    return fail('the hand-off text could not be built')
+    return fail('无法生成交接文本')
   }
   const text = lean.exitCode === 0 ? lean.stdout.trim() : ''
-  if (!text) return fail('the hand-off text came out empty')
+  if (!text) return fail('交接文本为空')
 
   return { ok: true, handoff: { fromSessionId: input.sessionId, cwd: input.cwd, checkpointPath: path, text, createdAt: input.now } }
 }

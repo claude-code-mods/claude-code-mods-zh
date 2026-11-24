@@ -47,7 +47,7 @@ async function fleetInspect($: EngineInterface, st: FleetState) {
   st.running = true
   try {
     const report = await fleetRunOnce($, st)
-    if (report.status !== 'disabled') await $.ui.status(`Fleet guard: ${report.status}`)
+    if (report.status !== 'disabled') await $.ui.status(`集群守卫：${report.status}`)
   } finally { st.running = false }
 }
 

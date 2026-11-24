@@ -33,7 +33,7 @@ export const register: Register = on => {
       <Box flexDirection="column">
         <Button key="soul-toggle" plain onPress={() => update($, soulOpen, v => !v)}>
           <Text dimColor>Soul </Text>
-          {current === 'off' ? <Text dimColor>off</Text> : <Text color="claude">{soulLabel(current)}</Text>}
+          {current === 'off' ? <Text dimColor>关闭</Text> : <Text color="claude">{soulLabel(current)}</Text>}
           <Text dimColor>{open ? ' ▾' : ' ▸'}</Text>
         </Button>
         {open && (

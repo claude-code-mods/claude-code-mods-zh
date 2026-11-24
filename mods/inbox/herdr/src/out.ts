@@ -13,7 +13,7 @@ import type { Block, Button } from './blocks'
 import type { LastPress } from './files'
 
 /** What an out press's row reads until a publish shows the press, as the Codex tab's. */
-export const SENDING = 'Sending…'
+export const SENDING = '正在发送…'
 
 /** A press with no reread of the session file yet reads the file again then, in case a file watch was missed. */
 const REREAD_AFTER_MS = 5_000
@@ -88,7 +88,7 @@ export const notAppliedLine = (out: Out, agent: string): RowLine =>
 
 /** A press that ended without a host applying it. */
 export const notAppliedText = (why: string): RowLine => ({
-  text: `Not applied: ${why}`,
+  text: `未应用：${why}`,
   tone: 'error',
   source: { is: 'notSent', reason: why, retry: null },
 })

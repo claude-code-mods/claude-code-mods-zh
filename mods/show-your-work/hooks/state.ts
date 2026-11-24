@@ -92,9 +92,9 @@ export const state = {
 // plugin on every change). The environment variables still turn updates and
 // usage counts off whatever these say.
 export const SETTINGS = [
-  { field: 'stable_updates', title: 'Updates', options: ['Stable releases', 'Latest'], text: 'Automatically install plugin updates from GitHub' },
-  { field: 'usage_stats', title: 'Usage data', options: ['Share anonymously', "Don't share"], text: 'Helps fix bugs and improve the product experience. No sensitive data is ever shared' },
-  { field: 'standard_size', title: 'Picture size', options: ['Standard', 'Large'], text: 'Large shows pictures and videos one and a half times bigger' },
+  { field: 'stable_updates', title: '更新', options: ['稳定版', '最新版'], text: '自动从 GitHub 安装插件更新' },
+  { field: 'usage_stats', title: '使用数据', options: ['匿名分享', '不分享'], text: '帮助修复错误并改善产品体验。绝不会分享敏感数据' },
+  { field: 'standard_size', title: '图片尺寸', options: ['标准', '大'], text: '“大”会将图片和视频放大至 1.5 倍' },
 ] as const
 export type Field = (typeof SETTINGS)[number]['field']
 // Each switch is true on its first option, the default.

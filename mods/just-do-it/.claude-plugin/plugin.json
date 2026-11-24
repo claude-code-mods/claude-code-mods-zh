@@ -6,8 +6,8 @@
   "userConfig": {
     "fleetConfigPath": {
       "type": "file",
-      "title": "Fleet configuration",
-      "description": "Optional absolute path to a private fleet configuration. Empty disables fleet inspection.",
+      "title": "机群配置",
+      "description": "私有集群配置的可选绝对路径。留空则禁用集群检查。",
       "required": false,
       "default": ""
     }

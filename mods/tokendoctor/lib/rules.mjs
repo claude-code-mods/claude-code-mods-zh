@@ -77,12 +77,12 @@ const RULES = [
       if (truthy(env.CLAUDE_CODE_DISABLE_1M_CONTEXT)) return null
       return {
         severity: 'warn',
-        title: 'No auto-compact window is set',
+        title: '未设置自动压缩窗口',
         detail:
-          'Models with a native 1M window (Fable, Sonnet 5+, Haiku 5.5, Opus 4.7+) compact only at ' +
-          'about 967K tokens by default, so every request carries a very long history. A smaller ' +
-          `window (${COMPACT_WINDOW.toLocaleString('en')} here, valid range 100K to 1M) compacts earlier. ` +
-          'Too small a window compacts often, which re-reads history and breaks the prompt cache.',
+          '原生 1M 窗口的模型（Fable、Sonnet 5+、Haiku 5.5、Opus 4.7+）默认要到 ' +
+          '约 967K token 才压缩，因此每个请求都带着很长的历史。更小的' +
+          `窗口（这里用 ${COMPACT_WINDOW.toLocaleString('en')}，有效范围 100K 到 1M）会更早压缩。` +
+          '窗口太小则会频繁压缩，反复重读历史，破坏提示缓存。',
         doc: `${DOCS.model}#set-the-auto-compact-window`,
         fixes: [{ scope: 'user', ops: [{ op: 'set', key: 'autoCompactWindow', value: COMPACT_WINDOW }] }],
       }
@@ -95,11 +95,11 @@ const RULES = [
       if (!scopes.length) return null
       return {
         severity: 'error',
-        title: '`autoCompactThreshold` is not a documented setting',
+        title: '`autoCompactThreshold` 不是有文档的设置项',
         detail:
-          `Found in ${scopes.join(', ')} settings. The documented keys are \`autoCompactWindow\` ` +
-          '(a token count) and the `CLAUDE_CODE_AUTO_COMPACT_WINDOW` variable, so this key is most ' +
-          'likely ignored and compaction is not configured the way it looks.',
+          `出现在 ${scopes.join(', ')} 设置中。有文档的键是 \`autoCompactWindow\` ` +
+          '（一个 token 数）和 `CLAUDE_CODE_AUTO_COMPACT_WINDOW` 变量，所以这个键很可能被忽略，' +
+          '压缩并没有按看起来的方式配置。',
         doc: `${DOCS.model}#set-the-auto-compact-window`,
         fixes: scopes.map((scope) => ({ scope, ops: [{ op: 'unset', key: 'autoCompactThreshold' }] })),
       }
@@ -113,11 +113,11 @@ const RULES = [
       if (Number(raw) >= 100000) return null
       return {
         severity: 'error',
-        title: '`CLAUDE_CODE_AUTO_COMPACT_WINDOW` is below the 100,000 minimum',
+        title: '`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 低于 100,000 的下限',
         detail:
-          `Set to ${raw}. In this variable a bare number is read as tokens (not thousands), and ` +
-          'values outside 100,000 to 1,000,000 are clamped with a warning. Use 200000, or 200k on ' +
-          'Claude Code 2.1.304 and later.',
+          `当前为 ${raw}。这个变量里的纯数字按 token 数理解（不是千），` +
+          '超出 100,000 到 1,000,000 的值会被截断并给出警告。请改用 200000，或在 ' +
+          'Claude Code 2.1.304 及以后版本使用 200k。',
         doc: `${DOCS.model}#set-the-auto-compact-window`,
       }
     },
@@ -129,12 +129,12 @@ const RULES = [
       if ([...s.agents.user, ...s.agents.project].some((a) => a.name === 'Explore')) return null
       return {
         severity: 'info',
-        title: 'Built-in Explore agent has no override',
+        title: '内置 Explore 代理没有覆盖配置',
         detail:
-          'With a Claude subscription, a Console account or a gateway on ANTHROPIC_BASE_URL, the ' +
-          'built-in Explore agent runs on Opus, the most expensive model, for read-only search. ' +
-          'A user or project agent named Explore overrides it; the shipped template pins Haiku ' +
-          'and read-only tools. Skip this if your search quality needs a stronger model.',
+          '使用 Claude 订阅、Console 账户或经 ANTHROPIC_BASE_URL 的网关时，' +
+          '内置 Explore 代理会用最贵的 Opus 模型做只读搜索。' +
+          '名为 Explore 的用户级或项目级代理可以覆盖它；随附的模板把模型固定为 Haiku，' +
+          '并只开放只读工具。如果搜索质量需要更强的模型，可以忽略这一条。',
         doc: `${DOCS.subagents}#built-in-subagent-models`,
         fixes: [{ scope: 'user', template: 'Explore' }],
       }
@@ -147,11 +147,11 @@ const RULES = [
       if (!truthy(s.env.CLAUDE_CODE_SUBAGENT_MODEL_FORCE)) return null
       return {
         severity: 'warn',
-        title: 'Every subagent is forced onto one model',
+        title: '所有子代理被强制使用同一个模型',
         detail:
-          `CLAUDE_CODE_SUBAGENT_MODEL_FORCE ignores each agent's own model, including agents that ` +
-          `need to reason (Plan, reviewers). Forced model: ${s.env.CLAUDE_CODE_SUBAGENT_MODEL ?? 'the main model'}. ` +
-          'Prefer pinning cheap models on search and test agents through their frontmatter.',
+          `CLAUDE_CODE_SUBAGENT_MODEL_FORCE 会忽略每个代理自己的模型，包括需要推理的代理` +
+          `（Plan、评审者）。强制使用的模型：${s.env.CLAUDE_CODE_SUBAGENT_MODEL ?? '主模型'}。` +
+          '更好的做法是在搜索类和测试类代理的 frontmatter 里固定便宜的模型。',
         doc: `${DOCS.subagents}#forcing-one-model-on-every-subagent`,
       }
     },
@@ -164,11 +164,11 @@ const RULES = [
       if (modelFamily(mainModel(s)) === 'sonnet' || modelFamily(mainModel(s)) === 'haiku') return null
       return {
         severity: 'info',
-        title: 'Subagents inherit the main model',
+        title: '子代理沿用主模型',
         detail:
-          `The main model is ${mainModel(s) ?? 'the default'}, so general-purpose subagents run on it too. ` +
-          'Setting CLAUDE_CODE_SUBAGENT_MODEL (for example to sonnet) in the `env` block of ' +
-          'settings.json moves them down without forcing agents that name their own model.',
+          `主模型是 ${mainModel(s) ?? '默认模型'}，所以通用子代理也会用它。` +
+          '在 settings.json 的 `env` 块里设置 CLAUDE_CODE_SUBAGENT_MODEL（例如设为 sonnet），' +
+          '可以让它们降级，而不影响自己指定了模型的代理。',
         doc: `${DOCS.subagents}#subagent-model-selection`,
         fixes: [{ scope: 'user', ops: [{ op: 'set', key: 'env.CLAUDE_CODE_SUBAGENT_MODEL', value: 'sonnet' }] }],
       }
@@ -181,11 +181,11 @@ const RULES = [
       if (!truthy(raw)) return null
       return {
         severity: 'info',
-        title: '`MAX_THINKING_TOKENS` only applies to fixed-budget models',
+        title: '`MAX_THINKING_TOKENS` 只对固定预算的模型有效',
         detail:
-          `Set to ${raw}. Adaptive-reasoning models ignore a nonzero budget, and Opus 5.5, Sonnet 5.5, ` +
-          'Haiku 5.5 and the Fable models cannot turn thinking off. On those, lower the effort level ' +
-          'with /effort or modelSettings instead.',
+          `当前为 ${raw}。自适应推理的模型会忽略非零预算，而 Opus 5.5、Sonnet 5.5、` +
+          'Haiku 5.5 和 Fable 系列模型无法关闭思考。在这些模型上，请改用 /effort 或 ' +
+          'modelSettings 降低推理强度。',
         doc: `${DOCS.costs}#adjust-extended-thinking`,
       }
     },
@@ -197,10 +197,10 @@ const RULES = [
       if (!scopes.length) return null
       return {
         severity: 'warn',
-        title: '`effortLevel: "max"` is not accepted in settings',
+        title: '设置文件不接受 `effortLevel: "max"`',
         detail:
-          `Found in ${scopes.join(', ')} settings. The \`effortLevel\` key accepts low, medium, high ` +
-          'and xhigh; max works only per session (/effort max or --effort max).',
+          `出现在 ${scopes.join(', ')} 设置中。\`effortLevel\` 键只接受 low、medium、high ` +
+          '和 xhigh；max 只能在单个会话中使用（/effort max 或 --effort max）。',
         doc: `${DOCS.model}#effort-levels`,
         fixes: scopes.map((scope) => ({ scope, ops: [{ op: 'set', key: 'effortLevel', value: 'xhigh' }] })),
       }
@@ -215,21 +215,21 @@ const RULES = [
       const reasons = []
       const flagOff = flagFetchBlockers(s.env)
       if (flagOff.length) {
-        reasons.push(`${flagOff.join(', ')} turns off the feature-flag fetch the advisor needs`)
+        reasons.push(`${flagOff.join(', ')} 关闭了顾问所需的功能开关拉取`)
       }
       if (truthy(s.env.CLAUDE_CODE_DISABLE_ADVISOR_TOOL)) {
-        reasons.push('CLAUDE_CODE_DISABLE_ADVISOR_TOOL disables the tool outright')
+        reasons.push('CLAUDE_CODE_DISABLE_ADVISOR_TOOL 直接禁用了该工具')
       }
       const main = modelFamily(mainModel(s))
       const adv = modelFamily(advisor)
       if (main && adv && RANK[adv] < RANK[main]) {
-        reasons.push(`the advisor (${advisor}) ranks below the main model (${mainModel(s)})`)
+        reasons.push(`顾问（${advisor}）的级别低于主模型（${mainModel(s)}）`)
       }
       if (!reasons.length) return null
       return {
         severity: 'warn',
-        title: 'The configured advisor will not run',
-        detail: `${reasons.join('; ')}. Claude Code silently sends requests without an advisor in these cases.`,
+        title: '配置的顾问不会运行',
+        detail: `${reasons.join('；')}。在这些情况下，Claude Code 会悄悄发送不带顾问的请求。`,
         doc: DOCS.advisor,
       }
     },
@@ -241,16 +241,16 @@ const RULES = [
       if (!long.length) return null
       return {
         severity: 'info',
-        title: 'Instruction files are long',
+        title: '指令文件过长',
         detail:
-          long.map((f) => `${f.path}: ${f.lines} lines`).join('; ') +
-          '. These load into every session and into every subagent except Explore and Plan and ' +
-          'agents that set omitClaudeMd. ' +
-          'The docs suggest staying under about 200 lines. What cuts the cost is moving ' +
-          'workflow-specific text into skills (loaded only when used) or into `.claude/rules/*.md` ' +
-          'files with a `paths:` frontmatter (loaded only when Claude works on matching files). ' +
-          '@imports do not reduce it, because imported files load with the file that imports them. ' +
-          'Block-level HTML comments are stripped before injection, so maintainer notes are free.',
+          long.map((f) => `${f.path}：${f.lines} 行`).join('；') +
+          '。这些内容会加载进每个会话，也会加载进除 Explore、Plan 以及设置了 omitClaudeMd ' +
+          '的代理之外的每个子代理。' +
+          '文档建议控制在约 200 行以内。降低开销的办法是把与具体工作流相关的文字移进技能' +
+          '（只在用到时加载），或移进带 `paths:` frontmatter 的 `.claude/rules/*.md` 文件' +
+          '（只在 Claude 处理匹配文件时加载）。' +
+          '@import 不会减少开销，因为被导入的文件会随导入它的文件一起加载。' +
+          '块级 HTML 注释在注入前会被去掉，所以维护者的注释不占开销。',
         doc: `${DOCS.costs}#move-instructions-from-claudemd-to-skills`,
       }
     },
@@ -260,22 +260,21 @@ const RULES = [
     run(s) {
       const { skills, enabledPlugins, mcpServers } = s
       const parts = []
-      if (skills.autoLoaded > 15) parts.push(`${skills.autoLoaded} skills whose descriptions load every session`)
-      if (enabledPlugins > 6) parts.push(`${enabledPlugins} enabled plugins`)
-      if (mcpServers > 5) parts.push(`${mcpServers} MCP servers`)
+      if (skills.autoLoaded > 15) parts.push(`${skills.autoLoaded} 个技能的描述会在每个会话加载`)
+      if (enabledPlugins > 6) parts.push(`${enabledPlugins} 个已启用的插件`)
+      if (mcpServers > 5) parts.push(`${mcpServers} 个 MCP 服务`)
       if (!parts.length) return null
       return {
         severity: 'info',
-        title: 'Large always-on context surface',
+        title: '常驻上下文占用很大',
         detail:
-          `${parts.join(', ')}. Skill descriptions are part of every request; ` +
-          '`disable-model-invocation: true` keeps a skill out of context until you run it, and a ' +
-          'plugin can be disabled per project in .claude/settings.local.json; `skillOverrides` ' +
-          'hides your own skill without editing it (it does not apply to plugin skills: manage ' +
-          'those through /plugin). MCP tool definitions are deferred by default (only ' +
-          'names and server instructions are loaded until a tool is used), so a long MCP list ' +
-          'costs less than it used to; /mcp disables a server you are not using. Run /context to ' +
-          'see what actually costs the most.',
+          `${parts.join('，')}。技能描述是每个请求的一部分；` +
+          '`disable-model-invocation: true` 会让技能在运行前不进入上下文，插件可以在 ' +
+          '.claude/settings.local.json 里按项目停用；`skillOverrides` 能在不修改技能的情况下' +
+          '隐藏自己的技能（对插件技能不适用，那些请通过 /plugin 管理）。' +
+          'MCP 工具定义默认是延迟加载的（在用到某个工具之前只加载名称和服务说明），' +
+          '所以长长的 MCP 列表没有以前那么贵；/mcp 可以停用用不到的服务。运行 /context ' +
+          '可以看到实际最花的是什么。',
         doc: `${DOCS.skills}`,
       }
     },
@@ -291,11 +290,11 @@ const RULES = [
       const names = [...new Set(open.map((d) => d.name))]
       return {
         severity: 'info',
-        title: 'Large generated directories are not excluded from reads',
+        title: '大型生成目录没有从读取中排除',
         detail:
-          open.map((d) => `${d.path} (${Math.round(d.bytes / 1e6)} MB)`).join('; ') +
-          '. There is no ignore file: permissions.deny Read rules are the supported mechanism, and ' +
-          'for Grep and Glob they are best-effort. They do not stop a file being read through Bash.',
+          open.map((d) => `${d.path}（${Math.round(d.bytes / 1e6)} MB）`).join('；') +
+          '。没有忽略文件：支持的机制是用 permissions.deny 里的 Read 规则，' +
+          '对 Grep 和 Glob 只是尽力而为。它们无法阻止通过 Bash 读取文件。',
         doc: 'https://code.claude.com/docs/en/permissions.md',
         fixes: [
           {
@@ -318,13 +317,13 @@ const RULES = [
       const count = perScope.reduce((n, x) => n + x.n, 0)
       return {
         severity: 'info',
-        title: 'Hooks run on every tool call',
+        title: '每次工具调用都会运行钩子',
         detail:
-          `${count} tool-event hook(s) match "*" and start a process for each tool call. This ` +
-          'costs latency rather than tokens. Narrow the matcher if the hook only cares about some ' +
-          'tools. Dropping them is safe only if nothing depends on the events: a tool that shows ' +
-          'agent status from these hooks (a terminal manager, a dashboard) will stop updating. ' +
-          'The fix removes every "*" entry from the tool events in that scope, after a dry run.',
+          `${count} 个工具事件钩子匹配 "*"，每次工具调用都会启动一个进程。这` +
+          '花的是延迟而不是 token。如果钩子只关心部分工具，可以收窄匹配器。' +
+          '只有当没有任何东西依赖这些事件时，才可以安全地删除：依赖这些钩子显示代理状态的工具' +
+          '（终端管理器、仪表盘）会停止更新。' +
+          '修复会在试运行之后，删除该范围内工具事件里的所有 "*" 条目。',
         doc: 'https://code.claude.com/docs/en/hooks.md',
         fixes: perScope.map(({ scope }) => ({ scope, ops: [{ op: 'dropHooks', matcher: '*' }] })),
       }
@@ -338,12 +337,11 @@ const RULES = [
       if (!scopes.length || optIn) return null
       return {
         severity: 'warn',
-        title: 'Fast mode starts on in every session',
+        title: '快速模式在每个会话都默认开启',
         detail:
-          `\`fastMode: true\` is saved in ${scopes.join(', ')} settings. Fast mode costs more per ` +
-          'token and runs only on Opus, so every session pays that rate whether or not it needs the ' +
-          'speed. `fastModePerSessionOptIn: true` keeps the saved setting but makes you run /fast ' +
-          'in the sessions where you want it.',
+          `\`fastMode: true\` 保存在 ${scopes.join(', ')} 设置中。快速模式的每个 token 更贵，` +
+          '而且只在 Opus 上运行，因此每个会话都要按这个价格付费，不管是否真的需要速度。' +
+          '`fastModePerSessionOptIn: true` 会保留这个设置，但要求你在需要时手动在会话中运行 /fast。',
         doc: 'https://code.claude.com/docs/en/settings-reference.md#fastmodepersessionoptin',
         fixes: [{ scope: scopes[0], ops: [{ op: 'set', key: 'fastModePerSessionOptIn', value: true }] }],
       }
@@ -357,13 +355,13 @@ const RULES = [
       if (!missing.length) return null
       return {
         severity: 'info',
-        title: 'No language server plugin for this project',
+        title: '这个项目没有语言服务器插件',
         detail:
-          'The project has files for a language with an official code intelligence plugin: ' +
-          missing.map((p) => `/plugin install ${p}@claude-plugins-official`).join('; ') +
-          '. A language server gives Claude go-to-definition and type errors after each edit, so ' +
-          'it reads fewer candidate files and catches mistakes without running a compiler. The ' +
-          'plugin needs the language server binary on your PATH. It does not work in cloud sessions.',
+          '项目里有某种语言的文件，而该语言有官方的代码智能插件：' +
+          missing.map((p) => `/plugin install ${p}@claude-plugins-official`).join('；') +
+          '。语言服务器让 Claude 在每次编辑后能跳转定义并看到类型错误，' +
+          '从而少读候选文件，不运行编译器也能发现错误。' +
+          '该插件需要 PATH 上有对应的语言服务器二进制文件。它在云会话中不可用。',
         doc: 'https://code.claude.com/docs/en/plugins/code-intelligence.md',
       }
     },
@@ -374,11 +372,11 @@ const RULES = [
       if (!s.unreadable.length) return null
       return {
         severity: 'error',
-        title: 'A settings file is not valid JSON',
+        title: '某个设置文件不是有效的 JSON',
         detail:
-          `${s.unreadable.join(', ')} exists but does not parse, so none of its settings were audited ` +
-          '(and Claude Code reports a Settings Error for it at startup). Settings files are strict ' +
-          'JSON: no comments, no trailing commas. `claude doctor` lists what Claude Code rejected.',
+          `${s.unreadable.join(', ')} 存在但无法解析，所以其中的设置没有被审计` +
+          '（Claude Code 启动时也会为它报 Settings Error）。设置文件是严格的 ' +
+          'JSON：不能有注释，不能有多余的逗号。`claude doctor` 会列出 Claude Code 拒绝了什么。',
         doc: `${DOCS.settings}#fix-a-broken-settings-file`,
       }
     },
@@ -395,11 +393,11 @@ const RULES = [
       if (!small.length) return null
       return {
         severity: 'warn',
-        title: 'Auto-compact window is very small',
+        title: '自动压缩窗口太小',
         detail:
-          `Window of ${Math.min(...small).toLocaleString('en')} tokens. Compaction reads the whole conversation ` +
-          'and breaks the prompt cache each time, so compacting often can cost more than it saves. ' +
-          'Around 250K to 400K is a reasonable range; the minimum accepted is 100K.',
+          `窗口为 ${Math.min(...small).toLocaleString('en')} 个 token。压缩会读取整段对话，` +
+          '每次都破坏提示缓存，所以频繁压缩可能得不偿失。' +
+          '250K 到 400K 左右是合理范围；可接受的最小值是 100K。',
         doc: `${DOCS.model}#set-the-auto-compact-window`,
       }
     },
@@ -411,11 +409,10 @@ const RULES = [
       if (!set.length) return null
       return {
         severity: 'warn',
-        title: 'Prompt caching is switched off',
+        title: '提示缓存被关闭',
         detail:
-          `${set.join(', ')} set. Without the cache every request reprocesses the whole conversation ` +
-          'at the full input rate. The docs describe these variables as a debugging aid; leave caching ' +
-          'on for normal use.',
+          `已设置 ${set.join(', ')}。没有缓存时，每个请求都要按完整的输入价格重新处理` +
+          '整段对话。文档把这些变量描述为调试用途；日常使用请保持缓存开启。',
         doc: 'https://code.claude.com/docs/en/prompt-caching.md#disable-prompt-caching',
       }
     },
@@ -427,11 +424,11 @@ const RULES = [
       if (!truthy(s.env.FORCE_PROMPT_CACHING_5M)) return null
       return {
         severity: 'info',
-        title: 'Cache lifetime is forced to five minutes',
+        title: '缓存有效期被强制为五分钟',
         detail:
-          'FORCE_PROMPT_CACHING_5M overrides every other TTL control. After a break longer than five ' +
-          'minutes the next message re-reads the full context uncached. The docs recommend it for ' +
-          'debugging or comparing TTLs; on a plan that grants one hour it removes that benefit.',
+          'FORCE_PROMPT_CACHING_5M 会覆盖其他所有 TTL 控制。暂停超过五分钟后，' +
+          '下一条消息会以无缓存的方式重读完整上下文。文档推荐它用于' +
+          '调试或比较 TTL；在提供一小时缓存的套餐上，这样会失去该优势。',
         doc: 'https://code.claude.com/docs/en/prompt-caching.md#choose-the-ttl-yourself',
       }
     },
@@ -442,11 +439,11 @@ const RULES = [
       if (!truthy(s.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS)) return null
       return {
         severity: 'info',
-        title: 'Agent teams are enabled',
+        title: '已启用代理团队',
         detail:
-          'Each teammate runs its own context window, and the docs put teams at roughly 7x the tokens ' +
-          'of a standard session when teammates run in plan mode. Keep teams small, use Sonnet for ' +
-          'teammates, and shut them down when their work is done.',
+          '每个队友都有自己的上下文窗口，文档估计队友在计划模式下运行时，' +
+          '团队大约消耗标准会话 7 倍的 token。团队规模要小，队友用 Sonnet，' +
+          '工作完成后及时关闭。',
         doc: `${DOCS.costs}#agent-team-token-costs`,
       }
     },
@@ -458,11 +455,11 @@ const RULES = [
       if (family !== 'opus' && family !== 'fable') return null
       return {
         severity: 'info',
-        title: `The default model is ${mainModel(s)}`,
+        title: `默认模型是 ${mainModel(s)}`,
         detail:
-          'The docs name Opus left as the default as a usual cause of unexpectedly high spend. For most ' +
-          'coding work Sonnet is enough (`/model sonnet`, or `model` in settings). ' +
-          'Keep the larger model if the work needs it throughout.',
+          '文档把默认留在 Opus 列为费用意外偏高的常见原因。对大多数' +
+          '编码工作来说 Sonnet 就够了（`/model sonnet`，或在设置里写 `model`）。' +
+          '如果整项工作都需要更强的模型，就保留它。',
         doc: `${DOCS.costs}#choose-the-right-model`,
       }
     },
@@ -475,11 +472,11 @@ const RULES = [
       const names = inheriting.map((a) => a.name)
       return {
         severity: 'info',
-        title: 'Custom agents run on the main model',
+        title: '自定义代理使用主模型',
         detail:
-          `${names.slice(0, 8).join(', ')}${names.length > 8 ? `, and ${names.length - 8} more` : ''} ` +
-          'set no `model`, so they use the main conversation\'s model. Pin `model: haiku` or `sonnet` on ' +
-          'agents that only search, run commands or summarise; leave reasoning-heavy agents inheriting.',
+          `${names.slice(0, 8).join('、')}${names.length > 8 ? `，以及另外 ${names.length - 8} 个` : ''} ` +
+          '没有设置 `model`，因此使用主对话的模型。对只做搜索、运行命令或总结的代理，' +
+          '请固定 `model: haiku` 或 `sonnet`；需要大量推理的代理则保持继承。',
         doc: `${DOCS.subagents}#choose-a-model`,
       }
     },
@@ -490,11 +487,11 @@ const RULES = [
       if (!s.instructionFiles.length || s.instructionFiles.some((f) => f.compactInstructions)) return null
       return {
         severity: 'info',
-        title: 'No "Compact instructions" section',
+        title: '缺少“Compact instructions”小节',
         detail:
-          'A `# Compact instructions` section in CLAUDE.md tells compaction what to keep (failing test ' +
-          'output, files changed, decisions) and what to drop, so a summary does not lose the thread. ' +
-          'It is written for your project, so there is no automatic fix.',
+          '在 CLAUDE.md 里加一个 `# Compact instructions` 小节，可以告诉压缩要保留什么' +
+          '（失败的测试输出、改过的文件、做出的决定）以及丢弃什么，这样总结不会丢失主线。' +
+          '这一节要按你的项目来写，所以没有自动修复。',
         doc: `${DOCS.costs}#manage-context-proactively`,
       }
     },
@@ -507,11 +504,11 @@ const RULES = [
       if (!open.length) return null
       return {
         severity: 'info',
-        title: 'Large lockfiles can be read in full',
+        title: '大型 lockfile 可以被完整读取',
         detail:
-          open.map((l) => `${l.name} (${Math.round(l.bytes / 1000)} KB)`).join('; ') +
-          '. A model that opens one spends tens of thousands of tokens on content it can grep instead. ' +
-          'Deny rules are best-effort for search tools and do not cover reads through Bash.',
+          open.map((l) => `${l.name}（${Math.round(l.bytes / 1000)} KB）`).join('；') +
+          '。模型一旦打开其中一个，就会把几万 token 花在本可以 grep 的内容上。' +
+          '拒绝规则对搜索工具只是尽力而为，也不覆盖通过 Bash 的读取。',
         doc: 'https://code.claude.com/docs/en/permissions.md',
         fixes: [{ scope: 'project', ops: [{ op: 'add', key: 'permissions.deny', values: open.map((l) => `Read(./${l.name})`) }] }],
       }
@@ -524,8 +521,8 @@ const RULES = [
       if (!dup.length) return null
       return {
         severity: 'info',
-        title: 'The same skill exists at user and project level',
-        detail: `${dup.join(', ')}. Each copy adds a description to context; keep the one you want.`,
+        title: '同名技能同时存在于用户级和项目级',
+        detail: `${dup.join('、')}。每份副本都会往上下文里加一段描述；保留你想要的那份。`,
         doc: DOCS.skills,
       }
     },
@@ -537,11 +534,10 @@ const RULES = [
       if (!Number.isFinite(n) || n <= 50000) return null
       return {
         severity: 'info',
-        title: 'MCP tool output limit is raised',
+        title: 'MCP 工具输出上限被调高',
         detail:
-          `MAX_MCP_OUTPUT_TOKENS is ${n.toLocaleString('en')}. A single tool result can add that much ` +
-          'to the context, and it is re-read on every later request. Raise it only for a server that ' +
-          'needs it.',
+          `MAX_MCP_OUTPUT_TOKENS 为 ${n.toLocaleString('en')}。单个工具结果就可能给上下文` +
+          '增加这么多内容，而且之后每个请求都会重读。只在某个服务确实需要时调高。',
         doc: 'https://code.claude.com/docs/en/env-vars.md',
       }
     },
@@ -554,13 +550,13 @@ const RULES = [
       const vars = ['DISABLE_AUTO_COMPACT', 'DISABLE_COMPACT'].filter((k) => truthy(s.env[k]))
       const scopes = SCOPES.filter((sc) => s.settings[sc].autoCompactEnabled === false)
       if (!vars.length && !scopes.length) return null
-      const where = [...vars, ...scopes.map((sc) => `autoCompactEnabled: false in ${sc} settings`)]
+      const where = [...vars, ...scopes.map((sc) => `autoCompactEnabled: false（${sc} 设置）`)]
       return {
         severity: 'warn',
-        title: 'Auto-compaction is off',
+        title: '自动压缩已关闭',
         detail:
-          `${where.join('; ')}. Without it, every request carries the whole history until the model ` +
-          'window fills, and idle compaction is off too. /compact still works by hand.',
+          `${where.join('；')}。没有自动压缩，每个请求都会带上完整历史，直到模型窗口` +
+          '填满，闲置压缩也一并关闭。仍可手动执行 /compact。',
         doc: `${DOCS.model}#set-the-auto-compact-window`,
         fixes: scopes.map((scope) => ({ scope, ops: [{ op: 'unset', key: 'autoCompactEnabled' }] })),
       }
@@ -574,11 +570,11 @@ const RULES = [
       if (!scopes.length) return null
       return {
         severity: 'info',
-        title: 'Idle compaction is off',
+        title: '闲置压缩已关闭',
         detail:
-          `\`idleCompaction: false\` in ${scopes.join(', ')} settings. Idle compaction compacts a long ` +
-          'conversation (200K+ tokens by default) shortly before its one-hour prompt cache expires, ' +
-          'so coming back after a break does not re-read the whole history uncached.',
+          `\`idleCompaction: false\`（${scopes.join(', ')} 设置）。闲置压缩会在一小时提示缓存到期` +
+          '前不久压缩较长的对话（默认 200K+ token），' +
+          '这样休息后回来不会无缓存地重读整段历史。',
         doc: `${DOCS.settings.replace('settings.md', 'settings-reference.md')}#idlecompaction`,
         fixes: scopes.map((scope) => ({ scope, ops: [{ op: 'unset', key: 'idleCompaction' }] })),
       }
@@ -590,11 +586,11 @@ const RULES = [
       if (String(s.env.ENABLE_TOOL_SEARCH ?? '').toLowerCase() !== 'false') return null
       return {
         severity: s.mcpServers ? 'warn' : 'info',
-        title: 'MCP tool search is off',
+        title: 'MCP 工具搜索已关闭',
         detail:
-          'ENABLE_TOOL_SEARCH=false loads every MCP tool definition into every request instead of ' +
-          `deferring them until used${s.mcpServers ? ` (${s.mcpServers} MCP servers configured)` : ''}. ` +
-          'Unset it, or use `auto` to defer once definitions pass 10% of the window.',
+          'ENABLE_TOOL_SEARCH=false 会把每个 MCP 工具定义都加载进每个请求，而不是' +
+          `等到使用时才加载${s.mcpServers ? `（已配置 ${s.mcpServers} 个 MCP 服务）` : ''}。` +
+          '请取消设置，或改用 `auto`，让定义超过窗口 10% 时再延迟加载。',
         doc: 'https://code.claude.com/docs/en/mcp.md#configure-tool-search',
       }
     },
@@ -607,11 +603,11 @@ const RULES = [
       if (!(value > 30000)) return null
       return {
         severity: 'info',
-        title: 'Bash output limit is raised',
+        title: 'Bash 输出上限被调高',
         detail:
-          `${setting !== undefined ? 'bashOutputMaxChars' : 'BASH_MAX_OUTPUT_LENGTH'} is ${value} ` +
-          '(default 30,000 characters). Long command output stays in context for the rest of the ' +
-          'conversation and is re-sent with every request.',
+          `${setting !== undefined ? 'bashOutputMaxChars' : 'BASH_MAX_OUTPUT_LENGTH'} 为 ${value} ` +
+          '（默认 30,000 个字符）。长命令输出会在对话剩下的部分里一直留在上下文中，' +
+          '并随每个请求重新发送。',
         doc: 'https://code.claude.com/docs/en/tools-reference.md#output-limits',
       }
     },
@@ -627,10 +623,10 @@ const RULES = [
       if (!found.length) return null
       return {
         severity: 'warn',
-        title: `${found.length} settings key(s) are not in Claude Code's documentation`,
+        title: `${found.length} 个设置键不在 Claude Code 的文档里`,
         detail:
-          `${found.join(', ')}. Claude Code ignores a key it does not know, so a misspelled or removed key ` +
-          'silently does nothing. Check the spelling against the settings reference, read today.',
+          `${found.join('、')}。Claude Code 会忽略不认识的键，所以拼错或已移除的键` +
+          '会悄无声息地不起作用。请对照今天读取的设置参考检查拼写。',
         doc: 'https://code.claude.com/docs/en/settings-reference.md',
       }
     },
@@ -645,10 +641,10 @@ const RULES = [
       if (!found.length) return null
       return {
         severity: 'info',
-        title: `${found.length} environment variable(s) look like Claude Code's but are not documented`,
+        title: `${found.length} 个环境变量看起来像 Claude Code 的，但没有文档`,
         detail:
-          `${found.join(', ')}, set under \`env\`. Claude Code reads only the variables it knows: a misspelled or ` +
-          'retired one does nothing. Ignore this for a variable meant for another program.',
+          `${found.join('、')}，在 \`env\` 下设置。Claude Code 只读取它认识的变量：拼错或` +
+          '已停用的变量不起作用。若这个变量是给其他程序用的，可以忽略此条。',
         doc: 'https://code.claude.com/docs/en/env-vars.md',
       }
     },
@@ -665,8 +661,8 @@ const RULES = [
       if (!found.length) return null
       return {
         severity: 'warn',
-        title: `${found.length} setting(s) need a newer Claude Code than ${s.version}`,
-        detail: `${[...new Set(found)].join(', ')}. An older release ignores them. Update Claude Code (\`claude update\`).`,
+        title: `${found.length} 项设置需要比 ${s.version} 更新的 Claude Code`,
+        detail: `${[...new Set(found)].join('、')}。旧版本会忽略它们。请更新 Claude Code（\`claude update\`）。`,
         doc: 'https://code.claude.com/docs/en/setup.md#update-claude-code',
       }
     },
@@ -680,20 +676,20 @@ const RULES = [
       if (!Number.isInteger(pct) || pct < 1 || pct > 100) {
         return {
           severity: 'error',
-          title: 'CLAUDE_AUTOCOMPACT_PCT_OVERRIDE is not a percentage',
-          detail: `It is "${raw}"; Claude Code expects a whole number from 1 to 100 and ignores anything else.`,
+          title: 'CLAUDE_AUTOCOMPACT_PCT_OVERRIDE 不是百分比',
+          detail: `当前为 "${raw}"；Claude Code 期望 1 到 100 的整数，其他值一律忽略。`,
           doc: 'https://code.claude.com/docs/en/env-vars.md',
         }
       }
       const window = Number(String(SCOPES.map((sc) => s.settings[sc].autoCompactWindow).find(Boolean) ?? '').replace(/k$/i, '000')) || null
       return {
         severity: pct < 50 ? 'warn' : 'info',
-        title: `Auto-compaction triggers at ${pct}% of the window`,
+        title: `自动压缩在窗口的 ${pct}% 处触发`,
         detail:
-          `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=${pct}${window ? `: about ${Math.round((window * pct) / 100000)}K of the ${Math.round(window / 1000)}K window` : ''}. ` +
-          'It can only lower the point (a value above the default is ignored), and it applies to subagents too. ' +
-          'Setting `autoCompactWindow` to that size says the same thing in one place and shows the right point in the status line. ' +
-          (pct < 50 ? 'Below half, compactions come often, and each one re-sends the conversation uncached.' : ''),
+          `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=${pct}${window ? `：约 ${Math.round((window * pct) / 100000)}K，窗口为 ${Math.round(window / 1000)}K` : ''}。` +
+          '它只能把触发点调低（高于默认值的设置会被忽略），而且同样作用于子代理。' +
+          '把 `autoCompactWindow` 设为该大小，可以在一处表达同样的意思，并在状态行显示正确的触发点。' +
+          (pct < 50 ? '低于一半时压缩会很频繁，每次都会无缓存地重发整段对话。' : ''),
         doc: `${DOCS.model}#context-window-and-auto-compaction`,
       }
     },
@@ -708,12 +704,12 @@ const RULES = [
       if (!switching.length) return null
       return {
         severity: 'info',
-        title: `${switching.length} skill(s) switch the model when used`,
+        title: `${switching.length} 个技能在使用时会切换模型`,
         detail:
-          `${switching.map((k) => `${k.name} (model: ${k.model})`).join(', ')}. A skill whose frontmatter names another model ` +
-          'is a model switch for that turn: each model has its own prompt cache, so the request reads the whole ' +
-          'conversation uncached. With `context: fork` the skill runs as a subagent on that model and the main ' +
-          'conversation keeps its cache; or drop `model` to stay on the session’s.',
+          `${switching.map((k) => `${k.name}（模型：${k.model}）`).join('、')}。frontmatter 里指定了其他模型的技能 ` +
+          '相当于那一轮切换模型：每个模型有自己的提示缓存，所以请求会无缓存地读取整段' +
+          '对话。用 `context: fork` 可以让技能以子代理身份在该模型上运行，主对话保留自己的缓存；' +
+          '或者去掉 `model`，继续用会话的模型。',
         doc: 'https://code.claude.com/docs/en/prompt-caching.md#switching-models',
       }
     },
@@ -724,11 +720,11 @@ const RULES = [
       if (mainModel(s) !== 'opusplan') return null
       return {
         severity: 'info',
-        title: 'opusplan switches models on every plan-mode toggle',
+        title: 'opusplan 每次切换计划模式都会换模型',
         detail:
-          '`opusplan` runs Opus in plan mode and Sonnet otherwise. Each model has its own prompt cache, so every ' +
-          'toggle reads the whole conversation uncached on the model it switches to. Cheap early in a session, ' +
-          'costly in a long one: plan in a fresh session, or pick one model.',
+          '`opusplan` 在计划模式下用 Opus，其余时候用 Sonnet。每个模型有自己的提示缓存，所以每次' +
+          '切换都会在切过去的模型上无缓存地读取整段对话。会话早期代价小，' +
+          '长会话里代价大：可以开新会话做计划，或只选一个模型。',
         doc: 'https://code.claude.com/docs/en/prompt-caching.md#switching-models',
       }
     },
@@ -744,7 +740,7 @@ const RULES = [
       if (!note) return null
       return {
         severity: 'warn',
-        title: 'The slide is on but cannot run here',
+        title: 'slide 已开启，但在这里无法运行',
         detail: note,
         doc: 'https://code.claude.com/docs/en/plugins/mods/admin.md#know-which-hooks-of-a-users-mod-dont-run',
       }
@@ -756,18 +752,18 @@ const RULES = [
       if (SCOPES.some((sc) => s.settings[sc].statusLine)) return null
       return {
         severity: 'info',
-        title: 'No status line',
+        title: '没有状态行',
         detail:
-          'A status line can show context fill and prompt-cache state (`context_window` and ' +
-          '`prompt_cache` fields), which is the easiest way to see when to /clear or compact. The ' +
-          'fix installs a small script that shows, on one quiet line, the model, folder and branch, ' +
-          'the tokens in context against the point where Claude Code compacts, how long the prompt ' +
-          'cache stays warm, the 5-hour and weekly limits with "→ 100% in" when at the recent pace ' +
-          'they run out before the reset, and the session cost. It needs jq and is a plain file you can edit. ' +
-          'Another way to see the same thing: the token-weather mod in anthropics/claude-code-playground ' +
-          '(claude-code/mods/token-weather) draws a context forecast in the band above the prompt. It ' +
-          'needs Claude Code 2.1.287 or later, is shared as-is and is not an official product; ' +
-          'install it from a clone with `claude plugin marketplace add ./` in the mods folder.',
+          '状态行可以显示上下文占用和提示缓存状态（`context_window` 和 ' +
+          '`prompt_cache` 字段），这是判断何时该 /clear 或压缩的最简单办法。' +
+          '修复会安装一个小脚本，用一行不显眼的文字显示：模型、目录和分支，' +
+          '上下文中的 token 与 Claude Code 压缩点的对比，提示缓存还能保持多久，' +
+          '5 小时和每周限额（按近期速度会在重置前用完时显示“→ 100% in”），以及会话费用。' +
+          '它需要 jq，是一个可以直接编辑的普通文件。' +
+          '看同样信息的另一个办法：anthropics/claude-code-playground 里的 token-weather 模组' +
+          '（claude-code/mods/token-weather）会在输入框上方的横条里画出上下文预测。' +
+          '它需要 Claude Code 2.1.287 或更高版本，按原样分享，不是官方产品；' +
+          '可以在 mods 目录下 clone 后用 `claude plugin marketplace add ./` 安装。',
         doc: 'https://code.claude.com/docs/en/statusline.md',
         fixes: [
           { scope: 'user', script: 'statusline.sh' },

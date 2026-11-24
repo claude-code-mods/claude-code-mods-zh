@@ -98,7 +98,7 @@ export function actionsOf(
 
     return {
       press,
-      label: press.action !== 'type' && isAgain(last, pressAction, pressing === pressAction) ? `${label} again` : label,
+      label: press.action !== 'type' && isAgain(last, pressAction, pressing === pressAction) ? `${label}（再次）` : label,
       kind,
       emphasis:
         flags.isPrimary || press.action === 'address'
@@ -130,30 +130,30 @@ export function actionsOf(
       : []
   if (state.is === 'held')
     return [
-      action({ action: 'type', id, text: '' }, 'Reply', 'handoff'),
+      action({ action: 'type', id, text: '' }, '回复', 'handoff'),
       action({ action: 'discard', id }, ROW_COPY.discard, 'view'),
     ]
   const stepActions = steps.map((s, n) => action({ action: 'step', id, step: n, label: s.label }, s.label, stepKind(s)))
   const explainActions = [
     ...(isExplanationShown ? [action({ action: 'show-explanation', id }, SHOW_EXPLANATION_LABEL, 'local')] : []),
-    action({ action: 'explain', id }, 'Explain', 'talk'),
+    action({ action: 'explain', id }, '解释', 'talk'),
   ]
   if (!item)
     return [
-      action({ action: 'address', id }, row.finding ? fixLabel(row.finding) : 'Fix', 'handoff'),
+      action({ action: 'address', id }, row.finding ? fixLabel(row.finding) : '修复', 'handoff'),
       action({ action: 'issue', id }, ISSUE_LABEL, 'handoff'),
-      action({ action: 'type', id, text: '' }, 'Reply', 'handoff'),
+      action({ action: 'type', id, text: '' }, '回复', 'handoff'),
       ...explainActions,
-      action({ action: 'discuss', id }, 'Discuss', 'talk'),
-      action({ action: 'dismiss', id }, 'Dismiss', 'mark'),
+      action({ action: 'discuss', id }, '讨论', 'talk'),
+      action({ action: 'dismiss', id }, '忽略', 'mark'),
     ]
   if (item.kind === 'task')
     return [
       ...stepActions,
-      action({ action: 'done', id }, 'Done', 'mark'),
-      action({ action: 'type', id, text: '' }, 'Reply', 'handoff'),
+      action({ action: 'done', id }, '完成', 'mark'),
+      action({ action: 'type', id, text: '' }, '回复', 'handoff'),
       ...explainActions,
-      action({ action: 'dismiss', id }, 'Dismiss', 'mark'),
+      action({ action: 'dismiss', id }, '忽略', 'mark'),
     ]
   const isFolding = item.options.length > OPTIONS_FOLD_AT
   const options =
@@ -167,10 +167,10 @@ export function actionsOf(
       }),
     ),
     ...stepActions,
-    action({ action: 'type', id, text: '' }, 'Reply', 'mark'),
+    action({ action: 'type', id, text: '' }, '回复', 'mark'),
     ...explainActions,
-    ...(showsCompare(item) ? [action({ action: 'compare', id }, 'Compare', 'talk')] : []),
-    action({ action: 'dismiss', id }, 'Dismiss', 'mark'),
+    ...(showsCompare(item) ? [action({ action: 'compare', id }, '对比', 'talk')] : []),
+    action({ action: 'dismiss', id }, '忽略', 'mark'),
   ]
 }
 

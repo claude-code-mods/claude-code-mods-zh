@@ -56,6 +56,6 @@ export function applyClaudeSelection(sessionId: string, change: SelectionChange,
 export function claudeImageFor(sessionId: string, id: string, maxSide: number, options: ClaudePanelOptions = {}): { id: string; dataUrl: string | null } {
   const index = loadClaudeIndex(sessionId, options.home ?? claudeHome(), stableIdTimes(claudeSelectionDirOf(options.dataRoot ?? dataDir())));
   const image = index.images.find((candidate) => candidate.id === id);
-  if (!image) throw new Error(`${id} is not an image of this session`);
+  if (!image) throw new Error(`${id} 不是这个会话里的图片`);
   return { id, dataUrl: imageUrl(image, claudeImageData(index, image), maxSide) };
 }

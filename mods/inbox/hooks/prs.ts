@@ -95,8 +95,8 @@ export function readiness(
     return { status, text: reasons ? `${head}${joint}${reasons}` : head, head, unlisted }
   }
   const listed: string[] = []
-  if (pr.state === 'MERGED') return result('merged', 'Merged')
-  if (pr.state !== 'OPEN') return result('closed', 'Closed')
+  if (pr.state === 'MERGED') return result('merged', '已合并')
+  if (pr.state !== 'OPEN') return result('closed', '已关闭')
   const { pass: passing, fail: failing, pending } = checkCounts(pr)
   const cancelled = blockingChecks(pr).length - failing
   const waiting = waitingThreads(pr)

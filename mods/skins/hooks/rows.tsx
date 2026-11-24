@@ -405,7 +405,7 @@ function cardWithCopy(look: Look, Svg: SvgElement, built: { source: string; alt:
         ''
       ) : (
         <Box position="absolute" top={1} right={3}>
-          <Button key={key} label="Copy" plain dimColor onPress={() => copy(text)} />
+          <Button key={key} label="复制" plain dimColor onPress={() => copy(text)} />
         </Box>
       )}
     </Box>
@@ -420,7 +420,7 @@ function tableCard(look: Look, table: Table, Svg: SvgElement, columns: number, k
   return (
     <Box flexDirection="column">
       {cardWithCopy(look, Svg, card, key, tableMarkdown(table))}
-      {copyRow(look, `${key}-art`, tableArt(table), 'Copy as text')}
+      {copyRow(look, `${key}-art`, tableArt(table), '复制为文本')}
     </Box>
   )
 }
@@ -501,7 +501,7 @@ export function onBorder(
 }
 
 // A Copy button padded to sit on a border line; nothing where nothing can copy.
-export function copyButton(look: Look, key: string, text: string, label = ' Copy ') {
+export function copyButton(look: Look, key: string, text: string, label = ' 复制 ') {
   const { Button } = look.ui
   const copy = look.copy
 
@@ -509,7 +509,7 @@ export function copyButton(look: Look, key: string, text: string, label = ' Copy
 }
 
 // A small Copy button under a card or block, flush right; nothing where nothing can copy.
-export function copyRow(look: Look, key: string, text: string, label = 'Copy') {
+export function copyRow(look: Look, key: string, text: string, label = '复制') {
   const { Box, Button } = look.ui
   const copy = look.copy
 
@@ -633,7 +633,7 @@ function drawingOf(look: Look, segment: Segment & { kind: 'code' }, maxWidth: nu
 function diffFence(look: Look, diff: DiffInput, code: string, maxWidth: number, i: number, Svg?: SvgElement, fenceLang?: string) {
   const { Box } = look.ui
   const whole = copyButton(look, `copy-${i}`, code)
-  const fresh = copyButton(look, `copy-${i}-new`, newOnly(diff), ' new only ')
+  const fresh = copyButton(look, `copy-${i}-new`, newOnly(diff), ' 仅新增 ')
 
   if (Svg !== undefined) {
     return (
@@ -940,13 +940,13 @@ export function usageBand(look: Look, meters: readonly Meter[], canCompact: bool
       <Box flexDirection="row" alignItems="center" columnGap={3} justifyContent="space-evenly" flexGrow={1}>
         {meterView(look, meters)}
       </Box>
-      {canCompact && isNudge ? <Text color={palette.warn}>{`Context is ${context}% full`}</Text> : ''}
+      {canCompact && isNudge ? <Text color={palette.warn}>{`上下文已用 ${context}%`}</Text> : ''}
       {canCompact ? (
         // A digit hotkey: typed alone into an empty prompt it presses the band's button, which
         // is the only way in where the terminal reports no clicks. `plain` shows it: `0: Compact`.
         <Button
           key="compact"
-          label={isNudge ? 'Compact now' : 'Compact'}
+          label={isNudge ? '立即压缩' : '压缩'}
           hotkey={COMPACT_HOTKEY}
           plain
           {...(isNudge ? { variant: 'primary' as const } : { dimColor: true })}

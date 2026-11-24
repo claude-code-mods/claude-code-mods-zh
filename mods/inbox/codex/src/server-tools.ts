@@ -34,7 +34,7 @@ export const TOOLS = [
   {
     // The side panel names the tab from this title. Entrypoints ignore `visibility`, so the tab still opens.
     name: 'inbox_view',
-    title: 'Inbox',
+    title: '收件箱',
     description: VIEW_DESCRIPTION,
     inputSchema: {
       type: 'object',

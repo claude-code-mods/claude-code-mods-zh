@@ -10,10 +10,10 @@ import { prMarkId } from './pr-rows'
 import type { PrPress } from './pr-press'
 
 /** The label of a dismissed PR's block while it settles. */
-export const PR_DISMISSED_LABEL = 'Dismissed'
+export const PR_DISMISSED_LABEL = '已忽略'
 /** The labels of a PR's block that settles because a fetch found it merged, or closed without merging. */
-export const PR_MERGED_LABEL = 'Merged'
-export const PR_CLOSED_LABEL = 'Closed'
+export const PR_MERGED_LABEL = '已合并'
+export const PR_CLOSED_LABEL = '已关闭'
 
 export function isTracked(prState: PrViews, links: PrLinks, ref: string): boolean {
   return splitLinked(prState, links).tracked.includes(ref) || prState.branchRef === ref

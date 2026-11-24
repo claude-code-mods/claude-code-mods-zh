@@ -69,7 +69,7 @@ function moreButton(look: Look, total: number, opened: Opened) {
   return total <= DETAIL_LINES ? (
     ''
   ) : (
-    <Button key="show-all" label={opened.isAll ? 'show less' : `show all ${total} lines`} plain dimColor onPress={opened.toggleAll} />
+    <Button key="show-all" label={opened.isAll ? '收起' : `显示全部 ${total} 行`} plain dimColor onPress={opened.toggleAll} />
   )
 }
 

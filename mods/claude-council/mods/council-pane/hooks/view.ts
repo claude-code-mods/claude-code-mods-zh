@@ -46,7 +46,7 @@ export type Section =
   | { kind: 'synthesis'; key: string; fold: string; open: false }
   // The pane's keys that apply now, last.
   // a folds or expands two or more sections, c cancels every seat still out.
-  | { kind: 'footer'; fold?: { label: 'fold' | 'expand'; folds: string[] }; cancelAll: boolean }
+  | { kind: 'footer'; fold?: { label: string; folds: string[] }; cancelAll: boolean }
   // The empty run's one line.
   | { kind: 'note'; text: string }
 
@@ -63,8 +63,8 @@ const SEAT_LOOKS: Record<string, SeatLook> = {
   querying: LIVE,
   retrying: LIVE,
   complete: { color: COLOR.success, note: '', fill: FULL },
-  cached: { color: COLOR.info, note: 'cached', fill: FULL },
-  fallback: { color: COLOR.accent, note: 'fell back', fill: FULL },
+  cached: { color: COLOR.info, note: '已缓存', fill: FULL },
+  fallback: { color: COLOR.accent, note: '已回退', fill: FULL },
   error: { color: COLOR.danger, note: '', fill: () => ({ kind: 'stub' }) },
   cancelled: SET_ASIDE,
   cancelling: SET_ASIDE,
@@ -114,11 +114,11 @@ function summaryText(providers: ProviderStatus[]): string {
   const tally = (state: string, word: string) => (count(providers, state) > 0 ? `${count(providers, state)} ${word}` : '')
   const slowest = Math.max(0, ...providers.map(provider => provider.ms ?? 0))
   return [
-    `${count(providers, ...ANSWERED_STATES)} of ${providers.length} answered`,
-    tally('error', 'error'),
-    tally('cancelled', 'cancelled'),
-    tally('fallback', 'fell back'),
-    tally('cached', 'cached'),
+    `${providers.length} 个席位中 ${count(providers, ...ANSWERED_STATES)} 个已回答`,
+    tally('error', '个错误'),
+    tally('cancelled', '个已取消'),
+    tally('fallback', '个已回退'),
+    tally('cached', '个已缓存'),
     slowest > 0 ? seconds(slowest) : '',
   ].filter(Boolean).join(' \u00b7 ')
 }
@@ -135,7 +135,7 @@ export function queryingSince(since: Record<string, number>, providers: Provider
 
 // A seat row's action column: two cells of gap, then the widest a
 // bracketed Button draws, the longest verb inside its brackets.
-export const ACTION_COLUMNS = 2 + '[ cancel ]'.length
+export const ACTION_COLUMNS = 2 + '[ 取消 ]'.length
 // The narrowest bar whose sweep still shows track on either side of its dash.
 const NARROW_BAR_CELLS = 5
 
@@ -194,7 +194,7 @@ export function paneSections(
   { collapsesWhenDone = true, nowMs = 0, frame = 0, fitText = (text: string) => text, closed = new Set<string>(), columns }: { collapsesWhenDone?: boolean; nowMs?: number; frame?: number; fitText?: (text: string) => string; closed?: ReadonlySet<string>; columns?: number } = {},
 ): Section[] {
   if (providers.length === 0) {
-    return [{ kind: 'note', text: isDone ? 'Council finished with no answers.' : 'Waiting for the council...' }]
+    return [{ kind: 'note', text: isDone ? '议事厅已结束，没有收到回答。' : '正在等待议事厅……' }]
   }
   const shownState = (provider: ProviderStatus) => seatState(provider, { cancels, retries, retriable, isDone })
   // A querying provider's time runs from when the pane first saw it, in whole tenths.
@@ -220,7 +220,7 @@ export function paneSections(
       // pane's width before the budget is counted: a wide table becomes
       // records that repeat every header, which can lengthen it several times over.
       return () => [
-        ...(state === 'fallback' && error !== undefined ? [{ kind: 'reason' as const, text: noticeText(`${name} fell back: ${error}`) }] : []),
+        ...(state === 'fallback' && error !== undefined ? [{ kind: 'reason' as const, text: noticeText(`${name} 已回退：${error}`) }] : []),
         { kind: 'body', text: fitText(response) },
       ]
     }
@@ -290,7 +290,7 @@ export function paneSections(
 function footer(folds: string[], closed: ReadonlySet<string>, cancelAll: boolean): Section {
   return {
     kind: 'footer',
-    ...(folds.length > 1 ? { fold: { label: folds.some(each => !closed.has(each)) ? 'fold' : 'expand', folds } } : {}),
+    ...(folds.length > 1 ? { fold: { label: folds.some(each => !closed.has(each)) ? '折叠' : '展开', folds } } : {}),
     cancelAll,
   }
 }
@@ -306,7 +306,7 @@ export function seatFolds(sections: Section[]): string[] {
 // text and draws its own. The budget sits under that with room for what the
 // pane draws around the sections (the retry row, the action labels, the footer's keys).
 const PANE_TEXT_BUDGET = 80000
-const CLIPPED = (more: number) => `\n\n_\u2026 ${more} more characters; the whole answer is in the result (/claude-council:result)_`
+const CLIPPED = (more: number) => `\n\n_\u2026 还有 ${more} 个字符；完整回答见结果（/claude-council:result）_`
 
 // An error or a fallback reason is drawn as its opening only: a provider can
 // hand back a whole HTML error page. The section carries what is drawn, so

@@ -90,14 +90,14 @@ export function parseReport(text: string): Parsed {
   } catch {
     return {
       problem:
-        'the gateway answered GET /usage with something that is not ' +
-        'JSON. Check that ANTHROPIC_BASE_URL points at the gateway itself and ' +
-        'not at a proxy in front of it.',
+        '网关对 GET /usage 返回了非 JSON 的内容。' +
+        '请检查 ANTHROPIC_BASE_URL 是否指向网关本身，' +
+        '而不是它前面的代理。',
     }
   }
 
   if (!isRecord(value)) {
-    return { problem: 'the gateway answered GET /usage with an unexpected body.' }
+    return { problem: '网关对 GET /usage 返回了意外的响应体。' }
   }
 
   const pool = poolOf(value.pool)
@@ -105,8 +105,8 @@ export function parseReport(text: string): Parsed {
   if (pool === null) {
     return {
       problem:
-        'the gateway answered GET /usage without a pool aggregate. ' +
-        'This build may be older than the endpoint the mod reads.',
+        '网关对 GET /usage 的响应中没有池汇总数据。 ' +
+        '这个网关构建可能比 mod 读取的端点更旧。',
     }
   }
 

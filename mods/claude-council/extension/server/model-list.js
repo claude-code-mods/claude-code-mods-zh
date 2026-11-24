@@ -9,7 +9,7 @@ const MODEL_ROWS_MAX = 300
 // `row(id)` builds its row; `empty` is said when nothing matches. Returns
 // both elements, for the caller to place.
 function modelList({ ids, pinned, row, label, empty, disabled }) {
-  const filter = element('input', { type: 'search', placeholder: 'Filter models, for example deepseek', disabled: Boolean(disabled) })
+  const filter = element('input', { type: 'search', placeholder: '筛选模型，例如 deepseek', disabled: Boolean(disabled) })
   filter.setAttribute('aria-label', label)
   const list = element('div', { className: 'models' })
   function draw() {

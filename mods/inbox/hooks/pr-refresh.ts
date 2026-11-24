@@ -11,21 +11,21 @@ import { clockTime } from './text'
 import { isShownSince } from './timing'
 
 /** The button at the top of the PRs tab while a PR could not be read. It is not "Try again", since a failed send draws that. */
-export const PR_REFRESH_LABEL = 'Refresh PRs'
+export const PR_REFRESH_LABEL = '刷新 PR'
 
 /** The notice at the top of the PRs tab for a cause that stopped the whole fetch. Its first sentence is the lead. */
 export function fetchFailureNotice(f: PrFetchFailure): string {
   switch (f.kind) {
     case 'limit':
       return f.resetsAt === null
-        ? "GitHub's limit is used up. The PRs refresh once it resets."
-        : `GitHub's limit is used up. The PRs refresh after it resets at ${clockTime(f.resetsAt)}.`
+        ? 'GitHub 的限额已用尽。重置后将刷新 PR。'
+        : `GitHub 的限额已用尽。${clockTime(f.resetsAt)} 重置后将刷新 PR。`
     case 'unreachable':
-      return 'Could not reach GitHub. The PRs show as last read.'
+      return '无法连接 GitHub。PR 显示的是上次读取的状态。'
     case 'timed-out':
-      return `${GH_TIMED_OUT_TEXT}. The PRs show as last read.`
+      return `${GH_TIMED_OUT_TEXT}。PR 显示的是上次读取的状态。`
     case 'error':
-      return `Could not read the PRs: ${f.text}. They show as last read.`
+      return `无法读取 PR：${f.text}。显示的是上次读取的状态。`
   }
 }
 

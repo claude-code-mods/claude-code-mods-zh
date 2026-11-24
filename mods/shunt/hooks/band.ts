@@ -81,7 +81,7 @@ export const countdownOf = (resetsAt: number | null, nowMs: number): string => {
   const ms = resetsAt * 1000 - nowMs
 
   if (ms <= 0) {
-    return 'due'
+    return '已到期'
   }
 
   const minutes = Math.max(1, Math.round(ms / 60_000))

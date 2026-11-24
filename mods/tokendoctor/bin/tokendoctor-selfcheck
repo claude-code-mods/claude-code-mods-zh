@@ -39,7 +39,7 @@ if (value('--log')) {
   rmSync(dir, { recursive: true, force: true })
   source = 'a probe session'
   if (!text) {
-    console.error(`claude -p wrote no debug log (exit ${run.status}): ${(run.stderr || run.stdout || '').trim().slice(0, 400)}`)
+    console.error(`claude -p 没有生成调试日志（退出码 ${run.status}）：${(run.stderr || run.stdout || '').trim().slice(0, 400)}`)
     process.exit(1)
   }
 }
@@ -62,13 +62,13 @@ if (args.includes('--json')) {
   process.exit(0)
 }
 const ours = log.modules.find((m) => /tokendoctor@/.test(m.id))
-console.log(`Claude Code ${log.version ?? '?'}, from ${source}`)
-console.log(`  guard (cc-plugin-sec-default): ${log.guard ? `${log.guard.seated ? 'seated' : 'not seated'}, ${log.guard.reason}` : 'no line'}`)
-console.log(`  tokendoctor: ${ours ? `${ours.id}, tier ${ours.tier}, events ${ours.events.join(', ')}` : 'not loaded'}`)
-console.log(`  slide: ${slideOn ? 'on' : 'off'}`)
-if (log.effectiveWindow) console.log(`  compacts at: ${Math.round(log.effectiveWindow / 1000)}K (effective window)`)
+console.log(`Claude Code ${log.version ?? '?'}，来源：${source}`)
+console.log(`  guard（cc-plugin-sec-default）：${log.guard ? `${log.guard.seated ? '已就位' : '未就位'}，${log.guard.reason}` : '没有这一行'}`)
+console.log(`  tokendoctor：${ours ? `${ours.id}，层 ${ours.tier}，事件 ${ours.events.join(', ')}` : '未加载'}`)
+console.log(`  slide：${slideOn ? '开' : '关'}`)
+if (log.effectiveWindow) console.log(`  压缩点：${Math.round(log.effectiveWindow / 1000)}K（有效窗口）`)
 const compactors = log.modules.filter((m) => m.events.includes('session.compact')).map((m) => `${m.id} (${m.tier})`)
-if (compactors.length) console.log(`  mods on session.compact, in order: ${compactors.join(' → ')}`)
+if (compactors.length) console.log(`  挂在 session.compact 上的模组，按顺序：${compactors.join(' → ')}`)
 console.log('')
-if (!findings.length) console.log('No findings.')
+if (!findings.length) console.log('没有问题。')
 for (const f of findings) console.log(`[${f.severity}] ${f.id}: ${f.title}\n  ${f.detail}\n  ${f.doc}\n`)

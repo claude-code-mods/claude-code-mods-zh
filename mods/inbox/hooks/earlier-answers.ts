@@ -127,7 +127,7 @@ export function earlierLineOf(earlier: Earlier | undefined, now: number): Earlie
   const where = earlier.repo ? `, in ${earlier.repo},` : ''
 
   return {
-    lead: 'You answered ',
+    lead: '你回答了 ',
     answer: earlier.answer,
     rest: ` ${agoText(now - earlier.at)}${where} to “${earlier.ask}”`,
   }

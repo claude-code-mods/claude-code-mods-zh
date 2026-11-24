@@ -49,7 +49,7 @@
   };
 
   const TABS = [
-    { id: 'skills', label: 'Skill' },
+    { id: 'skills', label: '技能' },
     { id: 'worldbook', label: '世界书' },
     { id: 'library', label: '前端设计＆动效数据库' },
   ];
@@ -3228,7 +3228,7 @@
         if (cat.state === 'error' && !skills.length) head = 'Skill 目录读取失败';
         else if (!items.length) head = '正在读取 Skill 目录…';
         else if (!skills.length) head = '这个会话没有 Skill';
-        else head = [h('b', { key: 'b' }, 'TW SKILLS'), ' · ' + twCount + ' · 其他 ' + otherCount + ' · ', h('span', { key: 'h', className: 'gh2-whint' }, '滚轮旋转')];
+        else head = [h('b', { key: 'b' }, 'TW 技能'), ' · ' + twCount + ' · 其他 ' + otherCount + ' · ', h('span', { key: 'h', className: 'gh2-whint' }, '滚轮旋转')];
         const hoverItem = hover ? items.find((it) => it.key === hover.key) : null;
         return h(Fragment, null,
           h('section', {
@@ -4549,7 +4549,7 @@
         const scripts = detail && Array.isArray(detail.scripts) ? detail.scripts : [];
         const hasCardMvu = !!(detail && detail.mvu && detail.mvu.schema);
         const hasMvuSource = hasCardMvu || !!(s.mvu && s.mvu.schema);
-        const layers = ['AppShell', 'StatusBar', 'DialoguePanel', 'ActionBar'];
+        const layers = ['应用外壳', '状态栏', '对话面板', '操作栏'];
         const inspector = [['布局', 'flex · 100vw × 100vh'], ['样式 token', '--surface / --ink'], ['数据绑定', 'ctx.app']];
         return h('div', { className: 'gh2-m5', 'data-gh': 'ui-editor-pane' },
           h('p', { className: 'gh2-m5-lead' }, '图层/编译占位；资料库已独立为“前端设计＆动效数据库”页签。'),
@@ -4579,7 +4579,7 @@
               },
                 h('div', { className: 'gh2-card-script-head' },
                   h('b', null, script.name || script.id || ('脚本 ' + (index + 1))),
-                  h('span', { className: 'gh2-m5-chip' }, script.type || 'script'),
+                  h('span', { className: 'gh2-m5-chip' }, script.type || '脚本'),
                   h('span', { className: 'gh2-m5-chip' }, script.enabled ? '启用' : '停用'),
                   h('span', { className: 'gh2-m5-chip' }, script.hasSchema ? '有 Schema' : '无 Schema')),
                 h('p', { className: 'gh2-m5-meta' },
@@ -4590,14 +4590,14 @@
           h('div', { className: 'gh2-m5-ui-grid' },
             h('section', { className: 'gh2-m5-col', 'data-gh': 'ui-layers' },
               h('div', { className: 'gh2-m5-rowhead' }, h('b', null, '图层'), h('span', { className: 'gh2-m5-meta' }, '组件树')),
-              layers.map((name) => h('div', { key: name, className: 'gh2-ui-layer' + (name === 'AppShell' ? ' is-open' : '') }, name)),
+              layers.map((name) => h('div', { key: name, className: 'gh2-ui-layer' + (name === '应用外壳' ? ' is-open' : '') }, name)),
               h('p', { className: 'gh2-m5-note' }, '占位：接入后显示真实图层、锁定与选择状态。')),
             h('section', { className: 'gh2-m5-col', 'data-gh': 'ui-canvas' },
               h('div', { className: 'gh2-m5-rowhead' }, h('b', null, '画布'), h('span', { className: 'gh2-m5-meta' }, '预览 · 占位')),
               h('div', { className: 'gh2-ui-canvas' }, h('span', null, '真实组件预览区域（占位）')),
               h('p', { className: 'gh2-m5-note' }, '不生成前端产物；编译链还没接入。')),
             h('section', { className: 'gh2-m5-col', 'data-gh': 'ui-inspector' },
-              h('div', { className: 'gh2-m5-rowhead' }, h('b', null, '属性'), h('span', { className: 'gh2-m5-meta' }, 'Inspector')),
+              h('div', { className: 'gh2-m5-rowhead' }, h('b', null, '属性'), h('span', { className: 'gh2-m5-meta' }, '检查器')),
               inspector.map(([label, value]) => h('div', { key: label, className: 'gh2-m5-field' },
                 h('span', null, label), h('div', { className: 'gh2-ui-ins' }, value))),
               h('p', { className: 'gh2-m5-note' }, '占位：源码、编译错误和草稿保留属于下一阶段。'))));

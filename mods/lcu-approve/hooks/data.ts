@@ -35,7 +35,7 @@ export const firstLine = (text: string) => String(text ?? '').trim().split('\n')
 // The runtime's risk warning names its own agent; the person is using Claude, so say what it means.
 export const plainWarning = (text: string) =>
   text
-    .replace(/Allowing ChatGPT to use this app/g, 'Allowing computer use to control this app')
+    .replace(/Allowing ChatGPT to use this app/g, '允许电脑操作控制此应用')
     .replace(/monitor ChatGPT while it uses this app/g, 'monitor the agent while it uses this app')
     .replace(/ChatGPT/g, 'the agent')
 

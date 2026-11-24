@@ -89,7 +89,7 @@ async function wakeForDone<S extends Session>(host: WakeHost<S>, current?: S): P
       const last =
         previous?.kind === 'mark' && previous.action === 'done' && previous.at === closed.at
           ? previous
-          : recordPress('mark', 'done', 'Done', { now: closed.at, turnsStarted: s.presence.turnsStarted })
+          : recordPress('mark', 'done', '完成', { now: closed.at, turnsStarted: s.presence.turnsStarted })
       lastActions[closed.id] = {
         ...last,
         ...(closed.commandId && { commandId: closed.commandId }),

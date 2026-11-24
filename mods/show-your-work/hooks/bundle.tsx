@@ -630,20 +630,20 @@ export async function prepareAudio($: EngineInterface, real: string, title: stri
 
 // What to tell Claude and the person when a video can't be cut into frames.
 export const NO_FFMPEG =
-  "videos need ffmpeg, and it isn't installed. Pictures still work. Install it with `brew install ffmpeg` " +
-  '(Claude can run that for you), then restart Claude Code. No Homebrew? Install it first from https://brew.sh.'
+  "视频需要 ffmpeg，但当前未安装。图片仍可正常显示。请使用 `brew install ffmpeg` " +
+  '安装（Claude 可以替你执行），然后重启 Claude Code。没有 Homebrew？请先从 https://brew.sh 安装。'
 
 // On Linux ffmpeg also turns pictures other than PNG into PNG.
 export const NO_FFMPEG_LINUX =
-  "videos and pictures other than PNG need ffmpeg, and it isn't installed. Install it with your package manager, " +
-  'for example `sudo apt install ffmpeg` or `sudo dnf install ffmpeg` (Claude can run that for you), then restart Claude Code.'
+  "视频和非 PNG 图片需要 ffmpeg，但当前未安装。请使用系统包管理器安装，" +
+  '例如 `sudo apt install ffmpeg` 或 `sudo dnf install ffmpeg`（Claude 可以替你执行），然后重启 Claude Code。'
 export const noFfmpeg = (mac: boolean) => (mac ? NO_FFMPEG : NO_FFMPEG_LINUX)
 export const FFMPEG_PROMPT_LINUX =
-  "Install ffmpeg for me with this machine's package manager (for example `sudo apt install ffmpeg`). Then show it again."
+  "用这台机器的包管理器帮我安装 ffmpeg（例如 `sudo apt install ffmpeg`），然后再展示一次。"
 
 // What the person pastes back so Claude installs ffmpeg and tries again.
 export const FFMPEG_PROMPT =
-  'Install ffmpeg for me with `brew install ffmpeg`. If Homebrew isn\'t installed, tell me how to install it first. Then show the video again.'
+  '用 `brew install ffmpeg` 帮我安装 ffmpeg。如果尚未安装 Homebrew，请先告诉我要如何安装，然后再展示一次视频。'
 
 // A failure as the person and Claude see it: a box in place of the picture,
 // one plain message for Claude, and a prompt to paste back. Never raw tool
@@ -657,70 +657,70 @@ export function noticeOf(err: unknown, path: string, homeDir = ''): Notice {
   const shown = homeDir && path.startsWith(`${homeDir}/`) ? `~${path.slice(homeDir.length)}` : path
   const name = path.split('/').pop() || path
   if (raw.includes(NO_FFMPEG_LINUX)) return {
-    kind: 'no_ffmpeg', title: 'This needs ffmpeg', message: NO_FFMPEG_LINUX, prompt: FFMPEG_PROMPT_LINUX,
-    text: "ffmpeg isn't installed, so videos and pictures other than PNG can't show here. Copy the prompt and paste it to Claude to install it, or install it yourself, for example `sudo apt install ffmpeg`.",
+    kind: 'no_ffmpeg', title: '此项需要 ffmpeg', message: NO_FFMPEG_LINUX, prompt: FFMPEG_PROMPT_LINUX,
+    text: "未安装 ffmpeg，因此视频和非 PNG 图片无法显示。复制提示词并粘贴给 Claude 来安装，或自行安装，例如 `sudo apt install ffmpeg`。",
   }
   if (raw.includes(NO_FFMPEG)) return {
-    kind: 'no_ffmpeg', title: 'Videos need ffmpeg', message: NO_FFMPEG, prompt: FFMPEG_PROMPT,
-    text: "ffmpeg isn't installed, so this video can't play here. Pictures still work. Copy the prompt and paste it to Claude to install it, or run `brew install ffmpeg` yourself. No Homebrew? Get it from brew.sh first.",
+    kind: 'no_ffmpeg', title: '视频需要 ffmpeg', message: NO_FFMPEG, prompt: FFMPEG_PROMPT,
+    text: "未安装 ffmpeg，因此该视频无法播放。图片仍可正常显示。复制提示词并粘贴给 Claude 来安装，或自行运行 `brew install ffmpeg`。没有 Homebrew？请先从 brew.sh 安装。",
   }
   if (/^not audio:/i.test(raw)) return {
-    kind: 'not_image', title: "This isn't an audio file",
-    text: `${name} isn't MP3 or WAV, so it can't play here. Convert it to WAV and show it again.`,
+    kind: 'not_image', title: '这不是音频文件',
+    text: `${name} 不是 MP3 或 WAV 文件，因此无法播放。请将其转换为 WAV 后再展示。`,
     message: `${shown} isn't an audio file (show_audio opens MP3 and WAV). Convert it, for example to WAV with ffmpeg, then show it again; use show_video for a video with sound.`,
     prompt: `Convert ${shown} to WAV (or MP3) for me, then show it to me again.`,
   }
   if (/does not contain any stream|matches no streams|no frames in|Output file is empty/i.test(raw)) return AUDIO.test(path) ? {
-    kind: 'no_picture', title: "This audio can't be read",
-    text: `${name} is too short or empty to draw, so there's nothing to play.`,
+    kind: 'no_picture', title: '无法读取此音频',
+    text: `${name} 太短或为空，无法绘制，因此没有可播放的内容。`,
     message: `${shown} is too short or empty to play. Don't retry it; show a real audio file instead.`,
     prompt: `${shown} is too short to play. Find a real audio file and show it to me again.`,
   } : {
-    kind: 'no_picture', title: 'This video has no picture',
-    text: `${name} has sound but no picture, so there's nothing to play.`,
+    kind: 'no_picture', title: '此视频没有画面',
+    text: `${name} 只有声音没有画面，因此没有可播放的内容。`,
     message: `${shown} has no video track (sound only), so there's nothing to play. Don't retry it; show a file with a picture instead.`,
     prompt: `${shown} has no picture, only sound. Find the right video and show it to me again.`,
   }
   if (/ffmpeg could not read|Invalid data|moov atom|could not find codec|Error opening input/i.test(raw)) return AUDIO.test(path) ? {
-    kind: 'broken_video', title: "This audio can't be read",
-    text: `${name} couldn't be opened as audio. It may be cut off, still being written, or not really an audio file.`,
+    kind: 'broken_video', title: '无法读取此音频',
+    text: `无法将 ${name} 作为音频打开。它可能被截断、仍在写入，或者并非音频文件。`,
     message: `${shown} couldn't be read as audio: it's damaged, unfinished (still being recorded or cut off), or not an audio file. Re-export it, then show it again.`,
     prompt: `${shown} couldn't be read as audio. Check it, re-export it if it's broken, then show it to me again.`,
   } : {
-    kind: 'broken_video', title: "This video can't be read",
-    text: `${name} couldn't be opened as a video. It may be cut off, still being written, or not really a video.`,
+    kind: 'broken_video', title: '无法读取此视频',
+    text: `无法将 ${name} 作为视频打开。它可能被截断、仍在写入，或者并非视频文件。`,
     message: `${shown} couldn't be read as a video: it's damaged, unfinished (still recording or cut off), or not a video. Re-export or re-record it, then show it again.`,
     prompt: `${shown} couldn't be read as a video. Check it, re-export or re-record it if it's broken, then show it to me again.`,
   }
   if (/could not convert|not an image|Cannot extract image|sips/i.test(raw)) return {
-    kind: 'not_image', title: "This isn't a picture",
-    text: `${name} isn't a picture, so it can't be shown. Pictures can be PNG, JPEG, WebP, GIF or TIFF.`,
+    kind: 'not_image', title: '这不是图片',
+    text: `${name} 不是图片，因此无法显示。图片可以是 PNG、JPEG、WebP、GIF 或 TIFF 格式。`,
     message: `${shown} isn't a picture (show_image opens PNG, JPEG, WebP, GIF and TIFF). Show an image file, or use show_video for a video.`,
     prompt: `${shown} isn't a picture. Show me the right file instead.`,
   }
   if (/ENOENT|no such file|not found/i.test(raw)) return {
-    kind: 'missing', title: 'File not found',
-    text: `There's no file at ${shown}.`,
+    kind: 'missing', title: '找不到文件',
+    text: `${shown} 处没有文件。`,
     message: `There's no file at ${shown}. Check the path (it may have moved or not been saved yet), then show it again.`,
     prompt: `There's no file at ${shown}. Find the right file and show it to me again.`,
   }
   if (/pages need Chrome or Chromium/i.test(raw)) return {
-    kind: 'other', title: 'Pages need a browser',
-    text: `${name} is an HTML page, and no Chrome or Chromium was found to render it. Copy the prompt and paste it to Claude to install one, or install it yourself.`,
+    kind: 'other', title: '网页需要浏览器',
+    text: `${name} 是 HTML 页面，但未找到可用于渲染的 Chrome 或 Chromium。复制提示词并粘贴给 Claude 来安装，或自行安装。`,
     message: `${shown} is an HTML page, and no Chrome or Chromium was found to render it. Screenshot it with headless Playwright instead and show that with show_image.`,
     prompt: `Install Google Chrome or Chromium for me, then restart Claude Code. After that, show ${shown} to me again.`,
   }
   // A page Chrome couldn't render still reaches the person as a picture.
   if (/the page couldn't be rendered/i.test(raw)) return {
-    kind: 'other', title: "Couldn't render the page",
-    text: `${name} couldn't be rendered as a page. Claude can screenshot it another way and show that.`,
+    kind: 'other', title: '无法渲染页面',
+    text: `无法将 ${name} 渲染为页面。Claude 可以用其他方式截图并展示。`,
     message: `${shown} couldn't be rendered as a page. Screenshot it with headless Playwright instead and show that with show_image.`,
     prompt: `${shown} couldn't be rendered as a page. Screenshot it with headless Playwright and show it to me with show_image.`,
   }
   const detail = (raw.split('\n')[0] ?? '').replace(/\/(?:private\/)?tmp\/\S+|\S*\/\.show-your-work\/\S+/g, name).slice(0, 160)
   return {
-    kind: 'other', title: "Couldn't show it",
-    text: `${name} couldn't be shown: ${detail}`,
+    kind: 'other', title: '无法显示',
+    text: `无法显示 ${name}：${detail}`,
     message: `${shown} couldn't be shown: ${detail}`,
     prompt: `${shown} couldn't be shown (${detail}). Look into it and show it to me again.`,
   }
@@ -1804,11 +1804,11 @@ export const docPrintArgv = (chrome: string, html: string, pdf: string) => [
 
 // How a document's preparation failed, in words the person and Claude get.
 export const docErrorOf = (why: string, name: string) => {
-  if (why === 'poppler') return { kind: 'other' as const, message: `documents need poppler's pdftoppm and pdfinfo, which aren't installed. Install them (for example \`sudo apt install poppler-utils\` or \`brew install poppler\`), restart Claude Code, then show ${name} again.` }
-  if (why === 'chrome') return { kind: 'other' as const, message: `markdown documents need Chrome or Chromium, and none was found. Install one, restart Claude Code, then show ${name} again.` }
-  if (why === 'pages') return { kind: 'other' as const, message: `${name} has more than ${DOC_MAX_PAGES} pages, more than the player shows. Show a shorter extract of it instead.` }
-  if (why === 'mermaid') return { kind: 'other' as const, message: `${name} has a Mermaid diagram that could not be drawn, so the document was not shown. Fix the diagram's syntax and show it again.` }
-  return { kind: 'other' as const, message: `${name} couldn't be read as a document: ${why}` }
+  if (why === 'poppler') return { kind: 'other' as const, message: `文档需要 poppler 的 pdftoppm 和 pdfinfo，但当前未安装。请安装它们（例如 \`sudo apt install poppler-utils\` 或 \`brew install poppler\`），重启 Claude Code，然后再次展示 ${name}。` }
+  if (why === 'chrome') return { kind: 'other' as const, message: `Markdown 文档需要 Chrome 或 Chromium，但未找到。请安装其一，重启 Claude Code，然后再次展示 ${name}。` }
+  if (why === 'pages') return { kind: 'other' as const, message: `${name} 超过 ${DOC_MAX_PAGES} 页，播放器无法显示这么多页。请展示较短的节选。` }
+  if (why === 'mermaid') return { kind: 'other' as const, message: `${name} 中有无法绘制的 Mermaid 图表，因此文档未显示。请修正图表语法后再次展示。` }
+  return { kind: 'other' as const, message: `无法将 ${name} 作为文档读取：${why}` }
 }
 
 // Reads the page count out of pdfinfo's output.
@@ -2151,11 +2151,11 @@ const welcome = atom({ plugin: 'show-your-work', key: 'welcome' } as const, 0)
 type Spot = 'play' | 'changes' | 'tabs' | 'history'
 export type Stop = { tag: string; spot?: Spot; goal?: string; media?: 'splash' | 'recording' | 'compare' | 'history' }
 export const STOPS: Stop[] = [
-  { tag: 'Press Play to watch it', spot: 'play', goal: 'play', media: 'splash' },
-  { tag: 'Click a change to jump to that moment', spot: 'changes', goal: 'change_jump', media: 'recording' },
-  { tag: 'Press Original to see it before the change', spot: 'tabs', goal: 'original', media: 'compare' },
-  { tag: 'Open History, then pick a version', spot: 'history', goal: 'version_pick', media: 'history' },
-  { tag: 'Now ask Claude to show you what it builds' },
+  { tag: '按“播放”观看', spot: 'play', goal: 'play', media: 'splash' },
+  { tag: '点击变更项跳转到对应画面', spot: 'changes', goal: 'change_jump', media: 'recording' },
+  { tag: '按“原始”查看修改前的效果', spot: 'tabs', goal: 'original', media: 'compare' },
+  { tag: '打开“历史记录”，然后选择一个版本', spot: 'history', goal: 'version_pick', media: 'history' },
+  { tag: '现在就让 Claude 展示它构建的内容' },
 ]
 
 // A button press, heard: when it is what the stop asked for, it ticks; the
@@ -2608,11 +2608,11 @@ const openArgv = (target: string) => (state.isMac ? ['open', target] : ['sh', '-
 // open's error text. `what` names the kind of thing, as in "no app opens videos".
 export function openFailure(r: { exitCode: number; stderr: string }, what: string, path: string) {
   const said = r.stderr.trim().split('\n')[0]?.trim().slice(0, 100) ?? ''
-  if (r.exitCode === 127) return "Couldn't open it: xdg-open is missing. Install xdg-utils and try again."
-  if (r.exitCode === 2 || /does not exist|no such file/i.test(said)) return `Couldn't open it: nothing is at ${path} any more.`
-  if (r.exitCode === 3 || /no application knows|no application|no method available|no default/i.test(said)) return `Couldn't open it: no app on this computer is set to open ${what}.`
-  if (r.exitCode === 4) return said ? `Couldn't open it: ${said}` : `Couldn't open it: the app for ${what} failed to start.`
-  return said ? `Couldn't open it: ${said}` : `Couldn't open it (error ${r.exitCode}).`
+  if (r.exitCode === 127) return '无法打开：缺少 xdg-open。请安装 xdg-utils 后重试。'
+  if (r.exitCode === 2 || /does not exist|no such file/i.test(said)) return `无法打开：${path} 已不存在。`
+  if (r.exitCode === 3 || /no application knows|no application|no method available|no default/i.test(said)) return `无法打开：此计算机上没有设置为打开${what}的应用。`
+  if (r.exitCode === 4) return said ? `无法打开：${said}` : `无法打开：用于打开${what}的应用启动失败。`
+  return said ? `无法打开：${said}` : `无法打开（错误 ${r.exitCode}）。`
 }
 
 // The narrowest the scrub and button rows get, in columns: room for the play
@@ -2740,10 +2740,10 @@ export function checkDiff(now: Check[] = [], before: Check[] = []) {
 
 // The play control's word for where the clip is.
 export function playWord(isPlaying: boolean, frame: number, count: number) {
-  if (isPlaying) return '❚❚ Pause'
-  if (count > 1 && frame >= count - 1) return '↺ Replay'
+  if (isPlaying) return '❚❚ 暂停'
+  if (count > 1 && frame >= count - 1) return '↺ 重播'
 
-  return frame > 0 ? '▶ Resume' : '▶ Play'
+  return frame > 0 ? '▶ 继续' : '▶ 播放'
 }
 
 export const sideOf = (shown: Shown, site: string): Shown =>
@@ -2885,7 +2885,7 @@ function probe($: EngineInterface, site: string, key: string, pic: Pic) {
       state.canImage = false
       state.drawCause = causeOf(state.inTmux, state.terminalName, state.isForced)
       track('cannot_draw', { cause: state.drawCause })
-      $.ui.toast("Pictures can't show here: see the notice in the chat.")
+      $.ui.toast('此处无法显示图片：请参阅聊天中的提示。')
       redraw($)
     }
   }, () => undefined)
@@ -3024,7 +3024,7 @@ export function draw($: EngineInterface, site: string, media: Shown, shown?: Sho
 export function resultWords(checks: Check[] = []): string {
   const failing = checks.filter(c => !c.ok).length
   if (!checks.length) return ''
-  return failing ? `${failing} ${failing === 1 ? 'check fails' : 'checks fail'}` : `all ${checks.length} checks pass`
+  return failing ? `${failing} 项检查失败` : `全部 ${checks.length} 项检查通过`
 }
 
 // The latest check up to a moment whose result differs between the sides.
@@ -3297,7 +3297,7 @@ type Box = { columns: number; rows: number }
 // The picture.
 function Picture(ui: Ui, $: EngineInterface, site: string, shown: Shown, media: Shown, box: Box, pic: Pic, frame: Box = box) {
   const { Box, Text, Image } = ui
-  if (!Image) return <Text dimColor>This surface cannot draw images.</Text>
+  if (!Image) return <Text dimColor>此界面无法绘制图片。</Text>
 
   // The picture stands alone: no wrapper, nothing laid over it and no fill
   // behind it. Each of those kept the picture from drawing in the terminal.
@@ -3331,9 +3331,9 @@ function PageButtons(ui: Ui, $: EngineInterface, site: string, media: Shown) {
     redraw($, site)
   }
   return [
-    pages.count > 1 && <Button key="prev" plain dimColor={at === 0} label="‹ Prev" onPress={() => { act('page_prev'); go(at - 1) }} />,
-    <Text key="page-count" dimColor>{`Page ${at + 1} of ${pages.count}`}</Text>,
-    pages.count > 1 && <Button key="next" plain dimColor={at >= pages.count - 1} label="Next ›" onPress={() => { act('page_next'); go(at + 1) }} />,
+    pages.count > 1 && <Button key="prev" plain dimColor={at === 0} label="‹ 上一页" onPress={() => { act('page_prev'); go(at - 1) }} />,
+    <Text key="page-count" dimColor>{`第 ${at + 1} 页，共 ${pages.count} 页`}</Text>,
+    pages.count > 1 && <Button key="next" plain dimColor={at >= pages.count - 1} label="下一页 ›" onPress={() => { act('page_next'); go(at + 1) }} />,
   ]
 }
 
@@ -3354,7 +3354,7 @@ function Scrub(ui: Ui, $: EngineInterface, site: string, media: Shown, width: nu
 
   return (
     <Box flexDirection="row" flexWrap="nowrap" width={width}>
-      <Button key="play" variant="primary" label={word} onPress={() => { act(word.includes('Pause') ? 'pause' : 'play'); if (!word.includes('Pause')) tourHeard($, 'play'); toggle($, site, media, shown) }} />
+      <Button key="play" variant="primary" label={word} onPress={() => { act(word.includes('暂停') ? 'pause' : 'play'); if (!word.includes('暂停')) tourHeard($, 'play'); toggle($, site, media, shown) }} />
       <Text dimColor> {elapsed} </Text>
       {chunks.map((c, i) => (
         <Button
@@ -3409,7 +3409,7 @@ function pickVersion($: EngineInterface, site: string, shown: Shown, to: number)
     if (!one.isCompare) flip($, site, { ...shown, compare: version }, true)
     else draw($, site, version)
     redraw($, site)
-  }).catch(() => $.ui.toast('That version is gone'))
+  }).catch(() => $.ui.toast('该版本已不存在'))
 }
 
 // With history, which version is on screen, in words: "viewing v1 of 3".
@@ -3419,7 +3419,7 @@ function viewingLabel(shown: Shown, site: string): string {
   if (!history || history.length < 2 || !one.isHistory) return ''
   const total = history.length + 1
   const at = one.isCompare ? (one.step ?? shown.historyAt ?? history.length - 1) + 1 : total
-  return at === total ? `· latest, v${total}` : `· viewing v${at} of ${total}`
+  return at === total ? `· 最新，v${total}` : `· 正在查看 v${at}，共 ${total} 个版本`
 }
 
 // The player's zones, the same in every view:
@@ -3454,9 +3454,9 @@ function TitleBar(ui: Ui, $: EngineInterface, site: string, shown: Shown, at: { 
 // The tab row's width: each Button draws as "[ label ]", one apart.
 export function tabsWidth(shown: Shown) {
   if (!shown.compare) return 0
-  const labels = [tabLabel(shown.compare.label ?? 'Original'), tabLabel(shown.label ?? 'Updated')]
-  if (shown.frames && shown.pair) labels.push('⧉ Compare')
-  if ((shown.history?.length ?? 0) > 1) labels.push(`History · ${shown.history!.length + 1}`)
+  const labels = [tabLabel(shown.compare.label ?? '原始'), tabLabel(shown.label ?? '更新后')]
+  if (shown.frames && shown.pair) labels.push('⧉ 对比')
+  if ((shown.history?.length ?? 0) > 1) labels.push(`历史记录 · ${shown.history!.length + 1}`)
   return labels.reduce((n, l) => n + l.length + 4, 0) + labels.length - 1
 }
 function Tabs(ui: Ui, $: EngineInterface, site: string, shown: Shown) {
@@ -3486,11 +3486,11 @@ function Tabs(ui: Ui, $: EngineInterface, site: string, shown: Shown) {
 
   return (
     <Box flexDirection="row" gap={1}>
-      <Button key="side-before" variant={isCompare ? 'primary' : 'secondary'} label={tabLabel(shown.compare.label ?? 'Original')} onPress={() => { act('original'); tourHeard($, 'original'); restore(true) }} />
-      <Button key="side-after" variant={isUpdated ? 'primary' : 'secondary'} label={tabLabel(shown.label ?? 'Updated')} onPress={() => { act('updated'); restore(false) }} />
-      {canBoth && <Button key="side-both" variant={isBoth ? 'primary' : 'secondary'} label="⧉ Compare" onPress={() => { act('compare'); tourHeard($, 'compare'); restore(false); split($, site, shown, true) }} />}
+      <Button key="side-before" variant={isCompare ? 'primary' : 'secondary'} label={tabLabel(shown.compare.label ?? '原始')} onPress={() => { act('original'); tourHeard($, 'original'); restore(true) }} />
+      <Button key="side-after" variant={isUpdated ? 'primary' : 'secondary'} label={tabLabel(shown.label ?? '更新后')} onPress={() => { act('updated'); restore(false) }} />
+      {canBoth && <Button key="side-both" variant={isBoth ? 'primary' : 'secondary'} label="⧉ 对比" onPress={() => { act('compare'); tourHeard($, 'compare'); restore(false); split($, site, shown, true) }} />}
       {hasSteps && (
-        <Button key="history" variant={isHistory ? 'primary' : 'secondary'} label={`History · ${shown.history!.length + 1}`}
+        <Button key="history" variant={isHistory ? 'primary' : 'secondary'} label={`历史记录 · ${shown.history!.length + 1}`}
           onPress={() => { if (isHistory) return restore(false); act('history'); one.isHistory = true; one.changesPage = 0; redraw($, site) }} />
       )}
     </Box>
@@ -3514,8 +3514,8 @@ function Changes(ui: Ui, $: EngineInterface, site: string, shown: Shown, fixed: 
 
   return (
     <Box flexDirection="column">
-      {fixed.map(c => row(c, '✓ fixed'))}
-      {broken.map(c => row(c, '✗ broke'))}
+      {fixed.map(c => row(c, '✓ 已修复'))}
+      {broken.map(c => row(c, '✗ 出现问题'))}
     </Box>
   )
 }
@@ -3598,7 +3598,7 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
   const changed = (
     <Box flexDirection="column" width={column}>
       {label(
-        `${(shown.changesTitle || 'What changed').toUpperCase()} · ${changes.length}`,
+        `${(shown.changesTitle || '变更内容').toUpperCase()} · ${changes.length}`,
         pages.length > 1 ? (
           <Button
             key="changes-more"
@@ -3644,13 +3644,13 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
   // Each version one line, so a long note and a one-word one line up alike.
   // Room for " viewing " (9) beside the label, as TITLE leaves room for a time.
   const VERSION = column - 4 - 1 - 9
-  const listed = versions.map(({ v, i }) => ({ i, lines: [oneLine(v.note || (i === history!.length ? 'This version' : `Version ${i + 1}`), VERSION)] }))
+  const listed = versions.map(({ v, i }) => ({ i, lines: [oneLine(v.note || (i === history!.length ? '当前版本' : `版本 ${i + 1}`), VERSION)] }))
   const versionPages = pagesOf(listed.map((w, k) => ({ item: w, rows: w.lines.length + (k ? 1 : 0) })), room)
   const versionPage = Math.min(one.changesPage ?? 0, versionPages.length - 1)
   const versionList = history && (
     <Box flexDirection="column" width={column}>
       {label(
-        `VERSIONS · ${versions.length}`,
+        `版本 · ${versions.length}`,
         versionPages.length > 1 ? (
           <Button key="versions-more" plain dimColor label={`${versionPage + 1}/${versionPages.length} ${versionPage === versionPages.length - 1 ? '↑' : '↓'}`}
             onPress={() => { one.changesPage = (versionPage + 1) % versionPages.length; redraw($, site) }} />
@@ -3669,7 +3669,7 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
             </Box>
             {(isOn || isLatest) && (
               <Text backgroundColor={isOn ? 'suggestion' : PILL} color={isOn ? 'inverseText' : undefined}>
-                {isOn ? ' viewing ' : ' latest '}
+                {isOn ? ' 正在查看 ' : ' 最新 '}
               </Text>
             )}
           </Box>
@@ -3682,7 +3682,7 @@ function Report(ui: Ui, $: EngineInterface, site: string, shown: Shown, prLink: 
       {label('QA', <Text bold color={allPass ? 'success' : 'error'}>{passed}/{total}</Text>)}
       <Box flexDirection="column" borderStyle="round" borderColor={allPass ? 'success' : 'error'} borderDimColor paddingX={1}>
         <Text bold color={allPass ? 'success' : 'error'}>
-          {allPass ? '✓ All checks passed' : `✗ ${total - passed} of ${total} checks failed`}
+          {allPass ? '✓ 所有检查均通过' : `✗ ${total} 项检查中有 ${total - passed} 项失败`}
         </Text>
         {summary.map(s => (
           <Box key={`sum-${s.label}`} flexDirection="row" gap={1}>
@@ -3730,27 +3730,27 @@ function Actions(ui: Ui, $: EngineInterface, media: Shown, source: string, isNar
     for (let n = 2; await $.fs.stat(out).then(() => true, () => false); n++) out = `${state.home}/Downloads/${stem} ${n}${ext}`
     if (!state.isMac) await $.process.run(['mkdir', '-p', `${state.home}/Downloads`])
     const r = await $.process.run(['cp', source, out])
-    if (r.exitCode !== 0) return $.ui.toast(`Couldn't save it to Downloads: ${r.stderr.trim().split('\n')[0]?.slice(0, 100) || `error ${r.exitCode}`}`)
+    if (r.exitCode !== 0) return $.ui.toast(`无法保存到“下载”文件夹：${r.stderr.trim().split('\n')[0]?.slice(0, 100) || `错误 ${r.exitCode}`}`)
     // Saved either way; the folder opening is a convenience on top.
     await $.process.run(state.isMac ? ['open', '-R', out] : openArgv(`${state.home}/Downloads`)).catch(() => undefined)
-    $.ui.toast(`Saved to Downloads/${out.split('/').pop()}`)
+    $.ui.toast(`已保存到 下载/${out.split('/').pop()}`)
   }
 
   return (
     <Box flexDirection="row" gap={2}>
       {!source.startsWith(`${state.home}/Downloads/`) ? (
-        <Button key="keep" plain dimColor label="Save to Downloads" onPress={() => { act('save'); void keep() }} />
+        <Button key="keep" plain dimColor label="保存到下载文件夹" onPress={() => { act('save'); void keep() }} />
       ) : (
-        <Button key="reveal" plain dimColor label={state.isMac ? 'Show in Finder' : 'Show in folder'} onPress={() => act('reveal') || void $.process.run(state.isMac ? ['open', '-R', source] : openArgv(source.slice(0, source.lastIndexOf('/')) || '/')).then(r => done(r, state.isMac ? 'Shown in Finder' : 'Opened the folder', 'folders', source))} />
+        <Button key="reveal" plain dimColor label={state.isMac ? '在访达中显示' : '在文件夹中显示'} onPress={() => act('reveal') || void $.process.run(state.isMac ? ['open', '-R', source] : openArgv(source.slice(0, source.lastIndexOf('/')) || '/')).then(r => done(r, state.isMac ? '已在访达中显示' : '已打开文件夹', 'folders', source))} />
       )}
       {!isNarrow && (
         <Button
           key="copy"
           plain
           dimColor
-          label="Copy path"
+          label="复制路径"
           onPress={(press: { surface: 'terminal' }) =>
-            act('copy_path') || void $.ui.copy({ text: source, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? 'Path copied' : 'Could not copy the path'))
+            act('copy_path') || void $.ui.copy({ text: source, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? '路径已复制' : '无法复制路径'))
           }
         />
       )}
@@ -3889,37 +3889,37 @@ export function terminalOf(env: { program: string; term: string; kitty: boolean;
 const TERMINALS = 'https://github.com/iamumeransari/claude-show-your-work#terminals'
 
 export function cantDraw(cause: DrawCause, name: string, kind: 'picture' | 'video' | 'audio' | 'document', id: string) {
-  const what = kind === 'video' ? 'videos' : kind === 'audio' ? 'audio' : kind === 'document' ? 'documents' : 'pictures'
+  const what = kind === 'video' ? '视频' : kind === 'audio' ? '音频' : kind === 'document' ? '文档' : '图片'
   // Claude Code keeps pictures off inside tmux unless FORCE is set at launch;
   // with it, the plugin passes them through (see tmux.ts).
   if (cause === 'tmux') return {
-    title: `Restart Claude Code to show ${what} in tmux`,
-    text: `"${name}" is ready, but Claude Code keeps ${what} off inside tmux until it restarts. Press Copy command, type /exit, and paste it here to reopen this chat with ${what} on. New tmux panes have them on already.`,
-    command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: 'Copy command', action: 'copy_resume_command',
+    title: `重启 Claude Code 以在 tmux 中显示${what}`,
+    text: `“${name}” 已就绪，但 Claude Code 在 tmux 中需要重启后才会显示${what}。请按“复制命令”，输入 /exit，然后在此粘贴，以重新打开并启用${what}的对话。新建的 tmux 窗格已默认启用。`,
+    command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: '复制命令', action: 'copy_resume_command',
     claude: `Claude Code keeps pictures off inside tmux, so the person saw a notice instead of ${name}. They can restart Claude Code with ${FORCE}=1 to see it.`,
   }
   if (cause === 'herdr') return {
-    title: `Herdr isn't passing ${what} through`,
-    text: `"${name}" is ready, but Herdr isn't passing ${what} on to your terminal. Add this to your Herdr config, restart Herdr, and ask Claude to show it again. The terminal around Herdr also has to be Ghostty or kitty.`,
-    command: '[terminal]\nkitty_graphics = true', label: 'Copy setting', action: 'copy_herdr_setting',
+    title: `Herdr 未转发${what}`,
+    text: `“${name}” 已就绪，但 Herdr 未将${what}转发到你的终端。请将以下内容添加到 Herdr 配置，重启 Herdr，然后让 Claude 再次展示。Herdr 外层的终端也必须是 Ghostty 或 kitty。`,
+    command: '[terminal]\nkitty_graphics = true', label: '复制设置', action: 'copy_herdr_setting',
     claude: `Herdr isn't passing pictures through, so the person saw a notice instead of ${name}. They can set kitty_graphics = true under [terminal] in their Herdr config and restart Herdr, inside Ghostty or kitty.`,
   }
   // Claude Code keeps pictures off in a terminal it doesn't recognise; one
   // built on Ghostty or kitty draws them once they're forced on (#23).
   if (cause === 'force') {
     return {
-      title: `Restart Claude Code to show ${what} here`,
-      text: `"${name}" is ready, but Claude Code doesn't recognise this terminal, so it keeps ${what} off. If it's built on Ghostty or kitty, press Copy command, type /exit, and paste it here to reopen this chat with ${what} on.`,
-      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: 'Copy command', action: 'copy_resume_command',
+      title: `重启 Claude Code 以在此显示${what}`,
+      text: `“${name}” 已就绪，但 Claude Code 无法识别此终端，因此关闭了${what}显示。如果它基于 Ghostty 或 kitty，请按“复制命令”，输入 /exit，然后在此粘贴，以重新打开并启用${what}的对话。`,
+      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: '复制命令', action: 'copy_resume_command',
       claude: `Claude Code doesn't recognise this terminal, so it kept pictures off and the person saw a notice instead of ${name}. They can restart Claude Code with ${FORCE}=1 to see it.`,
     }
   }
   // iTerm2 3.5+ draws Claude Code's pictures in its fullscreen view only
   // (the classic renderer would send each one again for every new line).
   if (cause === 'iterm') return {
-    title: `iTerm2 shows ${what} in fullscreen view`,
-    text: `"${name}" is ready. Type /tui fullscreen to switch Claude Code to its fullscreen view (it restarts and resumes this chat), then ask Claude to show it again. Needs iTerm2 3.5 or later.`,
-    command: '/tui fullscreen', label: 'Copy command', action: 'copy_tui_fullscreen',
+    title: `iTerm2 在全屏视图中显示${what}`,
+    text: `“${name}” 已就绪。输入 /tui fullscreen 将 Claude Code 切换到全屏视图（它会重启并恢复当前对话），然后让 Claude 再次展示。需要 iTerm2 3.5 或更高版本。`,
+    command: '/tui fullscreen', label: '复制命令', action: 'copy_tui_fullscreen',
     claude: `iTerm2 only draws pictures in Claude Code's fullscreen view, so the person saw a notice instead of ${name}. They can type /tui fullscreen and ask again.`,
   }
   // Rex paints Claude Code's pictures, but Claude Code only sends them there
@@ -3929,34 +3929,34 @@ export function cantDraw(cause: DrawCause, name: string, kind: 'picture' | 'vide
   if (cause === 'unrecognised') {
     const where = UNRECOGNISED[state.terminalName]?.name ?? 'this terminal'
     return {
-      title: `Turn on pictures in ${where}`,
-      text: `Claude Code doesn't recognise ${where} yet, so it keeps pictures and videos off. Turn on pictures adds one line to your shell profile so they show from now on, and copies a command. Type /exit and paste it here to reopen this chat.`,
-      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: 'Turn on pictures', action: 'turn_on_pictures',
+      title: `在${where}中开启图片显示`,
+      text: `Claude Code 尚不支持识别${where}，因此关闭了图片和视频显示。“开启图片显示”会在你的 shell 配置文件中添加一行，使图片从此可以显示，并复制一条命令。输入 /exit 后在此粘贴即可重新打开对话。`,
+      command: `${FORCE}=1 claude --resume${id ? ` ${id}` : ''}`, label: '开启图片显示', action: 'turn_on_pictures',
       claude: `Claude Code keeps pictures off in ${where} unless it starts with ${FORCE}=1, so the person saw a notice instead of ${name}. They can press Turn on pictures on it and reopen the chat to see it.`,
     }
   }
   // The desktop app's Code tab draws the plugin's card but not its pictures
   // (#18): the file opens in the system viewer instead.
   if (cause === 'desktop') return {
-    title: `The desktop app can't show ${what} here`,
-    text: `"${name}" is ready, but the Claude desktop app doesn't draw ${what} inside the chat. Press Open to see it, or run this chat in Ghostty or kitty to see ${what} inline.`,
-    command: '', label: 'Open', action: 'open_file',
+    title: `桌面应用无法在此显示${what}`,
+    text: `“${name}” 已就绪，但 Claude 桌面应用无法在聊天中绘制${what}。请按“打开”查看，或在 Ghostty 或 kitty 中运行此对话以内联显示${what}。`,
+    command: '', label: '打开', action: 'open_file',
     claude: `the Claude desktop app can't draw pictures in the chat, so the person saw a notice instead of ${name}. They can press Open on it to view the file.`,
   }
   const known = NO_PLACEHOLDERS[state.terminalName]
   if (cause === 'terminal') return {
-    title: known ? `${known} can't show Claude Code's ${what} yet` : "Your terminal isn't supported by show-your-work",
+    title: known ? `${known} 目前无法显示 Claude Code 的${what}` : '当前终端不受 show-your-work 支持',
     text: known
-      ? `"${name}" is ready, but ${known} can't draw ${what} the way Claude Code sends them yet. They show in Ghostty and kitty. See the list:`
-      : `"${name}" is ready, but this terminal can't draw ${what}. show-your-work works in Ghostty and kitty. See the list:`,
-    link: { href: TERMINALS, after: 'Then press Copy command and paste it in one of them to open this chat there.' },
-    command: `claude --resume${id ? ` ${id}` : ''}`, label: 'Copy command', action: 'copy_resume_command',
+      ? `“${name}” 已就绪，但 ${known} 目前无法按 Claude Code 的发送方式绘制${what}。Ghostty 和 kitty 可以显示。查看列表：`
+      : `“${name}” 已就绪，但此终端无法绘制${what}。show-your-work 支持 Ghostty 和 kitty。查看列表：`,
+    link: { href: TERMINALS, after: '然后按“复制命令”，粘贴到其中一个终端中以在那里打开此对话。' },
+    command: `claude --resume${id ? ` ${id}` : ''}`, label: '复制命令', action: 'copy_resume_command',
     claude: `${known ?? 'this terminal'} can't draw Claude Code's pictures, so the person saw a notice instead of ${name}. Pictures show in Ghostty or kitty (list at ${TERMINALS}).`,
   }
   return {
-    title: `Can't show ${what} in a background session`,
-    text: `"${name}" is ready, but this chat is running as a background session, and those can't draw ${what} in the terminal. Press Copy command and paste it in a normal terminal tab to reopen it there.`,
-    command: resumeCommand(id), label: 'Copy command', action: 'copy_resume_command',
+    title: `无法在后台会话中显示${what}`,
+    text: `“${name}” 已就绪，但当前对话运行在后台会话中，无法在终端绘制${what}。请按“复制命令”，粘贴到普通终端标签页中以在那里重新打开。`,
+    command: resumeCommand(id), label: '复制命令', action: 'copy_resume_command',
     claude: `this chat runs as a background session, which can't draw pictures, so the person saw a notice instead of ${name}. They can resume the chat in a normal terminal tab to see it.`,
   }
 }
@@ -3965,13 +3965,13 @@ function Warning(ui: Ui, $: EngineInterface, site: string, shown: Shown, width: 
   const n = cantDraw(state.drawCause, shown.title, shown.frames ? 'video' : 'picture', state.sessionId)
   const file = shown.origin ?? shown.source ?? shown.path
   const onPress = state.drawCause === 'desktop'
-    ? () => act(n.action) || void $.process.run(openArgv(file)).then(r => { if (r.exitCode !== 0) $.ui.toast(openFailure(r, shown.frames ? 'videos' : 'pictures', file)) })
+    ? () => act(n.action) || void $.process.run(openArgv(file)).then(r => { if (r.exitCode !== 0) $.ui.toast(openFailure(r, shown.frames ? '视频' : '图片', file)) })
     : state.drawCause === 'unrecognised'
       ? (press: { surface: 'terminal' }) => act(n.action) || void (async () => {
         const profile = await turnOnPictures($)
         const copied = await $.ui.copy({ text: n.command, surface: press.surface }).then(r => r.isCopied, () => false)
-        const where = profile ? `Added to ${profile.replace(state.home, '~')}. ` : ''
-        $.ui.toast(copied ? `${where}Copied: type /exit and paste it.` : `${where}Could not copy the command.`)
+        const where = profile ? `已添加到 ${profile.replace(state.home, '~')}。` : ''
+        $.ui.toast(copied ? `${where}已复制：输入 /exit 并粘贴。` : `${where}无法复制命令。`)
       })()
       : undefined
   return NoticeBox(ui, $, width, { ...n, copy: n.command, onPress })
@@ -3982,13 +3982,13 @@ function Warning(ui: Ui, $: EngineInterface, site: string, shown: Shown, width: 
 export function expiredPrompt(shown: Shown): string {
   const file = shown.origin ?? shown.source ?? shown.path
   const kind = shown.kind === 'audio' ? 'audio' : shown.frames ? 'video' : 'image'
-  return `The ${kind} preview "${shown.title}" expired (${file} is gone). Please regenerate it and show it to me again with show_${kind}${shown.compare ? ', with the same compare' : ''}${shown.changes?.length ? ' and the same list of changes' : ''}.`
+  return `${kind}预览“${shown.title}”已过期（${file} 已不存在）。请重新生成，并用 show_${kind} 再次展示给我${shown.compare ? '，并使用相同的对比版本' : ''}${shown.changes?.length ? '以及相同的变更列表' : ''}。`
 }
 function Expired(ui: Ui, $: EngineInterface, shown: Shown, width: number) {
   return NoticeBox(ui, $, width, {
-    title: 'This preview has expired',
-    text: `Previews are cleared after a while to save space. To see "${shown.title}" again, copy the prompt and paste it to Claude.`,
-    copy: expiredPrompt(shown), label: 'Copy prompt', action: 'copy_expired_prompt', isCalm: true,
+    title: '此预览已过期',
+    text: `为节省空间，预览会在一段时间后清除。要再次查看“${shown.title}”，请复制提示词并粘贴给 Claude。`,
+    copy: expiredPrompt(shown), label: '复制提示词', action: 'copy_expired_prompt', isCalm: true,
   })
 }
 
@@ -4012,7 +4012,7 @@ export function NoticeBox(ui: Ui, $: EngineInterface, width: number, n: { title:
           variant="primary"
           label={n.label}
           onPress={(press: { surface: 'terminal' }) =>
-            n.onPress ? n.onPress(press) : act(n.action) || void $.ui.copy({ text: n.copy, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? (n.command ? 'Copied. Paste it in your terminal.' : 'Copied. Paste it to Claude.') : 'Could not copy'))
+            n.onPress ? n.onPress(press) : act(n.action) || void $.ui.copy({ text: n.copy, surface: press.surface }).then(r => $.ui.toast(r.isCopied ? (n.command ? '已复制。请粘贴到终端中。' : '已复制。请粘贴给 Claude。') : '无法复制'))
           }
         />
       </Box>
@@ -4116,7 +4116,7 @@ export async function Viewer(
       : <Text color="suggestion">{prLabel}</Text>
     : null
   const run = (argv: string[], note: string) => () => {
-    void $.process.run(argv).then(r => $.ui.toast(r.exitCode === 0 ? note : `Could not: ${r.stderr.trim()}`))
+    void $.process.run(argv).then(r => $.ui.toast(r.exitCode === 0 ? note : `无法执行：${r.stderr.trim()}`))
   }
   // The single view with the QA sidebar is the default; side by side is a click away.
   if (!state.canImage) {
@@ -4146,7 +4146,7 @@ export async function Viewer(
     const stands = [swaps.get(`${site}|${viewKey(site)}`)?.last, media.frames && frameFile(media.frames, 0)].filter((f): f is string => !!f)
     let stand = ''
     for (const f of stands) if (!(await isGone($, f))) { stand = f; break }
-    if (!stand) return <Box width={box.columns} height={box.rows} justifyContent="center" alignItems="center"><Text dimColor>Loading…</Text></Box>
+    if (!stand) return <Box width={box.columns} height={box.rows} justifyContent="center" alignItems="center"><Text dimColor>加载中…</Text></Box>
     file = stand
   }
   const pic = await picFor($, file, own)
@@ -4175,7 +4175,7 @@ export async function Viewer(
     <Button
       key="page"
       plain
-      label={rendered ? '↗ Open document' : page ? '↗ Open page' : '↗ View'}
+      label={rendered ? '↗ 打开文档' : page ? '↗ 打开页面' : '↗ 查看'}
       onPress={async () => {
         // Watched elsewhere now: the video here pauses.
         if (one.timer) stop($, site)
@@ -4184,8 +4184,8 @@ export async function Viewer(
         let target = rendered ?? page
         if (rendered) {
           try { target = await documentView($, baseMedia) ?? undefined }
-          catch (error) { $.ui.toast(`Could not open document: ${String(error).slice(0, 160)}`); return }
-          if (!target) { $.ui.toast('Could not prepare the document preview.'); return }
+          catch (error) { $.ui.toast(`无法打开文档：${String(error).slice(0, 160)}`); return }
+          if (!target) { $.ui.toast('无法准备文档预览。'); return }
         }
         // A local page opens in its own small window, the way an image opens
         // in an image viewer: the same engine that rendered the preview, as
@@ -4196,7 +4196,7 @@ export async function Viewer(
           ? ['sh', '-c', OPEN_SH, 'sh', ...htmlOpenArgv(state.chrome, target!)]
           : openArgv(target ?? source)
         void $.process.run(argv).then(r =>
-          $.ui.toast(r.exitCode === 0 ? `Opened ${(target ?? source.split('/').pop()!).slice(0, 60)}` : openFailure(r, target ? 'web pages' : media.kind === 'video' ? 'videos' : media.kind === 'audio' ? 'audio files' : 'pictures', target ?? source)),
+          $.ui.toast(r.exitCode === 0 ? `已打开 ${(target ?? source.split('/').pop()!).slice(0, 60)}` : openFailure(r, target ? '网页' : media.kind === 'video' ? '视频' : media.kind === 'audio' ? '音频文件' : '图片', target ?? source)),
         )
       }}
     />
@@ -4218,10 +4218,10 @@ export async function Viewer(
           {docPages && PageButtons(ui, $, site, media)}
           {/* Audio with no way to be heard (no ffplay, or the session's speakers
               are another room's) plays silently; that must be said, not silent. */}
-          {frames && media.kind === 'audio' && !soundUsable() && <Text dimColor>♪ no sound in this session</Text>}
+          {frames && media.kind === 'audio' && !soundUsable() && <Text dimColor>♪ 本次会话无声音</Text>}
           {frames && <Button key="back" plain dimColor label={`« ${SKIP_SECONDS}s`} onPress={() => act('skip_back') || seek($, site, media, one.frame / frames.fps - SKIP_SECONDS, shown, true)} />}
           {frames && <Button key="forward" plain dimColor label={`${SKIP_SECONDS}s »`} onPress={() => act('skip_forward') || seek($, site, media, one.frame / frames.fps + SKIP_SECONDS, shown, true)} />}
-          {hasSound && <Button key="sound" plain dimColor={!state.isSoundOn} label={state.isSoundOn ? '♪ Mute' : '♪ Unmute'} onPress={() => { act(state.isSoundOn ? 'mute' : 'unmute'); toggleSound($, site, media) }} />}
+          {hasSound && <Button key="sound" plain dimColor={!state.isSoundOn} label={state.isSoundOn ? '♪ 静音' : '♪ 取消静音'} onPress={() => { act(state.isSoundOn ? 'mute' : 'unmute'); toggleSound($, site, media) }} />}
         </Box>
         <Box flexDirection="row" columnGap={2}>
           {opener}
@@ -4296,13 +4296,13 @@ async function SplitView(
       {shown.change && <Text dimColor wrap="truncate-end">{shown.change}</Text>}
       <Box flexDirection="column" alignItems="center" width={width}>
         <Box flexDirection="row" marginTop={1} width={box.columns}>
-          {head(before, 'Original', half)}
-          {head(shown, 'Updated', box.columns - half)}
+          {head(before, '原始', half)}
+          {head(shown, '更新后', box.columns - half)}
         </Box>
         {Image ? (
           <Image key="view-pair" source={'file' in pic.src ? { ...pic.src, generation: boxGenerationOf(site) } : pic.src} columns={box.columns} rows={box.rows} alt="[original and updated, side by side]" />
         ) : (
-          <Text dimColor>This surface cannot draw images.</Text>
+          <Text dimColor>此界面无法绘制图片。</Text>
         )}
       </Box>
       <Box width={width}>
@@ -4311,12 +4311,12 @@ async function SplitView(
             <Text dimColor>{clock(change.check.at ?? 0)} · </Text>
             {change.check.name}
             <Text dimColor> · </Text>
-            <Text color={change.was ? 'success' : 'error'}>{before.label ?? 'Original'} {change.was ? '✓' : '✗'}</Text>
+            <Text color={change.was ? 'success' : 'error'}>{before.label ?? '原始'} {change.was ? '✓' : '✗'}</Text>
             <Text dimColor> → </Text>
-            <Text color={change.check.ok ? 'success' : 'error'}>{shown.label ?? 'Updated'} {change.check.ok ? '✓' : '✗'}</Text>
+            <Text color={change.check.ok ? 'success' : 'error'}>{shown.label ?? '更新后'} {change.check.ok ? '✓' : '✗'}</Text>
           </Text>
         ) : (shown.checks?.length || before.checks?.length) ? (
-          <Text dimColor>Same so far: both sides match up to {clock(seconds)}</Text>
+          <Text dimColor>目前两侧一致：截止 {clock(seconds)} 均匹配</Text>
         ) : null}
       </Box>
       {Scrub(ui, $, site, shown, width, shown)}
@@ -4324,7 +4324,7 @@ async function SplitView(
       <Box width={width} justifyContent="flex-end">{Actions(ui, $, shown, shown.origin ?? shown.source ?? shown.path, width < 60)}</Box>
       {(fixed.length > 0 || broken.length > 0) && (
         <Box flexDirection="column" marginTop={1}>
-          <Text dimColor>{fixed.length} fixed · {broken.length} broke · click one to jump there</Text>
+          <Text dimColor>{fixed.length} 项已修复 · {broken.length} 项出现问题 · 点击可跳转到对应时刻</Text>
           {Changes(ui, $, site, shown, fixed, broken)}
         </Box>
       )}
@@ -4340,7 +4340,7 @@ export function toolLine(tool: string, input: unknown, isRunning: boolean): stri
     i.compare ? `vs ${i.compare_label ?? i.compare.split('/').pop()}` : '',
     i.checks?.length ? `${i.checks.length} checks` : '',
   ].filter(Boolean)
-  const verb = tool.endsWith('video') ? (isRunning ? 'Cutting video' : 'Video') : tool.endsWith('html') ? (isRunning ? 'Rendering page' : 'Page') : tool.endsWith('audio') ? (isRunning ? 'Cutting audio' : 'Audio') : tool.endsWith('document') ? (isRunning ? 'Rasterizing document' : 'Document') : isRunning ? 'Loading image' : 'Image'
+  const verb = tool.endsWith('video') ? (isRunning ? '正在生成视频' : '视频') : tool.endsWith('html') ? (isRunning ? '正在渲染页面' : '页面') : tool.endsWith('audio') ? (isRunning ? '正在生成音频' : '音频') : tool.endsWith('document') ? (isRunning ? '正在栅格化文档' : '文档') : isRunning ? '正在加载图片' : '图片'
 
   return `${tool.endsWith('video') ? '▶' : tool.endsWith('html') ? '▤' : tool.endsWith('audio') ? '♪' : tool.endsWith('document') ? '▦' : '▣'} ${verb} · ${what}${extra.length ? ` · ${extra.join(' · ')}` : ''}`
 }
@@ -4437,9 +4437,9 @@ export const state = {
 // plugin on every change). The environment variables still turn updates and
 // usage counts off whatever these say.
 export const SETTINGS = [
-  { field: 'stable_updates', title: 'Updates', options: ['Stable releases', 'Latest'], text: 'Automatically install plugin updates from GitHub' },
-  { field: 'usage_stats', title: 'Usage data', options: ['Share anonymously', "Don't share"], text: 'Helps fix bugs and improve the product experience. No sensitive data is ever shared' },
-  { field: 'standard_size', title: 'Picture size', options: ['Standard', 'Large'], text: 'Large shows pictures and videos one and a half times bigger' },
+  { field: 'stable_updates', title: '更新', options: ['稳定版', '最新版'], text: '自动从 GitHub 安装插件更新' },
+  { field: 'usage_stats', title: '使用数据', options: ['匿名分享', '不分享'], text: '帮助修复错误并改善产品体验。绝不会分享敏感数据' },
+  { field: 'standard_size', title: '图片尺寸', options: ['标准', '大'], text: '“大”会将图片和视频放大至 1.5 倍' },
 ] as const
 export type Field = (typeof SETTINGS)[number]['field']
 // Each switch is true on its first option, the default.
@@ -4493,9 +4493,9 @@ export function diagnosis(now: number, kept: Problem[] = problems, isLogging = s
   const counts = new Map<string, number>()
   for (const p of recent) counts.set(p.what, (counts.get(p.what) ?? 0) + 1)
   const lines = recent.length
-    ? [`${recent.length} problem${recent.length === 1 ? '' : 's'} in the last 10 minutes:`, ...[...counts].sort((a, b) => b[1] - a[1]).map(([what, n]) => `  ${what} × ${n}`)]
-    : ['No problems noticed in the last 10 minutes.']
-  lines.push(isLogging ? `Full log: ${logPath}` : 'For a full log, start Claude Code with SHOW_YOUR_WORK_DEBUG=1 and try again.')
+    ? [`最近 10 分钟内发现 ${recent.length} 个问题：`, ...[...counts].sort((a, b) => b[1] - a[1]).map(([what, n]) => `  ${what} × ${n}`)]
+    : ['最近 10 分钟内未发现问题。']
+  lines.push(isLogging ? `完整日志：${logPath}` : '若要查看完整日志，请使用 SHOW_YOUR_WORK_DEBUG=1 启动 Claude Code 后重试。')
   return lines.join('\n')
 }
 
@@ -4586,7 +4586,7 @@ export async function checkForUpdate($: EngineInterface, current: string, branch
   track('update_check', { result: found.kind, channel: branch, ...('latest' in found ? { latest: found.latest } : {}) })
   if (found.kind !== 'offline' && found.kind !== 'no_cli') await $.store.set('updateCheckedAt', now)
   const isReady = found.kind === 'pending' || ((found.kind === 'update' || found.kind === 'move') && (await installUpdate($, found, current)))
-  if (isReady && 'latest' in found) $.ui.status(`show-your-work ${found.latest} is ready. Restart Claude Code to use it.`)
+  if (isReady && 'latest' in found) $.ui.status(`show-your-work ${found.latest} 已就绪。重启 Claude Code 即可使用。`)
 }
 
 // The result of checking for an update:
@@ -4783,7 +4783,7 @@ type UpdateCheck =
 let updateCheck: UpdateCheck = { phase: 'checking' }
 export async function openUpdate($: EngineInterface) {
   updateCheck = { phase: 'checking' }
-  await $.ui.open({ id: UPDATE, title: 'Updates', focus: true, closeOnEscape: true, holdToasts: true, rows: 9, columns: 70 })
+  await $.ui.open({ id: UPDATE, title: '更新', focus: true, closeOnEscape: true, holdToasts: true, rows: 9, columns: 70 })
   await update($, welcome, n => n + 1)
   await loadSettings($)
   const branch = settings.stable_updates ? BRANCHES.stable : BRANCHES.latest
@@ -4803,51 +4803,51 @@ async function installFound($: EngineInterface, found: Extract<Found, { kind: 'u
 
 export function UpdatePane(ui: Ui, $: EngineInterface) {
   const { Box, Text, Button } = ui
-  const channel = settings.stable_updates ? 'Stable releases' : 'Latest releases'
-  const close = <Button key="update-close" label="Close" onPress={() => void $.ui.close({ id: UPDATE })} />
+  const channel = settings.stable_updates ? '稳定版' : '最新版'
+  const close = <Button key="update-close" label="关闭" onPress={() => void $.ui.close({ id: UPDATE })} />
   const c = updateCheck
   const found = c.phase === 'found' ? c.found : null
   // Each outcome of the check sets a bold headline, a dim second line, and
   // the buttons. Install shows only when there is a newer version.
-  let head = 'Checking for updates…'
+  let head = '正在检查更新…'
   let line = `On ${state.pluginVersion} · ${channel}`
   let actions: Ui[] = []
   if (found?.kind === 'update' || found?.kind === 'move') {
-    head = `Version ${found.latest} is available`
-    actions = [<Button key="update-install" variant="primary" label="Install" onPress={() => void installFound($, found)} />, close]
+    head = `版本 ${found.latest} 可供安装`
+    actions = [<Button key="update-install" variant="primary" label="安装" onPress={() => void installFound($, found)} />, close]
   } else if (found?.kind === 'current') {
-    head = "You're on the latest version"
+    head = '你已安装最新版本'
     actions = [close]
   } else if (found?.kind === 'pending') {
-    head = `Version ${found.latest} is installed`
-    line = 'Restart Claude Code to start using it.'
+    head = `已安装版本 ${found.latest}`
+    line = '重启 Claude Code 即可开始使用。'
     actions = [close]
   } else if (found?.kind === 'folder') {
-    head = 'This copy runs from a folder, so it doesn\'t update'
+    head = '此副本从文件夹运行，因此不会更新'
     actions = [close]
   } else if (found?.kind === 'busy') {
-    head = 'An update is being installed'
-    line = 'Check again in a minute.'
+    head = '正在安装更新'
+    line = '请稍后再检查。'
     actions = [close]
   } else if (found?.kind === 'pinned') {
-    head = `This install is pinned to ${found.ref}, so it doesn't update`
+    head = `此安装已固定到 ${found.ref}，因此不会更新`
     actions = [close]
   } else if (found?.kind === 'no_cli') {
-    head = "Couldn't find Claude Code's command"
+    head = '找不到 Claude Code 的命令'
     line = 'Update by hand with: claude plugin update show-your-work@iamumeransari'
     actions = [close]
   } else if (found?.kind === 'offline') {
-    head = "Couldn't check for updates"
-    line = 'Check your connection and run /show-your-work update again.'
+    head = '无法检查更新'
+    line = '请检查网络连接，然后再次运行 /show-your-work update。'
     actions = [close]
   } else if (c.phase === 'installing') {
-    head = `Installing ${c.latest}…`
+    head = `正在安装 ${c.latest}…`
   } else if (c.phase === 'installed') {
     head = `Version ${c.latest} is installed`
-    line = 'Restart Claude Code to start using it.'
+    line = '重启 Claude Code 即可开始使用。'
     actions = [close]
   } else if (c.phase === 'failed') {
-    head = "Couldn't install the update"
+    head = '无法安装更新'
     line = `Try again, or run: claude plugin update ${PLUGIN}@iamumeransari`
     actions = [close]
   }
@@ -4862,7 +4862,7 @@ export function UpdatePane(ui: Ui, $: EngineInterface) {
 
 // /show-your-work: the switches, in a pane.
 export async function openSettings($: EngineInterface) {
-  await $.ui.open({ id: WELCOME, title: 'Settings', focus: true, closeOnEscape: true, holdToasts: true, rows: 10, columns: 70 })
+  await $.ui.open({ id: WELCOME, title: '设置', focus: true, closeOnEscape: true, holdToasts: true, rows: 10, columns: 70 })
   await update($, welcome, n => n + 1)
 }
 
@@ -4889,16 +4889,16 @@ async function prepareSplash($: EngineInterface) {
   // setup, ticking as the opening plays.
   splash = opened && {
     ...opened,
-    changesTitle: 'What it does',
+    changesTitle: '功能介绍',
     changes: [
-      { title: 'Installed', at: 1.8 },
-      { title: 'Everything Claude can show you', at: 5.0 },
-      { title: 'Claude shows what it builds', at: 15.7 },
+      { title: '已安装', at: 1.8 },
+      { title: 'Claude 能向你展示的一切', at: 5.0 },
+      { title: 'Claude 展示它构建的内容', at: 15.7 },
     ],
     checks: [
-      { name: 'This terminal draws pictures', ok: state.canImage, at: 2.2 },
-      { name: 'ffmpeg plays videos', ok: !!opened.frames, at: 5.5 },
-      { name: 'Plugin installed', ok: true, at: 16.0 },
+      { name: '此终端可以绘制图片', ok: state.canImage, at: 2.2 },
+      { name: 'ffmpeg 可以播放视频', ok: !!opened.frames, at: 5.5 },
+      { name: '插件已安装', ok: true, at: 16.0 },
     ],
   }
   await update($, welcome, n => n + 1)
@@ -4911,10 +4911,10 @@ export function Settings(ui: Ui, $: EngineInterface) {
   return (
     <Box flexDirection="column" paddingX={2} paddingBottom={1}>
       <Box flexDirection="row" columnGap={2} marginBottom={1}>
-        <Button key="close" label="✕ Close" onPress={() => void $.ui.close({ id: WELCOME })} />
-        <Button key="tour" label="Take a tour" onPress={() => { act('tour_from_settings'); void $.ui.close({ id: WELCOME }).then(() => openTour($)) }} />
+        <Button key="close" label="✕ 关闭" onPress={() => void $.ui.close({ id: WELCOME })} />
+        <Button key="tour" label="查看导览" onPress={() => { act('tour_from_settings'); void $.ui.close({ id: WELCOME }).then(() => openTour($)) }} />
       </Box>
-      <Box marginBottom={1}><Text bold>Show Your Work Settings</Text></Box>
+      <Box marginBottom={1}><Text bold>Show Your Work 设置</Text></Box>
       {SettingRows(ui, $)}
     </Box>
   )
@@ -4948,7 +4948,7 @@ function SettingRows(ui: Ui, $: EngineInterface) {
           })}
         </Box>
       ))}
-      <Box marginTop={1}><Text dimColor>Usage data is anonymous and helps fix bugs and improve the product experience. No sensitive data is ever shared.</Text></Box>
+      <Box marginTop={1}><Text dimColor>使用数据是匿名的，有助于修复错误并改善产品体验。绝不会分享敏感数据。</Text></Box>
     </Box>
   )
 }
@@ -4964,10 +4964,10 @@ export async function Opening($: EngineInterface, e: Parameters<EngineInterface[
   }
   return (
     <Box flexDirection="column" rowGap={1}>
-      {view ?? <Text bold color="claude">✦ show-your-work is installed and ready</Text>}
+      {view ?? <Text bold color="claude">✦ show-your-work 已安装并就绪</Text>}
       <Box flexDirection="column">
-        <Text>Claude now shows you pictures and videos right here in the chat. Try asking Claude to create something and show it to you in the chat, as an image or a recording.</Text>
-        <Text dimColor>It keeps itself updated and sends anonymous usage counts. Change this with /show-your-work, and see every feature with /show-your-work tour.</Text>
+        <Text>Claude 现在可以直接在聊天中向你展示图片和视频。试着让 Claude 创建一些内容，并以图片或录像的形式在聊天中展示给你。</Text>
+        <Text dimColor>它会自动更新并发送匿名使用统计。可使用 /show-your-work 修改设置，使用 /show-your-work tour 查看所有功能。</Text>
       </Box>
     </Box>
   )
@@ -5000,39 +5000,39 @@ async function prepareTour($: EngineInterface) {
   const recording = async () => {
     if (tourMedia.recording !== undefined) return
     tourMedia.recording = await (async () => {
-      const clip = await prepare($, `${dir}/trip-form.mp4`, 'New trip form')
+      const clip = await prepare($, `${dir}/trip-form.mp4`, '新建行程表单')
       const lead = clip.frames?.lead ?? 0
       const at = (s: number) => Math.max(0, s - lead)
       return {
         ...clip,
         // Where each step lands in the recording (its QA run, 1.3 s behind the log).
         changes: [
-          { title: 'Dates pick a range, nights in the summary', at: at(5.25) },
-          { title: 'Invalid emails rejected with a message', at: at(6.85) },
-          { title: 'Invites become chips', at: at(9.1) },
-          { title: 'Create trip opens the trip', at: at(10.5) },
+          { title: '日期可选择范围，摘要中显示晚数', at: at(5.25) },
+          { title: '无效邮箱会提示错误', at: at(6.85) },
+          { title: '邀请变成标签', at: at(9.1) },
+          { title: '创建行程后打开该行程', at: at(10.5) },
         ],
         checks: [
-          { name: 'Dates pick a range', ok: true, at: at(5.25) },
-          { name: 'Bad emails get a message', ok: true, at: at(6.85) },
-          { name: 'Invites become chips', ok: true, at: at(9.1) },
-          { name: 'Create trip opens the trip', ok: true, at: at(10.7) },
-          { name: 'Labels for screen readers', ok: true, at: at(11.2) },
+          { name: '日期可选择范围', ok: true, at: at(5.25) },
+          { name: '错误邮箱会收到提示', ok: true, at: at(6.85) },
+          { name: '邀请变成标签', ok: true, at: at(9.1) },
+          { name: '创建行程后打开该行程', ok: true, at: at(10.7) },
+          { name: '屏幕阅读器标签', ok: true, at: at(11.2) },
         ],
         summary: [
-          { label: 'Trip form works end to end', ok: true, passed: 4, total: 4 },
-          { label: 'Labels for screen readers', ok: true, passed: 1, total: 1 },
+          { label: '行程表单端到端可用', ok: true, passed: 4, total: 4 },
+          { label: '屏幕阅读器标签', ok: true, passed: 1, total: 1 },
         ],
       } as Shown
-    })().catch(() => prepare($, `${dir}/hero.jpg`, 'Tern homepage').catch(() => null))
+    })().catch(() => prepare($, `${dir}/hero.jpg`, 'Tern 首页').catch(() => null))
     await ready()
   }
   const compare = async () => {
     if (tourMedia.compare !== undefined) return
     tourMedia.compare = await (async () => ({
-      ...(await prepare($, `${dir}/hero.jpg`, 'Tern homepage')),
-      changes: [{ title: 'Trip card beside the headline' }, { title: 'Friends and trip count under the button' }],
-      compare: await prepare($, `${dir}/direction-b.jpg`, 'Original'),
+      ...(await prepare($, `${dir}/hero.jpg`, 'Tern 首页')),
+      changes: [{ title: '标题旁的行程卡片' }, { title: '按钮下方的好友与行程数量' }],
+      compare: await prepare($, `${dir}/direction-b.jpg`, '原始'),
     }) as Shown)().catch(() => null)
     await ready()
   }
@@ -5041,14 +5041,14 @@ async function prepareTour($: EngineInterface) {
     tourMedia.history = await (async () => {
       const hero = `${dir}/hero.jpg`
       return {
-        ...(await prepare($, `${dir}/breakpoints.jpg`, 'Tern homepage')),
-        changes: [{ title: 'Desktop, tablet and phone' }],
-        note: 'Desktop, tablet and phone',
+        ...(await prepare($, `${dir}/breakpoints.jpg`, 'Tern 首页')),
+        changes: [{ title: '桌面、平板和手机' }],
+        note: '桌面、平板和手机',
         compare: await preparedOf($, hero),
         history: [
-          { path: `${dir}/concepts.jpg`, note: 'Four directions' },
-          { path: `${dir}/direction-b.jpg`, note: 'Direction B, full size' },
-          { path: hero, note: 'Trip card beside the headline' },
+          { path: `${dir}/concepts.jpg`, note: '四个方向' },
+          { path: `${dir}/direction-b.jpg`, note: '方案 B，完整尺寸' },
+          { path: hero, note: '标题旁的行程卡片' },
         ],
         historyAt: 2,
       } as Shown
@@ -5115,26 +5115,26 @@ export async function Tour($: EngineInterface, e: Parameters<EngineInterface['ui
   const { Box, Text } = ui
   const s = STOPS[state.tourStop]!
   const media = mediaOf(s)
-  if (state.isTourDone) return <Text dimColor>✓ Tour finished. /show-your-work tour shows it again.</Text>
+  if (state.isTourDone) return <Text dimColor>✓ 导览已完成。可运行 /show-your-work tour 再次查看。</Text>
   // Pictures can't show here: the notice says how to turn them on, and the
   // tour runs again in the first session where they show.
   if (!state.canImage) {
     if (!isTourHeld) { isTourHeld = true; void $.store.set('toured', false).catch(() => undefined) }
     const notice = splash ? await Viewer($, e, atStep(splash, state.tourSite), state.tourSite, false, { columns: viewport?.columns ?? 100, rows: Math.max(24, viewport?.rows ?? 40) }) : null
-    return notice ?? <Text dimColor>Loading…</Text>
+    return notice ?? <Text dimColor>加载中…</Text>
   }
   const room = { columns: viewport?.columns ?? 100, rows: Math.max(24, viewport?.rows ?? 40) }
   if (!media && s.media) loadDemo($)
   // Nothing to look at yet: no bar, so Next can't be pressed before the demo shows.
-  if (!media && s.media) return <Text dimColor>Loading the demo…</Text>
+  if (!media && s.media) return <Text dimColor>正在加载演示…</Text>
   const view = media ? await Viewer($, e, atStep(media, state.tourSite), state.tourSite, false, room) : null
   const width = (view as { props?: { width?: number } } | null)?.props?.width ?? Math.min(room.columns - 2, 100)
   return (
     <Box flexDirection="column" rowGap={1}>
-      {view ?? (s.media && <Text dimColor>Loading the demo…</Text>)}
+      {view ?? (s.media && <Text dimColor>正在加载演示…</Text>)}
       {state.tourStop === STOPS.length - 1 && (
         <Box key="settings-box" flexDirection="column" borderStyle="round" borderColor="subtle" paddingX={1} width={width}>
-          <Text bold>Settings</Text>
+          <Text bold>设置</Text>
           <Box marginTop={1}>{SettingRows(ui, $)}</Box>
         </Box>
       )}
@@ -5177,12 +5177,12 @@ function TourBar(ui: Ui, $: EngineInterface, columns: number) {
         <Box flexGrow={1} flexShrink={1}><Text bold color="inverseText">{(isDone ? `✓  ${s.tag}` : s.tag).toUpperCase()}</Text></Box>
         <Box flexDirection="row" columnGap={3} flexShrink={0}>
           {/* No Back on the last step: it's a wrap-up, and Done is the only choice. */}
-          {at > 0 && !isLast && onBar('prev', '‹ Back', () => { act(`tour_back_${at}`); goToStop($, at - 1) }, { isButton: true })}
+          {at > 0 && !isLast && onBar('prev', '‹ 返回', () => { act(`tour_back_${at}`); goToStop($, at - 1) }, { isButton: true })}
           {/* Next fills in once the step is done; until then it's a plain button. */}
           {isLast
-            ? onBar('done', 'Done ›', () => void finishTour($, false), { isMain: true, isButton: true })
-            : onBar('next', 'Next ›', () => { act(`tour_next_${at}`); goToStop($, at + 1) }, { isMain: !s.goal || isDone, isButton: true })}
-          {!isLast && onBar('skip', 'Skip tour', () => void finishTour($, true))}
+            ? onBar('done', '完成 ›', () => void finishTour($, false), { isMain: true, isButton: true })
+            : onBar('next', '下一步 ›', () => { act(`tour_next_${at}`); goToStop($, at + 1) }, { isMain: !s.goal || isDone, isButton: true })}
+          {!isLast && onBar('skip', '跳过导览', () => void finishTour($, true))}
         </Box>
       </Box>
     </Box>
@@ -5395,27 +5395,27 @@ export const register: Register = on => {
     void $.process.run(['sh', '-c', CLEAN_SH, state.TMP]).then(() => trimFrames($))
     await $.command.register({
       name: 'show-your-work',
-      description: 'Settings for show-your-work; /show-your-work tour for the tour, /show-your-work update to check for updates, /show-your-work diagnose for recent problems',
+      description: 'show-your-work 设置；/show-your-work tour 查看导览，/show-your-work update 检查更新，/show-your-work diagnose 查看最近的问题',
       argumentHint: '[settings|tour|update|diagnose]',
     })
     await $.command.register({
       name: 'img',
-      description: 'Show an image or video in the chat: /img <path>',
+      description: '在聊天中展示图片或视频：/img <path>',
       argumentHint: '<path>',
     })
     await $.command.register({
       name: 'page',
-      description: 'Show a local HTML page in your terminal: /page <path>. Open page opens the live page.',
+      description: '在终端中展示本地 HTML 页面：/page <path>。“打开页面”将在浏览器中打开实时页面。',
       argumentHint: '<path>',
     })
     await $.command.register({
       name: 'audio',
-      description: 'Play an audio file in your terminal: /audio <path>',
+      description: '在终端中播放音频文件：/audio <path>',
       argumentHint: '<path>',
     })
     await $.command.register({
       name: 'doc',
-      description: 'Show a PDF, Markdown or Mermaid document in your terminal: /doc <path>',
+      description: '在终端中展示 PDF、Markdown 或 Mermaid 文档：/doc <path>',
       argumentHint: '<path>',
     })
     await $.tool.register({
@@ -5498,12 +5498,12 @@ export const register: Register = on => {
       const found = name ? await findPasted($, name) : null
       if (!found) {
         return {
-          text: 'Pasted images reach Claude, not mods, so /img cannot read one. Drag the file into the prompt (that types its path) or type the path: /img ~/path/to/file.png',
+          text: '粘贴的图片会发送给 Claude，而不会传给模组，因此 /img 无法读取。请将文件拖入输入框（会自动输入路径），或手动输入路径：/img ~/path/to/file.png',
         }
       }
       arg = found
     }
-    if (!arg) return { text: 'Usage: /img <path>' }
+    if (!arg) return { text: '用法：/img <path>' }
     try {
       const shown = await prepare($, arg)
       // Drawn in the chat, in this command's own row, by the CommandOutput hook.
@@ -5514,7 +5514,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('img_command', { kind: shown.frames ? 'video' : 'image' })
-      return { text: `Showing ${shown.title}.\n${MARK}#${id}` }
+      return { text: `正在展示 ${shown.title}。\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, expand(arg, state.cwd, state.home), state.home)
       track('show_failed', { from: 'img_command', reason: REASONS[n.kind] })
@@ -5525,8 +5525,8 @@ export const register: Register = on => {
   on('command.run', { command: 'page' }, async ($, invoked) => {
     await setUp($)
     const arg = expand(invoked.args.trim(), state.cwd, state.home)
-    if (!invoked.args.trim()) return { text: 'Usage: /page <path to a local .html file>' }
-    if (!isPage(arg)) return { text: 'Pages are .html or .htm files. For images and videos use /img <path>.' }
+    if (!invoked.args.trim()) return { text: '用法：/page <本地 .html 文件路径>' }
+    if (!isPage(arg)) return { text: '页面必须是 .html 或 .htm 文件。图片和视频请使用 /img <path>。' }
     try {
       const shown = await prepare($, arg, `Page · ${arg.split('/').pop()}`)
       const id = keyOf(`${arg}|${await $.clock.now()}`).slice(0, 10)
@@ -5534,7 +5534,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('page_command', { kind: 'image' })
-      return { text: `Previewing ${shown.title}. Open page opens it in your browser.\n${MARK}#${id}` }
+      return { text: `正在预览 ${shown.title}。“打开页面”将在浏览器中打开。\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, arg, state.home)
       track('show_failed', { from: 'page_command', reason: REASONS[n.kind] })
@@ -5545,8 +5545,8 @@ export const register: Register = on => {
   on('command.run', { command: 'audio' }, async ($, invoked) => {
     await setUp($)
     const arg = expand(invoked.args.trim(), state.cwd, state.home)
-    if (!invoked.args.trim()) return { text: 'Usage: /audio <path to a local .mp3 or .wav file>' }
-    if (!isAudio(arg)) return { text: 'Audio is .mp3 or .wav files. For images and videos use /img <path>, for HTML pages /page <path>.' }
+    if (!invoked.args.trim()) return { text: '用法：/audio <本地 .mp3 或 .wav 文件路径>' }
+    if (!isAudio(arg)) return { text: '音频必须是 .mp3 或 .wav 文件。图片和视频请使用 /img <path>，HTML 页面请使用 /page <path>。' }
     try {
       const shown = await prepare($, arg)
       const id = keyOf(`${arg}|${await $.clock.now()}`).slice(0, 10)
@@ -5554,7 +5554,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('audio_command', { kind: shown.frames ? 'audio' : 'image' })
-      return { text: `Showing ${shown.title}.${soundUsable() ? ' Press Play to hear it.' : ''}\n${MARK}#${id}` }
+      return { text: `正在展示 ${shown.title}。${soundUsable() ? '按“播放”即可收听。' : ''}\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, arg, state.home)
       track('show_failed', { from: 'audio_command', reason: REASONS[n.kind] })
@@ -5565,8 +5565,8 @@ export const register: Register = on => {
   on('command.run', { command: 'doc' }, async ($, invoked) => {
     await setUp($)
     const arg = expand(invoked.args.trim(), state.cwd, state.home)
-    if (!invoked.args.trim()) return { text: 'Usage: /doc <path to a local .pdf, .md or .mmd file>' }
-    if (!isDocument(arg)) return { text: 'Documents are .pdf, .md, .markdown, .mmd or .mermaid files. For images, videos and audio use /img <path>, for HTML pages /page <path>.' }
+    if (!invoked.args.trim()) return { text: '用法：/doc <本地 .pdf、.md 或 .mmd 文件路径>' }
+    if (!isDocument(arg)) return { text: '文档必须是 .pdf、.md、.markdown、.mmd 或 .mermaid 文件。图片、视频和音频请使用 /img <path>，HTML 页面请使用 /page <path>。' }
     try {
       const shown = await prepareDocument($, arg, arg.split('/').pop()!)
       const id = keyOf(`${arg}|${await $.clock.now()}`).slice(0, 10)
@@ -5574,7 +5574,7 @@ export const register: Register = on => {
       await $.process.run(['sh', '-c', 'printf "%s" "$1" > "$0"', `${await storeOf($)}/${id}.shown`, JSON.stringify(shown)]).catch(() => undefined)
 
       track('doc_command', { kind: 'document' })
-      return { text: `Showing ${shown.title} (${shown.pages?.count ?? 1} page${(shown.pages?.count ?? 1) === 1 ? '' : 's'}).\n${MARK}#${id}` }
+      return { text: `正在展示 ${shown.title}（共 ${shown.pages?.count ?? 1} 页）。\n${MARK}#${id}` }
     } catch (err) {
       const n = noticeOf(err, arg, state.home)
       track('show_failed', { from: 'doc_command', reason: REASONS[n.kind] })
@@ -5587,7 +5587,7 @@ export const register: Register = on => {
       path?: string; title?: string; change?: string; pr?: string; changes?: KeyChange[]; summary?: Summary[]; url?: string; checks?: Check[]
       compare?: string; compare_checks?: Check[]; label?: string; compare_label?: string; overlay?: Overlay; versions?: unknown; previous?: string; changes_title?: string
     }
-    if (!input.path) return { deny: 'A path is needed.' }
+    if (!input.path) return { deny: '需要提供路径。' }
     await setUp($)
     // The history's copy of a file that then can't be shown goes again.
     let copied = ''
@@ -5700,7 +5700,7 @@ export const register: Register = on => {
       track('show_failed', { from: String((e as { tool?: string }).tool ?? '').endsWith('video') ? 'show_video' : String((e as { tool?: string }).tool ?? '').endsWith('audio') ? 'show_audio' : String((e as { tool?: string }).tool ?? '').endsWith('document') ? 'show_document' : 'show_image', reason: REASONS[n.kind] })
       return { deny: `show-your-work: ${n.message}` }
     }
-  }).catch(() => ({ deny: 'show-your-work: it could not be shown.' }))
+  }).catch(() => ({ deny: 'show-your-work：无法显示。' }))
 
   // The call's own row: one short line, not the whole input.
   on('ui.render', { component: 'ToolUse' }, ($, e, next) => {
@@ -5719,7 +5719,7 @@ export const register: Register = on => {
       const n = notices.get((props as { tool_use_id?: string }).tool_use_id ?? '') ??
         (textOf(props.output).includes(NO_FFMPEG) ? noticeOf(new Error(NO_FFMPEG), '') : undefined)
       if (!n) return next(e)
-      return NoticeBox($.ui.resolve(e) as Ui, $, (e.viewport?.columns ?? 100) - 8, { ...n, copy: n.prompt, label: 'Copy prompt', action: `copy_${n.kind}_prompt` })
+      return NoticeBox($.ui.resolve(e) as Ui, $, (e.viewport?.columns ?? 100) - 8, { ...n, copy: n.prompt, label: '复制提示词', action: `copy_${n.kind}_prompt` })
     }
     // Scrolled out of view: stop playing.
     const one = player(e.requestId)
@@ -5766,7 +5766,7 @@ export const register: Register = on => {
   on('ui.render', { component: 'Pane', requestId: PANE }, async ($, e) => {
     const { Text } = $.ui.resolve(e)
     const shown = await read($, current)
-    if (!shown) return <Text dimColor>Nothing to show yet. Run /img path/to/file</Text>
+    if (!shown) return <Text dimColor>暂无可展示内容。请运行 /img path/to/file</Text>
 
     return Viewer($, e, atStep(shown, PANE), PANE, true, paneSize(e.viewport, e.props as PaneProps))
   })
@@ -5782,17 +5782,17 @@ export const register: Register = on => {
     if (/^diagnose$/i.test(invoked.args.trim())) return { text: diagnosis(await $.clock.now()) }
     if (/^update$/i.test(invoked.args.trim())) {
       void openUpdate($).catch(() => undefined)
-      return { text: 'Checking for show-your-work updates.' }
+      return { text: '正在检查 show-your-work 更新。' }
     }
     // /show-your-work settings (or setting) opens them, never closes them.
     const isSettings = /^settings?$/i.test(invoked.args.trim())
     // Run again while they're open, the settings close.
     if (!isSettings && (await $.ui.panes()).some(pane => pane.id === WELCOME)) {
       await $.ui.close({ id: WELCOME })
-      return { text: 'Closed the show-your-work settings.' }
+      return { text: '已关闭 show-your-work 设置。' }
     }
     await openSettings($)
-    return { text: 'Opened the show-your-work settings.' }
+    return { text: '已打开 show-your-work 设置。' }
   })
 
   on('ui.render', { component: 'Pane', requestId: UPDATE }, async ($, e) => {
@@ -5842,7 +5842,7 @@ export const register: Register = on => {
       }
       if (e.requestId !== state.tourSite) {
         const { Text } = $.ui.resolve(e) as Ui
-        return <Text dimColor>This tour moved to a newer one below.</Text>
+        return <Text dimColor>此导览已移至下方的新导览。</Text>
       }
       // A plugin reload resets the module's state. setUp reads the Claude Code
       // version again, which decides whether buttons can have coloured text.

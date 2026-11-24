@@ -57,8 +57,8 @@ export function taskFrom(messages: readonly SessionMessage[]): Task {
 export function describeMeta(tool: string, meta: Meta): string {
   const k = (n: number | undefined) =>
     n === undefined ? '?' : n >= 10_000 ? `${Math.round(n / 1000)}k` : n >= 1000 ? `${(n / 1000).toFixed(1)}k` : String(n)
-  const key = meta.key === undefined ? '' : `; winnow_recall ${meta.key}`
-  return `winnow: hid ${meta.hidden ?? '?'} of ${meta.blocks ?? '?'} blocks of ${tool} (${k(meta.before)} to ${k(meta.after)} chars${key})`
+  const key = meta.key === undefined ? '' : `；winnow_recall ${meta.key}`
+  return `winnow：隐藏了 ${tool} 的 ${meta.hidden ?? '?'} / ${meta.blocks ?? '?'} 个块（${k(meta.before)} 到 ${k(meta.after)} 个字符${key}）`
 }
 
 async function post(

@@ -82,7 +82,7 @@ export async function checkForUpdate($: EngineInterface, current: string, branch
   track('update_check', { result: found.kind, channel: branch, ...('latest' in found ? { latest: found.latest } : {}) })
   if (found.kind !== 'offline' && found.kind !== 'no_cli') await $.store.set('updateCheckedAt', now)
   const isReady = found.kind === 'pending' || ((found.kind === 'update' || found.kind === 'move') && (await installUpdate($, found, current)))
-  if (isReady && 'latest' in found) $.ui.status(`show-your-work ${found.latest} is ready. Restart Claude Code to use it.`)
+  if (isReady && 'latest' in found) $.ui.status(`show-your-work ${found.latest} 已就绪。重启 Claude Code 即可使用。`)
 }
 
 // The result of checking for an update:

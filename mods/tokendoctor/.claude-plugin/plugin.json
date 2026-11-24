@@ -20,14 +20,14 @@
   "userConfig": {
     "slide": {
       "type": "boolean",
-      "title": "Slide the window instead of compacting",
-      "description": "Where Claude Code would summarize the conversation, elide old tool outputs instead (they can be read again): no summary request, every prompt and answer kept word for word. /compact still summarizes.",
+      "title": "滑动窗口，而不是压缩",
+      "description": "在 Claude Code 本该总结对话的地方，改为省略旧的工具输出（它们可以重新读取）：不发起总结请求，每条提示和回答都逐字保留。/compact 仍然会总结。",
       "default": false
     },
     "slideTo": {
       "type": "number",
-      "title": "Slide down to (% of where Claude Code compacts)",
-      "description": "How far a slide frees the context, as a percent of the point where Claude Code compacts (20 to 90). Lower leaves less behind and more turns before the next slide.",
+      "title": "滑到（Claude Code 压缩点的百分比）",
+      "description": "一次滑动把上下文释放到多低，取 Claude Code 压缩点的百分比（20 到 90）。数值越低，留下的内容越少，距离下一次滑动可进行的轮次越多。",
       "default": 25
     }
   }

@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Usage Report</title>
+<title>Token 用量报告</title>
 <style>
 @font-face { font-family: 'TD Sans'; font-weight: 100 900; font-display: block; src: /*__FONT_SANS__*/; }
 @font-face { font-family: 'TD Heading'; font-weight: 100 1000; font-display: block; src: /*__FONT_HEADING__*/; }
@@ -120,11 +120,11 @@ footer { color: var(--muted); font-size: 12.5px; margin-top: 48px; padding-top: 
 </head>
 <body>
 <div class="bar"><div class="wrap">
-  <div class="brand">tokendoctor<span>usage report</span></div>
-  <div class="seg" id="range" role="group" aria-label="Period"></div>
-  <div class="seg" id="thread" role="group" aria-label="Thread"></div>
-  <select id="project" aria-label="Project"></select>
-  <button class="icon" id="theme" type="button" aria-label="Switch light or dark">◐</button>
+  <div class="brand">tokendoctor<span>用量报告</span></div>
+  <div class="seg" id="range" role="group" aria-label="时间范围"></div>
+  <div class="seg" id="thread" role="group" aria-label="线程"></div>
+  <select id="project" aria-label="项目"></select>
+  <button class="icon" id="theme" type="button" aria-label="切换亮色或暗色">◐</button>
 </div></div>
 <main class="wrap">
   <p class="meta" id="meta"></p>
@@ -133,16 +133,16 @@ footer { color: var(--muted); font-size: 12.5px; margin-top: 48px; padding-top: 
   <div class="parts" id="parts"></div>
   <div class="vitals" id="vitals"></div>
 
-  <section><p class="cap">Spend by day, main thread and subagents</p><h2 id="h-days"></h2><div class="legend" id="days-legend"></div><div id="days"></div></section>
+  <section><p class="cap">按天统计的支出，主线程与子代理</p><h2 id="h-days"></h2><div class="legend" id="days-legend"></div><div id="days"></div></section>
   <div class="pair">
-    <section><p class="cap">By model</p><h2 id="h-models"></h2><div class="legend" id="models-legend"></div><div class="scroll" id="models"></div></section>
-    <section><p class="cap">By reasoning effort; thinking is part of output</p><h2 id="h-efforts"></h2><div class="scroll" id="efforts"></div></section>
-    <section><p class="cap">Main thread and each kind of subagent</p><h2 id="h-threads"></h2><div class="scroll" id="threads"></div></section>
-    <section><p class="cap">Main-thread context size when each request went out</p><h2 id="h-contexts"></h2><div class="scroll" id="contexts"></div></section>
+    <section><p class="cap">按模型</p><h2 id="h-models"></h2><div class="legend" id="models-legend"></div><div class="scroll" id="models"></div></section>
+    <section><p class="cap">按推理强度；思考计入输出</p><h2 id="h-efforts"></h2><div class="scroll" id="efforts"></div></section>
+    <section><p class="cap">主线程以及各类子代理</p><h2 id="h-threads"></h2><div class="scroll" id="threads"></div></section>
+    <section><p class="cap">每个请求发出时主线程的上下文大小</p><h2 id="h-contexts"></h2><div class="scroll" id="contexts"></div></section>
   </div>
-  <section><p class="cap">By project</p><h2 id="h-projects"></h2><div class="legend" id="projects-legend"></div><div class="scroll" id="projects"></div></section>
-  <section><p class="cap">By weekday and hour, local time, for the period (all projects and threads)</p><h2 id="h-heat"></h2><div class="scroll" id="heat"></div></section>
-  <section><p class="cap">Largest sessions, main thread plus its subagents</p><h2 id="h-sessions"></h2><div class="scroll" id="sessions"></div></section>
+  <section><p class="cap">按项目</p><h2 id="h-projects"></h2><div class="legend" id="projects-legend"></div><div class="scroll" id="projects"></div></section>
+  <section><p class="cap">该时间段内按星期和小时（当地时间）统计，包含所有项目和线程</p><h2 id="h-heat"></h2><div class="scroll" id="heat"></div></section>
+  <section><p class="cap">用量最大的会话，含主线程及其子代理</p><h2 id="h-sessions"></h2><div class="scroll" id="sessions"></div></section>
   <footer id="foot"></footer>
 </main>
 <div id="tip" role="tooltip"></div>
@@ -150,12 +150,12 @@ footer { color: var(--muted); font-size: 12.5px; margin-top: 48px; padding-top: 
 const DATA = /*__TOKENDOCTOR_DATA__*/null;
 // Kinds of cost: [key, name, color, what it is, how its amount reads].
 const KINDS = [
-  ['cacheRead', 'Cache read', 's1', 'the conversation read back from the cache', (t) => `${num(t.cacheRead)} tokens`],
-  ['cacheWrite', 'Cache write', 's2', 'new context written to the cache', (t) => `${num(t.cacheWrite)} tokens`],
-  ['output', 'Output', 's3', 'what Claude wrote, thinking included', (t) => `${num(t.output)} tokens`],
-  ['input', 'Input', 's4', 'uncached input', (t) => `${num(t.input)} tokens`],
-  ['hidden', 'Not in transcripts', 's5', 'billed but not written down: summaries, titles, WebFetch reads', (t) => plural(t.summaries, 'summary compaction', 'summary compactions')],
-  ['search', 'Web search', 's6', '$10 per 1,000 searches', (t) => plural(t.searches, 'search', 'searches')],
+  ['cacheRead', '缓存读取', 's1', '从缓存读回的对话', (t) => `${num(t.cacheRead)} 个 token`],
+  ['cacheWrite', '缓存写入', 's2', '写入缓存的新上下文', (t) => `${num(t.cacheWrite)} 个 token`],
+  ['output', '输出', 's3', 'Claude 写出的内容，含思考', (t) => `${num(t.output)} 个 token`],
+  ['input', '输入', 's4', '未缓存的输入', (t) => `${num(t.input)} 个 token`],
+  ['hidden', '不在记录中', 's5', '已计费但未写入记录：总结、标题、WebFetch 读取', (t) => plural(t.summaries, '次总结压缩', '次总结压缩')],
+  ['search', '网页搜索', 's6', '每 1,000 次搜索 10 美元', (t) => plural(t.searches, '次搜索', '次搜索')],
 ];
 const TOKENS = ['input', 'cacheWrite', 'cacheRead', 'output', 'thinking', 'searches', 'summaries'];
 const MODEL_ORDER = ['opus', 'sonnet', 'haiku', 'fable'];
@@ -224,7 +224,7 @@ function seg(id, options, key) {
   $(id).onclick = (e) => { const b = e.target.closest('button'); if (b) { state[key] = b.dataset.v; draw(); } };
 }
 const projects = ranked(group(DATA.rows, 'project')).map(([p]) => p);
-$('project').innerHTML = `<option value="all">All projects</option>` + projects.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+$('project').innerHTML = `<option value="all">所有项目</option>` + projects.map((p) => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
 $('project').onchange = (e) => { state.project = e.target.value; draw(); };
 
 // The headline names the largest kind of spend in words.
@@ -243,7 +243,7 @@ function dayChart(rows) {
   const first = allDays.find((d) => d >= c);
   const span = [];
   for (let d = first; d && d <= lastDay; d = dayAdd(d, 1)) span.push(d);
-  if (!span.length || !span.some((d) => by.get(d)?.usd > 0)) return '<p class="cap">No spend in this view.</p>';
+  if (!span.length || !span.some((d) => by.get(d)?.usd > 0)) return '<p class="cap">此视图中没有支出。</p>';
   const W = 1088, H = 260, L = 44, B = 26, T = 6;
   const max = Math.max(1, ...span.map((d) => by.get(d)?.usd ?? 0));
   const p10 = Math.pow(10, Math.floor(Math.log10(max / 4)));
@@ -251,7 +251,7 @@ function dayChart(rows) {
   const top = Math.ceil(max / tick) * tick;
   const y = (n) => T + (H - T - B) * (1 - n / top);
   const bw = (W - L) / span.length, gap = Math.max(1, Math.min(6, bw * 0.28));
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spend by day">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="按天统计的支出">`;
   for (let t = tick; t <= top + 1e-9; t += tick) s += `<line x1="${L}" x2="${W}" y1="${y(t)}" y2="${y(t)}" stroke="${v('line')}"/><text x="${L - 10}" y="${y(t) + 4}" text-anchor="end">${money(t)}</text>`;
   s += `<line x1="${L}" x2="${W}" y1="${y(0)}" y2="${y(0)}" stroke="${v('muted')}" stroke-opacity="0.5"/>`;
   const every = Math.ceil(span.length / 9);
@@ -262,7 +262,7 @@ function dayChart(rows) {
     if (g.main > 0) s += bar(x, ym, w, y(0) - ym, g.agents > 0 ? 0 : 3, 's1');
     if (g.agents > 0) s += bar(x, ya, w, Math.max(0.5, ym - ya - (g.main > 0 ? 2 : 0)), 3, 's2');
     if (i % every === 0) s += `<text x="${x + w / 2}" y="${H - 6}" text-anchor="middle">${day(d)}</text>`;
-    const t = `<b>${day(d)}</b>` + row('s1', 'Main thread', money(g.main)) + row('s2', 'Subagents', money(g.agents)) + row('', 'Total', money(g.usd)) + row('', 'Requests', num(g.requests));
+    const t = `<b>${day(d)}</b>` + row('s1', '主线程', money(g.main)) + row('s2', '子代理', money(g.agents)) + row('', '合计', money(g.usd)) + row('', '请求数', num(g.requests));
     s += `<rect class="hit" x="${L + i * bw}" y="${T}" width="${bw}" height="${H - T - B}" data-tip="${esc(t)}"/>`;
   });
   return s + '</svg>';
@@ -277,9 +277,9 @@ function bar(x, y, w, h, r, color) {
 function table(entries, { name, split, extra = [], of }) {
   const top = Math.max(1, ...entries.map(([, g]) => g.usd));
   const all = of ?? entries.reduce((s, [, g]) => s + g.usd, 0);
-  const head = `<thead><tr><th>${name}</th><th class="barcell"></th><th>Cost</th><th>Share</th>${extra.map((e) => `<th>${e[0]}</th>`).join('')}</tr></thead>`;
+  const head = `<thead><tr><th>${name}</th><th class="barcell"></th><th>费用</th><th>占比</th>${extra.map((e) => `<th>${e[0]}</th>`).join('')}</tr></thead>`;
   const body = entries.map(([k, g, color]) => {
-    const t = `<b>${esc(k)}</b>` + (split ? row('s1', 'Main thread', money(g.main)) + row('s2', 'Subagents', money(g.agents)) : '') + row('', 'Cost', money(g.usd)) + row('', 'Requests', num(g.requests)) + row('', 'Cache read', num(g.cacheRead) + ' tokens') + row('', 'Output', num(g.output) + ' tokens');
+    const t = `<b>${esc(k)}</b>` + (split ? row('s1', '主线程', money(g.main)) + row('s2', '子代理', money(g.agents)) : '') + row('', '费用', money(g.usd)) + row('', '请求数', num(g.requests)) + row('', '缓存读取', num(g.cacheRead) + ' 个 token') + row('', '输出', num(g.output) + ' 个 token');
     const fill = split
       ? (g.main > 0 ? `<span style="width:${share(g.main, top)}%;background:${v('s1')}"></span>` : '') + (g.agents > 0 ? `<span style="width:${share(g.agents, top)}%;background:${v('s2')}"></span>` : '')
       : `<span style="width:${share(g.usd, top)}%;background:${v(color ?? 's1')}"></span>`;
@@ -288,7 +288,7 @@ function table(entries, { name, split, extra = [], of }) {
   return `<table>${head}<tbody>${body}</tbody></table>`;
 }
 const MODEL_LABEL = (m) => ({ opus: 'Opus', sonnet: 'Sonnet', haiku: 'Haiku', fable: 'Fable' })[m] ?? m;
-const legendMA = `<span><i style="background:${v('s1')}"></i>Main thread</span><span><i style="background:${v('s2')}"></i>Subagents</span>`;
+const legendMA = `<span><i style="background:${v('s1')}"></i>主线程</span><span><i style="background:${v('s2')}"></i>子代理</span>`;
 
 function heatGrid() {
   const c = cutoff();
@@ -300,18 +300,18 @@ function heatGrid() {
   }
   return grid;
 }
-const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 function heat(grid) {
-  if (!grid.flat().some((x) => x > 0)) return '<p class="cap">No activity in this period.</p>';
+  if (!grid.flat().some((x) => x > 0)) return '<p class="cap">此时间段内没有活动。</p>';
   const max = Math.max(1, ...grid.flat());
   const steps = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'];
   const W = 1088, L = 40, T = 2, cw = (W - L) / 24, ch = 28, H = T + 7 * ch + 22;
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Spend by weekday and hour">`;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="按星期和小时统计的支出">`;
   grid.forEach((r, wd) => {
     s += `<text x="${L - 10}" y="${T + wd * ch + ch / 2 + 4}" text-anchor="end">${WEEKDAYS[wd].slice(0, 3)}</text>`;
     r.forEach((x, h) => {
       const fill = x > 0 ? v(steps[Math.min(6, Math.floor(7 * Math.sqrt(x / max)))]) : v('track');
-      s += `<rect x="${L + h * cw + 1.5}" y="${T + wd * ch + 1.5}" width="${cw - 3}" height="${ch - 3}" rx="4" fill="${fill}" data-tip="${esc(`<b>${WEEKDAYS[wd]}, ${String(h).padStart(2, '0')}:00</b>` + row('', 'Cost', money(x)))}"/>`;
+      s += `<rect x="${L + h * cw + 1.5}" y="${T + wd * ch + 1.5}" width="${cw - 3}" height="${ch - 3}" rx="4" fill="${fill}" data-tip="${esc(`<b>${WEEKDAYS[wd]}, ${String(h).padStart(2, '0')}:00</b>` + row('', '费用', money(x)))}"/>`;
     });
   });
   for (let h = 0; h < 24; h += 3) s += `<text x="${L + h * cw + cw / 2}" y="${H - 4}" text-anchor="middle">${String(h).padStart(2, '0')}:00</text>`;
@@ -319,22 +319,22 @@ function heat(grid) {
 }
 
 function draw() {
-  seg('range', [['all', 'All time'], ['90', '90 days'], ['30', '30 days'], ['7', '7 days']], 'range');
-  seg('thread', [['all', 'Everything'], ['main', 'Main thread'], ['agents', 'Subagents']], 'thread');
+  seg('range', [['all', '全部时间'], ['90', '过去 90 天'], ['30', '过去 30 天'], ['7', '过去 7 天']], 'range');
+  seg('thread', [['all', '全部'], ['main', '主线程'], ['agents', '子代理']], 'thread');
   const rows = filtered();
   const t = total(rows);
   const c = cutoff();
   const days = allDays.filter((d) => d >= c);
   const sess = DATA.sessions.filter((x) => x.day >= c && (state.project === 'all' || x.project === state.project));
   const when = days.length === 1 ? day(days[0]) : `${day(days[0])} to ${day(days.at(-1))}`;
-  $('meta').textContent = days.length ? `${when}, ${plural(days.length, 'active day')}, ${plural(t.requests, 'request')}, ${plural(sess.length, 'session')}` : 'Nothing in this period.';
+  $('meta').textContent = days.length ? `${when}，${plural(days.length, '个活跃日')}，${plural(t.requests, '个请求')}，${plural(sess.length, '个会话')}` : '此时间段内没有数据。';
 
   // Diagnosis: the headline, the anatomy of the spend, and its parts.
   const kinds = [...KINDS].sort((a, b) => t.usdBy[b[0]] - t.usdBy[a[0]]);
   $('headline').textContent = t.usd ? HEADLINE[kinds[0][0]](pct(t.usdBy[kinds[0][0]], t.usd)) : 'No usage in this period.';
   $('anatomy').setAttribute('aria-label', kinds.map(([k, n]) => `${n} ${pct(t.usdBy[k], t.usd)}`).join(', '));
   $('anatomy').innerHTML = KINDS.filter(([k]) => t.usdBy[k] > 0).map(([k, n, col]) =>
-    `<span style="flex:${share(t.usdBy[k], t.usd)} 1 0;background:${v(col)}" data-tip="${esc(`<b>${n}</b>` + row('', 'Share of cost', pct(t.usdBy[k], t.usd)) + row('', 'Cost', money(t.usdBy[k])) + row('', 'Tokens', num(t[k])))}"></span>`).join('');
+    `<span style="flex:${share(t.usdBy[k], t.usd)} 1 0;background:${v(col)}" data-tip="${esc(`<b>${n}</b>` + row('', '费用占比', pct(t.usdBy[k], t.usd)) + row('', '费用', money(t.usdBy[k])) + row('', 'Token 数', num(t[k])))}"></span>`).join('');
   $('parts').innerHTML = KINDS.filter(([k]) => t.usdBy[k] > 0 || ['cacheRead', 'cacheWrite', 'output', 'input'].includes(k)).map(([k, n, col, what, amount]) =>
     `<div class="part"><div class="name"><i style="background:${v(col)}"></i>${n}</div><div class="share">${pct(t.usdBy[k], t.usd)}</div><div class="note">${amount(t)}, ${what}</div></div>`).join('');
 
@@ -345,54 +345,54 @@ function draw() {
   const over200 = (ctx.get('400K+')?.usd ?? 0) + (ctx.get('200–400K')?.usd ?? 0);
   const prompt = t.input + t.cacheRead + t.cacheWrite;
   $('vitals').innerHTML = [
-    [money(t.usd), '<abbr title="Each response priced at its model\'s Claude API list price. On a Pro or Max plan this is what the same work would cost on the API, not what it took from the plan\'s limits.">at API list prices</abbr>'],
-    [pct(t.agents, t.usd), 'went to subagents'],
-    [topModel ? pct(topModel[1].usd, t.usd) : '–', topModel ? `on ${MODEL_LABEL(topModel[0])}` : 'top model'],
-    [pct(over200, mainUsd), 'of the main thread above 200K context'],
-    [pct(t.cacheRead, prompt), 'of prompt tokens came from the cache'],
+    [money(t.usd), '<abbr title="每次回复按模型的 Claude API 标价计算。Pro 或 Max 套餐下，这是同样工作在 API 上的费用，而不是套餐额度里的实际扣减。">按 API 标价计算</abbr>'],
+    [pct(t.agents, t.usd), '用于子代理'],
+    [topModel ? pct(topModel[1].usd, t.usd) : '–', topModel ? `来自 ${MODEL_LABEL(topModel[0])}` : '用量最大的模型'],
+    [pct(over200, mainUsd), '来自上下文超过 200K 的主线程'],
+    [pct(t.cacheRead, prompt), '的提示 token 来自缓存'],
   ].map(([val, k]) => `<div class="vital"><div class="v">${val}</div><div class="k">${k}</div></div>`).join('');
 
   // Findings, each headed by what it shows.
   const byDay = ranked(group(rows, 'day'))[0];
-  $('h-days').textContent = byDay ? `The heaviest day was ${day(byDay[0])}, with ${pct(byDay[1].usd, t.usd)} of the period's spend.` : 'No days in this period.';
+  $('h-days').textContent = byDay ? `支出最多的一天是 ${day(byDay[0])}，占该时间段支出的 ${pct(byDay[1].usd, t.usd)}。` : '此时间段内没有数据。';
   $('days-legend').innerHTML = legendMA;
   $('days').innerHTML = dayChart(rows);
 
-  $('h-models').textContent = topModel ? `${MODEL_LABEL(topModel[0])} did ${pct(topModel[1].usd, t.usd)} of the work, by cost.` : 'No usage in this view.';
+  $('h-models').textContent = topModel ? `${MODEL_LABEL(topModel[0])} 按费用计算完成了 ${pct(topModel[1].usd, t.usd)} 的工作。` : '此视图中没有用量数据。';
   $('models-legend').innerHTML = legendMA;
-  $('models').innerHTML = table([...models].sort((a, b) => MODEL_ORDER.indexOf(a[0]) - MODEL_ORDER.indexOf(b[0])).map(([k, g]) => [MODEL_LABEL(k), g]), { name: 'Model', split: true, of: t.usd, extra: [['Requests', (g) => num(g.requests)]] });
+  $('models').innerHTML = table([...models].sort((a, b) => MODEL_ORDER.indexOf(a[0]) - MODEL_ORDER.indexOf(b[0])).map(([k, g]) => [MODEL_LABEL(k), g]), { name: '模型', split: true, of: t.usd, extra: [['请求数', (g) => num(g.requests)]] });
 
   const efforts = group(rows, 'effort');
   const highUp = ['high', 'xhigh', 'max'].reduce((s, k) => s + (efforts.get(k)?.usd ?? 0), 0);
-  $('h-efforts').textContent = t.usd ? `${pct(highUp, t.usd)} of the spend ran at high effort or above.` : 'No usage in this view.';
-  $('efforts').innerHTML = table([...efforts].sort((a, b) => EFFORT_ORDER.indexOf(a[0]) - EFFORT_ORDER.indexOf(b[0])), { name: 'Effort', of: t.usd, extra: [['Thinking', (g) => num(g.thinking)]] });
+  $('h-efforts').textContent = t.usd ? `${pct(highUp, t.usd)} 的支出用在较高或更高的推理强度上。` : '此视图中没有用量数据。';
+  $('efforts').innerHTML = table([...efforts].sort((a, b) => EFFORT_ORDER.indexOf(a[0]) - EFFORT_ORDER.indexOf(b[0])), { name: '推理强度', of: t.usd, extra: [['思考', (g) => num(g.thinking)]] });
 
-  const threads = ranked(group(rows, (r) => r[F.thread] === 'main' ? 'Main thread' : r[F.thread] === 'sidechain' ? 'subagent (older transcripts)' : r[F.thread].replace('agent:', '')));
-  const topAgent = threads.find(([k]) => k !== 'Main thread');
-  $('h-threads').textContent = t.agents ? `Subagents took ${pct(t.agents, t.usd)}, most of it ${topAgent[0]}.` : 'No subagents in this view.';
-  $('threads').innerHTML = table(threads.slice(0, 8), { name: 'Thread', of: t.usd, extra: [['Requests', (g) => num(g.requests)]] });
+  const threads = ranked(group(rows, (r) => r[F.thread] === 'main' ? '主线程' : r[F.thread] === 'sidechain' ? '子代理（旧记录）' : r[F.thread].replace('agent:', '')));
+  const topAgent = threads.find(([k]) => k !== '主线程');
+  $('h-threads').textContent = t.agents ? `子代理占了 ${pct(t.agents, t.usd)}，其中主要是 ${topAgent[0]}。` : '此视图中没有子代理。';
+  $('threads').innerHTML = table(threads.slice(0, 8), { name: '线程', of: t.usd, extra: [['请求数', (g) => num(g.requests)]] });
 
   const order = ['<100K', '100–200K', '200–400K', '400K+'], ramp = ['o1', 'o2', 'o3', 'o4'];
-  $('h-contexts').textContent = mainUsd ? `${pct(over200, mainUsd)} of main-thread spend went out above 200K tokens of context.` : 'No main-thread requests in this view.';
-  $('contexts').innerHTML = table(order.filter((k) => ctx.has(k)).map((k) => [k, ctx.get(k), ramp[order.indexOf(k)]]), { name: 'Context', extra: [['Requests', (g) => num(g.requests)]] });
+  $('h-contexts').textContent = mainUsd ? `${pct(over200, mainUsd)} 的主线程支出发生在上下文超过 200K token 时。` : '此视图中没有主线程请求。';
+  $('contexts').innerHTML = table(order.filter((k) => ctx.has(k)).map((k) => [k, ctx.get(k), ramp[order.indexOf(k)]]), { name: '上下文', extra: [['请求数', (g) => num(g.requests)]] });
 
   const proj = ranked(group(rows, 'project'));
-  $('h-projects').textContent = proj[0] ? `${proj[0][0]} took ${pct(proj[0][1].usd, t.usd)} of the spend.` : 'No usage in this view.';
+  $('h-projects').textContent = proj[0] ? `${proj[0][0]} 占了 ${pct(proj[0][1].usd, t.usd)} 的支出。` : '此视图中没有用量数据。';
   $('projects-legend').innerHTML = legendMA;
-  $('projects').innerHTML = table(proj.slice(0, 12), { name: 'Project', split: true, of: t.usd, extra: [['Requests', (g) => num(g.requests)]] });
+  $('projects').innerHTML = table(proj.slice(0, 12), { name: '项目', split: true, of: t.usd, extra: [['请求数', (g) => num(g.requests)]] });
 
   const grid = heatGrid();
   let best = [0, 0, 0];
   grid.forEach((r, wd) => r.forEach((x, h) => { if (x > best[0]) best = [x, wd, h]; }));
-  $('h-heat').textContent = best[0] ? `The busiest hour is ${WEEKDAYS[best[1]]} at ${String(best[2]).padStart(2, '0')}:00.` : 'No activity in this period.';
+  $('h-heat').textContent = best[0] ? `最忙的时段是 ${WEEKDAYS[best[1]]} ${String(best[2]).padStart(2, '0')}:00。` : '此时间段内没有活动。';
   $('heat').innerHTML = heat(grid);
 
   const periodUsd = sess.reduce((s, x) => s + x.usd, 0);
-  $('h-sessions').textContent = sess[0] ? `The largest session took ${pct(sess[0].usd, periodUsd)} of all session spend.` : 'No sessions in this period.';
-  $('sessions').innerHTML = `<table><thead><tr><th>Session</th><th>Project</th><th>Day</th><th>Requests</th><th>Subagents</th><th>Cost</th><th>Share</th></tr></thead><tbody>` +
+  $('h-sessions').textContent = sess[0] ? `最大的会话占了所有会话支出的 ${pct(sess[0].usd, periodUsd)}。` : '此时间段内没有会话。';
+  $('sessions').innerHTML = `<table><thead><tr><th>会话</th><th>项目</th><th>日期</th><th>请求数</th><th>子代理</th><th>费用</th><th>占比</th></tr></thead><tbody>` +
     sess.slice(0, 12).map((x) => `<tr><td>${esc(x.id)}</td><td class="name">${esc(x.project)}</td><td>${day(x.day)}</td><td>${num(x.requests)}</td><td>${x.agents}</td><td>${money(x.usd)}</td><td>${pct(x.usd, periodUsd)}</td></tr>`).join('') + '</tbody></table>';
 
-  $('foot').textContent = `Built ${new Date(DATA.generated).toLocaleString()} by tokendoctor from the transcripts on this machine; transcripts Claude Code already cleaned up are not counted. ${DATA.units}.`;
+  $('foot').textContent = `由 tokendoctor 根据本机上的对话记录生成：${new Date(DATA.generated).toLocaleString()}；Claude Code 已清理的记录不计入。${DATA.units}。`;
 }
 draw();
 </script>

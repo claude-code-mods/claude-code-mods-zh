@@ -168,7 +168,7 @@ export async function swapPage(target: string) {
     committed = true
   } catch {
     if (!tabState.isDisposed && tabState.requestedPage === target) {
-      tabState.updateError = { page: target, text: 'Could not load the inbox update.' }
+      tabState.updateError = { page: target, text: '无法加载收件箱更新。' }
       tabState.draw()
     }
   } finally {

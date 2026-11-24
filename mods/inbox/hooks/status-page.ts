@@ -133,10 +133,10 @@ export type StatusPage = GoalParts & {
   stale: string | null
 }
 
-const OTHER_WORK = 'Other work'
+const OTHER_WORK = '其他工作'
 /** What a line starts with before the text it replaced: a subject's plan, a milestone's text, the goal before. */
-export const WAS_PREFIX = 'Prev: '
-const MERGED_PREFIX = 'merged in: '
+export const WAS_PREFIX = '此前：'
+const MERGED_PREFIX = '合并于：'
 /** What separates a row's name from its stall word. */
 export const STALL_GAP = ' · '
 
@@ -273,7 +273,7 @@ export function statusPage(
               id: `${prefix}open`,
               depth,
               ...SUBJECT_MARKS.queued,
-              text: `${foldedOpen.length} more`,
+              text: `另有 ${foldedOpen.length} 项`,
               subjectIds: [],
             },
           ]
@@ -298,7 +298,7 @@ export function statusPage(
               kind: 'done-fold',
               id: `${prefix}done`,
               depth,
-              text: `${done.length + settled.length}${newClosed.some(x => x.status === 'done') ? ' more' : ''} done`,
+              text: `已完成 ${done.length + settled.length}${newClosed.some(x => x.status === 'done') ? ' 项' : ''}`,
               rows: [
                 ...partRows([...done].sort(pageOrder), foldCtx, depth + 1),
                 ...settled.map(c => childRow(c, null, depth + 1, finishedLine(c, now))),

@@ -269,4 +269,4 @@ function urlRef(json: string): string | null {
   }
 }
 
-export const GH_TIMED_OUT_TEXT = `gh did not answer within ${GH_TIMEOUT_MS / 1000} seconds`
+export const GH_TIMED_OUT_TEXT = `gh 在 ${GH_TIMEOUT_MS / 1000} 秒内没有响应`

@@ -104,7 +104,7 @@ export const sending = new Map<
 export function sendingSince(): number | null {
   return earliestOf([...sending.values()].map(s => s.since))
 }
-export const SENDING = 'Sending…'
+export const SENDING = '正在发送…'
 export const errors = new Map<string, string>()
 export const notes = new Map<string, { text: string; at: number }>()
 export const copies = new Map<string, { name: string; text: string }>()

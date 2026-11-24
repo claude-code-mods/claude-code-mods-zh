@@ -149,7 +149,7 @@ export function applyUpdate(ledger: Ledger, u: Update, now: number, turn: number
       kind: 'question' as const,
       label: null,
       ask: todoAsk(work),
-      options: ['Proceed', 'Not yet'],
+      options: ['继续', '暂不'],
       rec: null,
     }
     const isKnown =

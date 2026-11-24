@@ -26,7 +26,7 @@ const out = value('--out') ?? join(configDir(), 'tokendoctor', 'dashboard.html')
 mkdirSync(dirname(out), { recursive: true })
 writeFileSync(out, render(data))
 const dayList = [...new Set(data.rows.map((r) => r[0]))].sort()
-console.log(`${out}\n${data.rows.length ? `${dayList[0]} – ${dayList.at(-1)}, ${data.sessions.length} sessions with usage, ${data.runs} subagent runs` : 'No usage found.'}`)
+console.log(`${out}\n${data.rows.length ? `${dayList[0]} – ${dayList.at(-1)}，${data.sessions.length} 个有用量的会话，${data.runs} 次子代理运行` : '未找到用量数据。'}`)
 if (args.includes('--open')) {
   const [cmd, ...rest] = process.platform === 'darwin' ? ['open'] : process.platform === 'win32' ? ['cmd', '/c', 'start', ''] : ['xdg-open']
   spawn(cmd, [...rest, out], { detached: true, stdio: 'ignore' }).unref()

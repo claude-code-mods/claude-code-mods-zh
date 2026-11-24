@@ -24,14 +24,14 @@
   "userConfig": {
     "showPerTurn": {
       "type": "boolean",
-      "title": "CO2 of each answer",
-      "description": "Show the CO2 of each answer at the end of the turn duration line. Off: only the session total stays.",
+      "title": "每次回复的 CO₂ 排放量",
+      "description": "在每轮耗时行末尾显示该次回复的 CO₂ 排放量。关闭后只保留会话总计。",
       "default": true
     },
     "showSessionTotal": {
       "type": "boolean",
-      "title": "CO2 session total in the terminal",
-      "description": "Pin the session's CO2 total and its API-price cost under the prompt in a terminal. Turn it off when your status line already shows it, such as ccstatusline with the claude-carbon segment. The desktop app keeps it.",
+      "title": "终端中显示 CO₂ 会话总计",
+      "description": "在终端提示符下方固定显示本次会话的 CO₂ 总计及按 API 价格计算的费用。如果状态行已显示（例如带 claude-carbon 段的 ccstatusline），可关闭此项。桌面应用会保留此项。",
       "default": true
     }
   }

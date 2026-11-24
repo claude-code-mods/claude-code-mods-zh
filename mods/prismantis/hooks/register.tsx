@@ -468,7 +468,7 @@ const folder = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['resolv
   if (!open) return null
   const toggled = open.includes(id)
   const folded = startOpen ? toggled : !toggled
-  const label = folded ? look?.label ?? `+${hidden} more lines` : 'show less'
+  const label = folded ? look?.label ?? `+${hidden} 行` : '收起'
   const toggle = () => update($, unfolded, ids => (toggled ? ids.filter(x => x !== id) : [...ids, id].slice(-500)))
   if (!faces) return { folded, faced: false, element: <el.Button key={key} variant="secondary" label={label} onPress={toggle} /> }
   const element = look?.face ? <el.Button key={key} plain label={label} onPress={toggle}>{look.face(folded)}</el.Button> : <el.Button key={key} variant="secondary" label={label} onPress={toggle} />
@@ -488,15 +488,15 @@ const lastCopy = (run: () => Promise<string>): Promise<string | null> => {
 const copyNow = async ($: EngineInterface, style: Style, content: string, surface: RenderSurface, rich?: (() => string) | 'png', hues?: Hues): Promise<string> => {
   const backend = style.htmlCopy
   const failure = rich && backend ? await runHelper($, backend, richCommand(style, backend, content, rich, hues)) : undefined
-  if (failure === null) return rich === 'png' ? 'Copied as image' : 'Copied formatted table'
+  if (failure === null) return rich === 'png' ? '已复制为图片' : '已复制为格式化表格'
   const result = await $.ui.copy({ text: content, surface })
-  if (!result.isCopied) return `Copy failed: ${result.reason}`
-  return failure ? `Copied as plain text (${failure})` : 'Copied'
+  if (!result.isCopied) return `复制失败：${result.reason}`
+  return failure ? `已复制为纯文本（${failure}）` : '已复制'
 }
 
 const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, blocks: ReturnType<typeof parse>, columns: number, math: Map<number, Typeset> = new Map(), pictures: Map<number, Picture> = new Map(), reply?: string, open?: string[], notes?: { id: string; press: boolean }): RenderElement[] => {
   const { Button } = el
-  const copy = (text: string | (() => string), key: string, label = '⧉ copy', rich?: (() => string) | 'png', hues?: () => Hues) => {
+  const copy = (text: string | (() => string), key: string, label = '⧉ 复制', rich?: (() => string) | 'png', hues?: () => Hues) => {
     const copied = (surface: RenderSurface) => lastCopy(() => copyNow($, style, typeof text === 'function' ? text() : text, surface, rich, hues?.()))
     return style.copyButtons && offers(style, rich) ? (
       <Button
@@ -504,7 +504,7 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
         {...(style.copyButtonStyle === 'dim' ? { plain: true as const, dimColor: true } : { variant: 'primary' as const })}
         label={label}
         onPress={async press => {
-          const said = await copied(press.surface).catch(() => 'Copy failed')
+          const said = await copied(press.surface).catch(() => '复制失败')
           if (said) $.ui.toast(said)
         }}
       />
@@ -524,7 +524,7 @@ const drawMarkdown = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['
   }
   const tip = notes?.press ? noteTip(blocks, text => void $.ui.toast(text)) : undefined
   const elements = renderBlocks(el, notes ? { ...style, noteKey: instanceKey(notes.id) } : style, blocks, columns, drawMath(el, style, blocks, drawn), copy, folder($, el, open, false, style.folds === 'open'), tip)
-  const button = reply === undefined ? null : copy(reply, 'reply', '⧉ copy reply')
+  const button = reply === undefined ? null : copy(reply, 'reply', '⧉ 复制回复')
   if (!button) return elements
   return [...elements, style.copyButtonStyle === 'hover' ? replyMarker(el, button, notes?.id) : <el.Box key="reply" alignSelf="flex-end">{button}</el.Box>]
 }
@@ -571,9 +571,9 @@ const clearDesktop = async ($: EngineInterface): Promise<void> => {
 
 const setTheme = async ($: EngineInterface, picked: Picked, name: string): Promise<string> => {
   const deny = await saveOption($, 'theme', name)
-  if (deny) return `Could not switch theme: ${deny}`
+  if (deny) return `无法切换主题：${deny}`
   if (name !== 'random') await paintDesktop($, picked.options, name)
-  if (name !== 'random' || picked.options.theme !== 'random') return `Theme set to ${name}.`
+  if (name !== 'random' || picked.options.theme !== 'random') return `主题已设为 ${name}。`
   const others = RANDOM_THEMES.filter(t => t !== picked.theme)
   picked.theme = others[Math.floor(Math.random() * others.length)]!
   const style = picked.latex.style
@@ -581,11 +581,11 @@ const setTheme = async ($: EngineInterface, picked: Picked, name: string): Promi
   picked.latex.color = ratexColor(style.theme.diagramText ?? style.theme.codeText ?? '#808080')
   $.ui.invalidate('ui.render')
   await paintDesktop($, picked.options, picked.theme)
-  return `Theme set to random: ${picked.theme} for now.\nkeep it: /prismantis theme ${picked.theme}`
+  return `主题已临时设为 random：${picked.theme}。\n保留它：/prismantis theme ${picked.theme}`
 }
 
 const saveSetupPick = async ($: EngineInterface, picked: Picked, step: SetupStep, value: string): Promise<string> =>
-  step.key === 'theme' ? setTheme($, picked, value) : saveOption($, step.key, value).then(deny => (deny ? `Could not save ${step.key}: ${deny}` : `${step.title} set to ${value}.`))
+  step.key === 'theme' ? setTheme($, picked, value) : saveOption($, step.key, value).then(deny => (deny ? `无法保存 ${step.key}：${deny}` : `${step.title}已设为 ${value}。`))
 
 const SETUP_PANE = 'prismantis-setup'
 
@@ -593,7 +593,7 @@ const SETUP_PICK = 'pick:'
 const SETUP_LIST_COLUMNS = 30
 const SETUP_HEAD_ROWS = 5
 
-const openPane = ($: EngineInterface) => $.ui.open({ id: SETUP_PANE, title: 'prismantis setup', focus: true, closeOnEscape: true, rows: 40, columns: 90 })
+const openPane = ($: EngineInterface) => $.ui.open({ id: SETUP_PANE, title: 'prismantis 设置', focus: true, closeOnEscape: true, rows: 40, columns: 90 })
 
 const openSetupPane = async ($: EngineInterface, at: number): Promise<string | undefined> => {
   await update($, setupAt, () => at)
@@ -617,10 +617,10 @@ const pickInPane = async ($: EngineInterface, picked: Picked, at: number, value:
   const steps = setupSteps(PRESET_NAMES)
   const step = steps[at]!
   const nextStep = at + 1 === ESSENTIAL_STEPS ? undefined : steps[at + 1]
-  const done = `${step.title} set to ${value}.`
+  const done = `${step.title}已设为 ${value}。`
   if (nextStep) await showSetupStep($, at + 1, nextStep, currentOf(nextStep))
   else await $.ui.close({ id: SETUP_PANE })
-  $.ui.toast(nextStep ? done : `${done} ${at + 1 === ESSENTIAL_STEPS ? SETUP_ESSENTIALS_DONE : 'Setup done.'}`)
+  $.ui.toast(nextStep ? done : `${done} ${at + 1 === ESSENTIAL_STEPS ? SETUP_ESSENTIALS_DONE : '设置完成。'}`)
   const saved = await saveSetupPick($, picked, step, value)
   if (saved === done) return
   $.ui.toast(saved)
@@ -650,11 +650,11 @@ const setup = async ($: EngineInterface, picked: Picked, origin: PromptOrigin, s
   const opened = paneable && (await $.session.surfaces()).includes('terminal') ? await openSetupPane($, at) : undefined
   if (opened) return opened
   const step = steps[at]
-  if (!step) return `Unknown setup step "${stepName}". Steps: ${steps.map(s => s.name).join(', ')}`
+  if (!step) return `未知的设置步骤“${stepName}”。步骤：${steps.map(s => s.name).join(', ')}`
   if (!pick) return setupText(setupParts(PRESET_NAMES, at))
   const choices = step.key === 'theme' ? THEME_ARGS : step.options
   const value = /^\d+$/.test(pick) ? step.options[Number(pick) - 1] : pick
-  if (!value || !choices.includes(value)) return `Unknown ${step.name} pick "${pick}". Pick 1-${step.options.length} or one of: ${choices.join(', ')}`
+  if (!value || !choices.includes(value)) return `未知的${step.name}选项“${pick}”。请选择 1-${step.options.length} 或以下之一：${choices.join(', ')}`
   const saved = await saveSetupPick($, picked, step, value)
   if (saved.startsWith('Could not')) return saved
   return `${saved}\n\n${afterSetupPick(steps, at)}`
@@ -686,20 +686,20 @@ const SETUP_NPM_TEST = [
 const toolOutputSample = (el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, value: string, id: string, columns: number): RenderElement[] => {
   const row = (key: string, input: Record<string, string>, isErrored: boolean) => <el.Box key={`${id}${key}`}>{renderToolRow(el, style, { tool: 'Bash', input, isRunning: false, isErrored, isInterrupted: false }, columns)}</el.Box>
   const statusRow = row('s', { command: 'git status' }, false)
-  const testRow = row('t', { command: 'npm test', description: 'Run the tests' }, false)
-  const buildRow = row('r', { command: 'npm run build', description: 'Build the app' }, true)
+  const testRow = row('t', { command: 'npm test', description: '运行测试' }, false)
+  const buildRow = row('r', { command: 'npm run build', description: '构建应用' }, true)
   const failure = renderFailure(el, style, SETUP_BUILD_ERROR.join('\n'), `${id}e`) ?? <el.Box key={`${id}e`} />
   if (value === 'rows') return [statusRow, testRow, buildRow, failure]
   if (value === 'quiet') return [statusRow, testRow, <el.Box key={`${id}to`}>{renderShellResult(el, style, { stdout: SETUP_NPM_TEST.join('\n'), stderr: '' })}</el.Box>, buildRow, failure]
   const folded = (lines: readonly string[], keep: number, color?: string) => [
     ...lines.slice(0, keep).map((line, i) => <el.Text key={`l${i}`} color={color}>{`${i === 0 ? '  ⎿  ' : '     '}${line}`}</el.Text>),
-    <el.Text key="more" dimColor>{`     … +${lines.length - keep} lines (ctrl+o to expand)`}</el.Text>,
+    <el.Text key="more" dimColor>{`     … 还有 ${lines.length - keep} 行（ctrl+o 展开）`}</el.Text>,
   ]
   return [
     statusRow,
     <el.Box key={`${id}so`} flexDirection="column">
       {folded(SETUP_GIT_STATUS, 3)}
-      <el.Text key="allowed" dimColor>{'  ⎿  Allowed by auto mode classifier'}</el.Text>
+      <el.Text key="allowed" dimColor>{'  ⎿  由自动模式分类器允许'}</el.Text>
     </el.Box>,
     testRow,
     <el.Box key={`${id}to`} flexDirection="column">{folded(SETUP_NPM_TEST, 3)}</el.Box>,
@@ -712,22 +712,22 @@ const SETUP_TABLE = '| Item | Qty |\n|:-----|----:|\n| Apples | 3 |\n| Pears | 5
 const SETUP_SENT = new Date(2026, 0, 15, 14, 32).getTime()
 
 const copySample = (el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, value: string, id: string, columns: number): RenderElement[] => {
-  const label: CopyButton = (_text, key, name = '⧉ copy', rich) => (offers(style, rich) ? (style.copyButtonStyle === 'dim' ? <el.Text key={key} dimColor>{name}</el.Text> : <el.Text key={key} bold>{`[ ${name} ]`}</el.Text>) : null)
+  const label: CopyButton = (_text, key, name = '⧉ 复制', rich) => (offers(style, rich) ? (style.copyButtonStyle === 'dim' ? <el.Text key={key} dimColor>{name}</el.Text> : <el.Text key={key} bold>{`[ ${name} ]`}</el.Text>) : null)
   const table = renderBlocks(el, style, parse(SETUP_TABLE, { numbers: style.highlightNumbers, paths: style.highlightPaths }), columns, new Map(), label)
   return [
     <el.Box key={`${id}t`} flexDirection="column">{table}</el.Box>,
-    ...(value === 'hover' ? [<el.Text key={`${id}h`} dimColor>{'Its buttons show only while the pointer is on its ⧉.'}</el.Text>] : []),
+    ...(value === 'hover' ? [<el.Text key={`${id}h`} dimColor>{'其按钮仅在指针悬停于 ⧉ 上时显示。'}</el.Text>] : []),
   ]
 }
 
 const clockSample = (el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, value: string, id: string, columns: number): RenderElement[] => {
   const time = value === '24h' || value === '12h' ? clockText(SETUP_SENT, SETUP_SENT, value) : undefined
-  const prompt = style.promptStyle === 'off' ? <el.Text dimColor>{`> ${time === undefined ? '' : `[${time}] `}fix the failing test`}</el.Text> : renderUserPrompt(el, style, 'fix the failing test', columns, time)
-  return [<el.Box key={`${id}p`}>{prompt}</el.Box>, <el.Box key={`${id}d`}>{renderTurnDuration(el, style, 'Baked', 115000, time)}</el.Box>]
+  const prompt = style.promptStyle === 'off' ? <el.Text dimColor>{`> ${time === undefined ? '' : `[${time}] `}fix the failing test`}</el.Text> : renderUserPrompt(el, style, '修复失败的测试', columns, time)
+  return [<el.Box key={`${id}p`}>{prompt}</el.Box>, <el.Box key={`${id}d`}>{renderTurnDuration(el, style, '耗时', 115000, time)}</el.Box>]
 }
 
 const promptSample = (el: ReturnType<EngineInterface['ui']['resolve']>, style: Style, value: string, id: string, columns: number): RenderElement[] =>
-  [value === 'off' ? <el.Text key={id} dimColor>{'> fix the failing test'}</el.Text> : <el.Box key={id}>{renderUserPrompt(el, style, 'fix the failing test', columns)}</el.Box>]
+  [value === 'off' ? <el.Text key={id} dimColor>{'> fix the failing test'}</el.Text> : <el.Box key={id}>{renderUserPrompt(el, style, '修复失败的测试', columns)}</el.Box>]
 
 const SETUP_REPLY = 'The failing test passes now: `retries` was read before the config loaded.'
 
@@ -752,7 +752,7 @@ type SetupView = { el: ReturnType<EngineInterface['ui']['resolve']>; base: Style
 const shownRows = (text: string, columns: number) => textRows(text.replace(/`/g, ''), columns)
 
 const previewColumns = (v: SetupView, choices: readonly string[]): number =>
-  Math.max(MIN_COLUMNS, Math.min(Math.max(40, v.columns - SETUP_LIST_COLUMNS), v.columns - 8 - Math.max(...choices.map(value => (value === v.current ? `${value} (now)` : value).length))))
+  Math.max(MIN_COLUMNS, Math.min(Math.max(40, v.columns - SETUP_LIST_COLUMNS), v.columns - 8 - Math.max(...choices.map(value => (value === v.current ? `${value}（当前）` : value).length))))
 
 const paneFits = (v: SetupView, choices: number, preview: string, columns: number): boolean =>
   SETUP_HEAD_ROWS + shownRows(v.step.note, v.columns) + shownRows(SETUP_PANE_KEYS, v.columns) + Math.max(choices, 1 + shownRows(preview, columns)) <= v.rows
@@ -766,7 +766,7 @@ const setupKeyboardPane = ($: EngineInterface, v: SetupView, focused: string, ra
   const options = parts.options.filter(o => o.value === sampled).map(o => (step.key === 'theme' ? { ...o, text: `${o.text.split('\n\n')[0]}\n\n${THEME_PREVIEW}` } : o))
   const columns = previewColumns(v, choices)
   const drawn = drawSetup($, el, v.base, v.options, { at: v.at, before: '', parts: { ...parts, options, tail: '' } }, columns)
-  const buttons = choices.map(value => <el.Button key={pickKey(step, value)} label={value === v.current ? `${value} (now)` : value} variant={value === shown ? 'primary' : 'secondary'} autoFocus={value === v.current ? true : undefined} onPress={() => v.pick(value)} />)
+  const buttons = choices.map(value => <el.Button key={pickKey(step, value)} label={value === v.current ? `${value}（当前）` : value} variant={value === shown ? 'primary' : 'secondary'} autoFocus={value === v.current ? true : undefined} onPress={() => v.pick(value)} />)
   const fits = paneFits(v, choices.length, options[0]?.text ?? '', columns)
   return (
     <el.Box flexDirection="column" rowGap={1} {...(fits ? { height: v.rows, overflow: 'hidden' as const } : {})}>
@@ -787,7 +787,7 @@ const drawSetup = ($: EngineInterface, el: ReturnType<EngineInterface['ui']['res
   const md = (style: Style, text: string, id: string) => <el.Box key={id} flexDirection="column" rowGap={1}>{drawMarkdown($, el, style, parse(text, { numbers: style.highlightNumbers, paths: style.highlightPaths }), columns)}</el.Box>
   const samples: Partial<Record<SetupStep['key'], (style: Style, value: string, id: string) => RenderElement[]>> = {
     promptStyle: (style, value, id) => promptSample(el, style, value, id, columns),
-    toolStyle: (style, _, id) => [md({ ...style, narration: style.toolStyle === 'tree-bold' }, 'Reading the config.', `${id}s`), <el.Box key={id}>{renderToolRow(el, style, { tool: 'Read', input: { file_path: 'src/config.ts' }, isRunning: false, isErrored: false, isInterrupted: false }, columns)}</el.Box>],
+    toolStyle: (style, _, id) => [md({ ...style, narration: style.toolStyle === 'tree-bold' }, '正在读取配置。', `${id}s`), <el.Box key={id}>{renderToolRow(el, style, { tool: 'Read', input: { file_path: 'src/config.ts' }, isRunning: false, isErrored: false, isInterrupted: false }, columns)}</el.Box>],
     toolOutput: (style, value, id) => toolOutputSample(el, style, value, id, columns),
     diffStyle: (style, _, id) => diffSample(el, style, id, columns),
     copyButtonStyle: (style, value, id) => copySample(el, style, value, id, columns),
@@ -919,7 +919,7 @@ export const register: Register = (on, options) => {
     const started = await next(e)
     await paintDesktop($, options, picked.theme)
     await $.command
-      .register({ name: 'prismantis', description: 'Switch the prismantis theme, pick styles from samples, copy the last reply, or show the demo', argumentHint: '[theme [<name> | random] | setup [<step> [<pick>]] | copy [code] | demo]' })
+      .register({ name: 'prismantis', description: '切换 prismantis 主题、从示例中挑选样式、复制上一条回复或显示演示', argumentHint: '[theme [<name> | random] | setup [<step> [<pick>]] | copy [code] | demo]' })
       .catch(() => undefined)
     return started
   })
@@ -936,25 +936,25 @@ export const register: Register = (on, options) => {
     if (sub === 'demo') return { text: showcaseText(PRESET_NAMES) + languageShowcase(await localeOf($, name)) }
     if (sub === 'setup') return { text: await setup($, picked, e.origin, name, third) }
     if (sub === 'copy') {
-      if (name && name !== 'code') return { text: `Unknown copy target "${name}". Use /prismantis copy, or /prismantis copy code for the last code block.` }
+      if (name && name !== 'code') return { text: `未知的复制目标“${name}”。使用 /prismantis copy，或使用 /prismantis copy code 复制最后一个代码块。` }
       const reply = (await $.session.messages()).findLast(m => m.role === 'assistant' && m.text.trim())
-      if (!reply) return { text: 'Nothing to copy yet.' }
+      if (!reply) return { text: '没有可复制的内容。' }
       const code = name === 'code' ? nestedBlocks(parseCached(reply.text)).findLast(b => b.kind === 'code' && !/^(mermaid|figure)$/i.test(b.lang)) : undefined
-      if (name === 'code' && code?.kind !== 'code') return { text: 'The last reply has no code block.' }
+      if (name === 'code' && code?.kind !== 'code') return { text: '上一条回复没有代码块。' }
       const text = code?.kind === 'code' ? code.lines.join('\n') : reply.text
       const said = await lastCopy(async () => {
         const result = await $.ui.copy({ text })
-        return result.isCopied ? `Copied the last ${code ? 'code block' : 'reply'}.` : `Copy failed: ${result.reason}`
+        return result.isCopied ? `已复制上一条${code ? '代码块' : '回复'}。` : `复制失败：${result.reason}`
       })
-      return { text: said ?? 'A newer copy replaced this one.' }
+      return { text: said ?? '已被更新的复制操作取代。' }
     }
     if (sub === 'demo-rtl') {
       await probe($, style, probes)
       return { text: rtlShowcaseText() }
     }
     if (sub !== 'theme') return { text: helpText(PRESET_NAMES) }
-    if (!name) return { text: options.theme === 'random' ? `current: ${picked.theme} (random)\nkeep it: /prismantis theme ${picked.theme}` : `current: ${picked.theme}` }
-    if (!THEME_ARGS.includes(name)) return { text: `Unknown theme "${name}". Themes: ${PRESET_NAMES.join(', ')}, random` }
+    if (!name) return { text: options.theme === 'random' ? `当前：${picked.theme}（随机）\n保留它：/prismantis theme ${picked.theme}` : `当前：${picked.theme}` }
+    if (!THEME_ARGS.includes(name)) return { text: `未知主题“${name}”。主题：${PRESET_NAMES.join(', ')}, random` }
     return { text: await setTheme($, picked, name) }
   })
 
@@ -1070,7 +1070,7 @@ export const register: Register = (on, options) => {
     const open = await read($, unfolded)
     const paste: DrawPaste = (body, key) => {
       const lines = body.split('\n')
-      const title = `pasted text · ${lineCount(lines.length)}`
+      const title = `粘贴的文本 · ${lineCount(lines.length)}`
       const toggle = folder($, el, open, false, style.folds === 'open')(`${e.requestId}:${key}`, lines.length, key, { label: title })
       const opened = toggle?.folded === false
       return (

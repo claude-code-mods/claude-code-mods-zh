@@ -190,14 +190,14 @@ function percent(ratio: number): string {
 export function summarize(result: CompactResult): string {
   const { stats } = result;
   const parts = [
-    stats.kept > 0 ? `${stats.kept} kept` : '',
-    stats.resultsDropped > 0 ? `${stats.resultsDropped} results truncated` : '',
-    stats.callsDropped > 0 ? `${stats.callsDropped} call_dropped` : '',
-    stats.pinned > 0 ? `${stats.pinned} pinned` : '',
+    stats.kept > 0 ? `${stats.kept} 已保留` : '',
+    stats.resultsDropped > 0 ? `${stats.resultsDropped} 个结果已截断` : '',
+    stats.callsDropped > 0 ? `${stats.callsDropped} 个调用被删除` : '',
+    stats.pinned > 0 ? `${stats.pinned} 个已固定` : '',
   ].filter(Boolean);
-  return `${percent(reductionRatio(result))} reduction; ${
-    parts.join(', ') || 'no tool calls'
-  }; state ~${stats.stateTokens} tokens (${stats.stateStage}) in ${stats.requests} request(s)`;
+  return `${percent(reductionRatio(result))} 缩减；${
+    parts.join(', ') || '没有工具调用'
+  }；状态约 ${stats.stateTokens} 个 token（${stats.stateStage}），共 ${stats.requests} 次请求`;
 }
 
 const UI_LOG_MAX_CHARS = 4096;
@@ -217,7 +217,7 @@ export function decisionLogLines(
   maxChars: number = UI_LOG_MAX_CHARS,
 ): string[] {
   const entries = decisionLog(result).split(' ').filter(Boolean);
-  if (entries.length === 0) return ['decisions: (none)'];
+  if (entries.length === 0) return ['判断记录：（无）'];
   const chunks: string[] = [];
   let current = '';
   for (const entry of entries) {
@@ -230,8 +230,8 @@ export function decisionLogLines(
   chunks.push(current);
   return chunks.map((chunk, index) =>
     chunks.length === 1
-      ? `decisions: ${chunk}`
-      : `decisions (${index + 1}/${chunks.length}): ${chunk}`,
+      ? `判断记录：${chunk}`
+      : `判断记录（${index + 1}/${chunks.length}）：${chunk}`,
   );
 }
 
@@ -296,19 +296,19 @@ export const register: Register = (on: On, options: PluginOptions) => {
       if (reductionRatio(result) < config.minReductionRatio) {
         notify(
           $,
-          `fallback to built-in summary (below ${percent(config.minReductionRatio)} minimum: ${summarize(result)})`,
+          `回退到内置摘要（低于 ${percent(config.minReductionRatio)} 的下限：${summarize(result)}）`,
         );
         return next(event);
       }
       notify(
         $,
-        `kept ${messages.length}/${event.messages.length} messages, no summary (${summarize(result)})`,
+        `已保留 ${messages.length}/${event.messages.length} 条消息，未生成摘要（${summarize(result)}）`,
       );
       return { messages };
     } catch (error) {
       notify(
         $,
-        `fallback to built-in summary (${error instanceof Error ? error.message : String(error)})`,
+        `回退到内置摘要（${error instanceof Error ? error.message : String(error)}）`,
       );
       return next(event);
     }
@@ -323,7 +323,7 @@ export const register: Register = (on: On, options: PluginOptions) => {
       await $.session.compact();
     } catch (error) {
       $.ui.log(
-        `auto-compact skipped (${error instanceof Error ? error.message : String(error)})`,
+        `已跳过自动压缩（${error instanceof Error ? error.message : String(error)}）`,
       );
     } finally {
       compacting = false;

@@ -32,10 +32,10 @@ if (args.includes('--json')) {
   console.log(JSON.stringify({ days, sessions: sessions.length, windows: rows }))
 } else {
   const pct = (x) => `${Math.round(x * 1000) / 10}%`
-  console.log(`${sessions.length} sessions in the last ${days} days. Had Claude Code compacted at a smaller window:`)
+  console.log(`过去 ${days} 天内有 ${sessions.length} 个会话。如果 Claude Code 在更小的窗口压缩：`)
   for (const r of rows) {
-    console.log(`  ${String(r.window / 1000).padStart(4)}K  ${pct(r.saved).padStart(6)} of all cost saved  ` +
-      `(${r.touched} sessions affected, ${r.compactions} compactions more)`)
+    console.log(`  ${String(r.window / 1000).padStart(4)}K  ${pct(r.saved).padStart(6)} 可省下全部费用的比例  ` +
+      `（影响 ${r.touched} 个会话，多压缩 ${r.compactions} 次）`)
   }
-  console.log('An estimate: it cannot see the work a model does again after a summary. bench/ measures that live.')
+  console.log('这是一份估算：无法看出模型在总结之后又做了多少工作。bench/ 会实际测量。')
 }

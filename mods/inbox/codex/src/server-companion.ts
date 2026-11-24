@@ -66,7 +66,7 @@ export function makeCompanion(
             name: entry.name || 'Codex chat',
             available: false,
             fresh: false,
-            error: 'This saved Inbox could not be read.',
+            error: '无法读取此已保存的收件箱。',
             project: '',
             working: false,
             asks: 0,

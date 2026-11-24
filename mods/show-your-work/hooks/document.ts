@@ -175,11 +175,11 @@ export const docPrintArgv = (chrome: string, html: string, pdf: string) => [
 
 // How a document's preparation failed, in words the person and Claude get.
 export const docErrorOf = (why: string, name: string) => {
-  if (why === 'poppler') return { kind: 'other' as const, message: `documents need poppler's pdftoppm and pdfinfo, which aren't installed. Install them (for example \`sudo apt install poppler-utils\` or \`brew install poppler\`), restart Claude Code, then show ${name} again.` }
-  if (why === 'chrome') return { kind: 'other' as const, message: `markdown documents need Chrome or Chromium, and none was found. Install one, restart Claude Code, then show ${name} again.` }
-  if (why === 'pages') return { kind: 'other' as const, message: `${name} has more than ${DOC_MAX_PAGES} pages, more than the player shows. Show a shorter extract of it instead.` }
-  if (why === 'mermaid') return { kind: 'other' as const, message: `${name} has a Mermaid diagram that could not be drawn, so the document was not shown. Fix the diagram's syntax and show it again.` }
-  return { kind: 'other' as const, message: `${name} couldn't be read as a document: ${why}` }
+  if (why === 'poppler') return { kind: 'other' as const, message: `文档需要 poppler 的 pdftoppm 和 pdfinfo，但当前未安装。请安装它们（例如 \`sudo apt install poppler-utils\` 或 \`brew install poppler\`），重启 Claude Code，然后再次展示 ${name}。` }
+  if (why === 'chrome') return { kind: 'other' as const, message: `Markdown 文档需要 Chrome 或 Chromium，但未找到。请安装其一，重启 Claude Code，然后再次展示 ${name}。` }
+  if (why === 'pages') return { kind: 'other' as const, message: `${name} 超过 ${DOC_MAX_PAGES} 页，播放器无法显示这么多页。请展示较短的节选。` }
+  if (why === 'mermaid') return { kind: 'other' as const, message: `${name} 中有无法绘制的 Mermaid 图表，因此文档未显示。请修正图表语法后再次展示。` }
+  return { kind: 'other' as const, message: `无法将 ${name} 作为文档读取：${why}` }
 }
 
 // Reads the page count out of pdfinfo's output.

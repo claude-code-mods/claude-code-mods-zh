@@ -46,9 +46,9 @@ export function isBlockPressShown(pr: PrView, lastActions: Record<string, LastAc
   return !blockingChecks(pr).some(c => isSamePress(lastActions[prCheckId(pr, c)]?.result))
 }
 
-export const GH_MISSING_TEXT = 'The inbox could not find gh. It needs gh to read your PRs.'
+export const GH_MISSING_TEXT = '收件箱找不到 gh。需要 gh 才能读取你的 PR。'
 
-export const GH_SIGNED_OUT_TEXT = 'gh is not signed in to GitHub. Run gh auth login so the inbox can read your PRs.'
+export const GH_SIGNED_OUT_TEXT = 'gh 未登录 GitHub。请运行 gh auth login，以便收件箱读取你的 PR。'
 
 /**
  * Why the PRs cannot be read, as the PRs tab says it once at the top, or null when nothing stops it. A missing gh
@@ -77,7 +77,7 @@ export const RANK_AGAIN_ID = 'pr:order'
 export const PR_REFRESH_ID = 'pr:refresh'
 export const CLEAR_FINISHED_ID = 'pr:finished'
 
-export const PR_GROUP_TITLES = { threads: 'Review threads', checks: 'Failing checks', cancelled: 'Cancelled checks' }
+export const PR_GROUP_TITLES = { threads: '审查讨论', checks: '失败的检查', cancelled: '已取消的检查' }
 
 /** A PR block's rows by group, and all of them in drawn order. A settled block draws none. */
 export function prBlockRows<R>(
@@ -172,7 +172,7 @@ export function splitFollowUps<A extends { isFollowUp?: boolean }>(actions: A[])
 }
 
 function checkRunText(c: PrCheck): string {
-  const ended = c.bucket === 'cancelled' ? 'Cancelled' : 'Failed'
+  const ended = c.bucket === 'cancelled' ? '已取消' : '失败'
 
   return c.startedAt !== undefined && c.finishedAt !== undefined
     ? `${ended} after ${took(c.finishedAt - c.startedAt)}`

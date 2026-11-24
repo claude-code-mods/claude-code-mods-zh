@@ -16,7 +16,7 @@ test('a Team login seats the guard and blocks the slide of the copy a person ins
   const s = guardState({ account: team, platform: 'darwin', root: '~/.claude/plugins/cache/tokendoctor' })
   assert.equal(s.seated, true)
   assert.equal(s.slideRuns, false)
-  assert.match(blockedNote(s), /Team plan.*tokendoctor-org-install/s)
+  assert.match(blockedNote(s), /Team 套餐.*tokendoctor-org-install/s)
 })
 
 test('an API key or a cloud provider is not a /login, so a Team account alone seats nothing', () => {
@@ -26,7 +26,7 @@ test('an API key or a cloud provider is not a /login, so a Team account alone se
 
 test('managed settings seat the guard whatever the login', () => {
   const s = guardState({ managed: { permissions: { deny: ['Bash(rm *)'] } } })
-  assert.deepEqual(s.reasons, ['this machine has managed settings'])
+  assert.deepEqual(s.reasons, ['这台机器有托管设置'])
 })
 
 test('the machine copy runs the slide; the person’s copy still does not until it is the one loaded', () => {
@@ -38,7 +38,7 @@ test('the machine copy runs the slide; the person’s copy still does not until 
   assert.equal(org.slideRuns, true)
   const user = guardState({ account: team, managed, platform: 'darwin', root: '/elsewhere/tokendoctor' })
   assert.equal(user.slideRuns, false)
-  assert.match(blockedNote(user), /restart Claude Code/)
+  assert.match(blockedNote(user), /重启 Claude Code/)
   // From a shell (no root known), an installed copy is taken to be the one that runs.
   assert.equal(guardState({ account: team, managed, platform: 'darwin' }).slideRuns, true)
 })
@@ -47,7 +47,7 @@ test('server-managed settings or an MDM profile hide the drop-in: only an admini
   const s = guardState({ account: team, managed: installed(), remote: { permissions: {} }, platform: 'darwin' })
   assert.equal(s.filesHidden, true)
   assert.equal(s.orgInstalled, false)
-  assert.match(blockedNote(s), /administrator/)
+  assert.match(blockedNote(s), /管理员/)
   const merged = guardState({ account: team, managed: installed(), remote: { permissions: {}, managedSourcesBehavior: 'merge' }, platform: 'darwin' })
   assert.equal(merged.filesHidden, false)
 })

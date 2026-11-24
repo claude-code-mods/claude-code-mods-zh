@@ -38,7 +38,7 @@ export function paneGoalField(
   /** Closes the field and keeps its draft. A suggested goal the field was opened from shows again. */
   const cancel: KeyAction = {
     key: `cancel-${GOAL_KEYS_ID}`,
-    label: 'Cancel',
+    label: '取消',
     kind: 'view',
     onPress: () => void updateTyping(t => (t === GOAL_KEYS_ID ? null : t)),
   }

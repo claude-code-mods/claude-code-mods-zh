@@ -28,10 +28,10 @@ if (!finding.fixes) {
 const write = args.includes('--write')
 for (const fix of finding.fixes) {
   const plan = planFix(fix, snapshot.project, scope)
-  console.log(`${write ? 'Applying' : 'Would change'} (${plan.scope}): ${describePlan(plan)}`)
+  console.log(`${write ? '正在应用' : '将修改'}（${plan.scope}）：${describePlan(plan)}`)
   if (write) {
     const result = writePlan(plan)
-    console.log(result.written ? `  written${result.backup ? `, backup: ${result.backup}` : ''}` : `  skipped: ${result.reason}`)
+    console.log(result.written ? `  已写入${result.backup ? `，备份：${result.backup}` : ''}` : `  已跳过：${result.reason}`)
   }
 }
-if (!write) console.log('\nDry run. Re-run with --write to apply.')
+if (!write) console.log('\n试运行。加 --write 重新运行即可应用。')

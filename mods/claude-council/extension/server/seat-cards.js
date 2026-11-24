@@ -47,7 +47,7 @@ function answerNode(answer) {
     return element('div', { className: 'answer' }, markdownBlocks(answer).map(blockNode))
   } catch (error) {
     return element('div', { className: 'answer' }, [
-      element('p', { className: 'note bad', textContent: `This answer's markdown could not be read (${error.message}), so it is shown as written.` }),
+      element('p', { className: 'note bad', textContent: `无法解析此回答的 Markdown（${error.message}），因此按原文显示。` }),
       element('pre', {}, [element('code', { textContent: answer })]),
     ])
   }
@@ -63,7 +63,7 @@ function seatCard(seat, whole) {
   const parts = [heading, body]
   if (seat.shortenedFrom !== undefined) {
     const shown = (seat.answer ?? seat.error).length
-    parts.push(element('p', { className: 'note shortened', textContent: `Shortened here to its first ${shown.toLocaleString('en-US')} of ${seat.shortenedFrom.toLocaleString('en-US')} characters. ${whole}` }))
+    parts.push(element('p', { className: 'note shortened', textContent: `此处仅显示前 ${shown.toLocaleString('en-US')} 个字符，共 ${seat.shortenedFrom.toLocaleString('en-US')} 个字符。${whole}` }))
   }
   return element('section', {}, parts)
 }
@@ -74,7 +74,7 @@ function showAnswers(result, list, whole) {
   const text = result?.content?.find(part => part.type === 'text')?.text ?? ''
   if (result?.isError) {
     report('failed', true)
-    list.replaceChildren(element('p', { className: 'lead bad', textContent: text || 'The council run failed.' }))
+    list.replaceChildren(element('p', { className: 'lead bad', textContent: text || '议事厅运行失败。' }))
     host.reportSize()
     return
   }
@@ -86,7 +86,7 @@ function showAnswers(result, list, whole) {
     return
   }
   const answered = answers.filter(seat => seat.error === undefined).length
-  report(`${answered} of ${answers.length} answered`, answered === 0)
+  report(`${answers.length} 个席位中 ${answered} 个已回答`, answered === 0)
   list.replaceChildren(...answers.map(seat => seatCard(seat, whole)))
   host.reportSize()
 }

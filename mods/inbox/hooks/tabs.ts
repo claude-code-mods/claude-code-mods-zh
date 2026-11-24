@@ -12,10 +12,10 @@ type TabName = { id: ShownTab; label: string; symbol: string }
 type DrawnTab = TabName & { hotkey: string }
 
 const TAB_NAMES: readonly TabName[] = [
-  { id: 'overview', label: 'Status', symbol: '\u{1F9ED}' },
-  { id: 'needsYou', label: 'Asks', symbol: '\u{1F64B}' },
-  { id: 'findings', label: 'Finds', symbol: '\u{1F50D}' },
-  { id: 'prs', label: 'PRs', symbol: '\u{1F500}' },
+  { id: 'overview', label: '状态', symbol: '\u{1F9ED}' },
+  { id: 'needsYou', label: '询问', symbol: '\u{1F64B}' },
+  { id: 'findings', label: '发现', symbol: '\u{1F50D}' },
+  { id: 'prs', label: 'PR', symbol: '\u{1F500}' },
 ]
 
 const numbered = (tabs: readonly TabName[]): readonly DrawnTab[] =>
@@ -29,7 +29,7 @@ export function shownTabs(): readonly DrawnTab[] {
 }
 
 /** The `/inbox` command's description: what the tabs show. */
-export const INBOX_COMMAND_TEXT = 'Show where this session stands and what waits on you'
+export const INBOX_COMMAND_TEXT = '显示本会话的进展以及等待你处理的事项'
 
 /** How a look names its tabs: by their words, or by their symbols. */
 export type TabNaming = 'words' | 'symbols'

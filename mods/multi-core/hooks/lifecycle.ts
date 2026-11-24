@@ -65,6 +65,8 @@ const wire = ($: EngineInterface): Wire => ({
   keys: { read: () => read($, modKeys), save: (change) => update($, modKeys, change) },
 });
 
+const STATUS = { running: '运行中', failed: '失败', refused: '已拒绝', complete: '已完成' } as const
+
 type Status = {
   model?: string;
   state?: string;
@@ -281,7 +283,7 @@ function statusText(status: Status, agentId: string | undefined) {
   const name = workerName(status.model) ?? status.model;
   // A failed or refused run names its reason, so the line says why, not only that.
   const tail = status.error ?? stepText(status.detail);
-  return [name, agentId ? 'worker' : '', `${status.state} ${elapsed}s`, tail]
+  return [name, agentId ? '子代理' : '', `${STATUS[status.state] ?? status.state} ${elapsed}秒`, tail]
     .filter(Boolean)
     .join(' · ');
 }

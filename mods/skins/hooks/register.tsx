@@ -482,19 +482,19 @@ async function runFolderCommand($: EngineInterface, word: string): Promise<strin
       await $.store.set('folders', withFolder(folders, folder, prefs))
       await update($, pinnedAtom, () => true)
 
-      return 'this folder keeps its own look'
+      return '本文件夹现在使用独立外观'
     case 'unpin': {
       const fallback = parsePrefs(await $.store.get('prefs'), names)
       await $.store.set('folders', withoutFolder(folders, folder))
       await update($, pinnedAtom, () => false)
       await update($, prefsAtom, () => fallback)
 
-      return `this folder follows the default: ${fallback.skin}`
+      return `本文件夹跟随默认外观：${fallback.skin}`
     }
     default:
       await $.store.set('prefs', prefs)
 
-      return `default look: ${prefs.skin}`
+      return `默认外观：${prefs.skin}`
   }
 }
 
@@ -650,7 +650,7 @@ export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
       name: 'skin',
-      description: 'Open the skin settings, or /skin <name | list | help | off>',
+      description: '打开皮肤设置，或 /skin <名称 | list | help | off>',
       argumentHint: '[help | gallery | copy | copy code | name | list | off | calm | pin | unpin | share | rail | tables | shimmer | band | countdown | clip | markdown | quiet | charts | math | commands | shell | highlight | hints | links | fold | expand | compact | icons | prompt | words]',
       immediate: true,
     })
@@ -842,13 +842,13 @@ export const register: Register = on => {
 
   on('command.run', { command: 'skin' }, async ($, e) => {
     if (e.args.trim() === '') {
-      await $.ui.open({ id: SETTINGS, title: 'Skins', focus: true, closeOnEscape: true })
+      await $.ui.open({ id: SETTINGS, title: '皮肤', focus: true, closeOnEscape: true })
 
       return {}
     }
 
     if (e.args.trim().toLowerCase() === 'gallery') {
-      await $.ui.open({ id: GALLERY, title: 'Skin gallery', focus: true, closeOnEscape: true })
+      await $.ui.open({ id: GALLERY, title: '皮肤画廊', focus: true, closeOnEscape: true })
 
       return {}
     }
@@ -862,7 +862,7 @@ export const register: Register = on => {
         $.ui.toast(copied.message)
       } else {
         const result = await $.ui.copy({ text: copied.text })
-        $.ui.toast(result.isCopied ? (word === 'copy' ? 'Copied the reply' : 'Copied the code') : 'Could not copy here')
+        $.ui.toast(result.isCopied ? (word === 'copy' ? '已复制回复' : '已复制代码') : '此处无法复制')
       }
 
       return {}
@@ -879,12 +879,12 @@ export const register: Register = on => {
     const names = skinNames(custom)
 
     if (word === 'list') {
-      const folder = (await read($, pinnedAtom)) ? 'pinned' : 'follows the default'
+      const folder = (await read($, pinnedAtom)) ? '独立外观' : '跟随默认'
 
       return {
         text: listing(current, names, [
-          ['this folder', folder],
-          ...(lastColumns === undefined ? [] : [['reply width', `${lastColumns} columns`] as const]),
+          ['本文件夹', folder],
+          ...(lastColumns === undefined ? [] : [['回复宽度', `${lastColumns} 列`] as const]),
         ]),
       }
     }
@@ -912,7 +912,7 @@ export const register: Register = on => {
     const ui = $.ui.resolve(e)
 
     if (skin === undefined || e.surface === 'mobile' || !('Input' in ui)) {
-      return <ui.Text>Open the skin settings in the terminal or the desktop app.</ui.Text>
+      return <ui.Text>请在终端或桌面应用中打开皮肤设置。</ui.Text>
     }
 
     const look = lookOf(ui, { prefs, custom, skin }, e.surface)
@@ -948,7 +948,7 @@ export const register: Register = on => {
     const ui = $.ui.resolve(e)
 
     if (active === null) {
-      return <ui.Text>The gallery shows a skin. Pick one with /skin first.</ui.Text>
+      return <ui.Text>画廊会展示一款皮肤。请先用 /skin 选择一款。</ui.Text>
     }
 
     const look = lookOf(ui, active, e.surface)
@@ -974,7 +974,7 @@ export const register: Register = on => {
       ...(diff === null ? {} : diff),
     }
     const copy = (text: string) => {
-      void $.ui.copy({ text, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? 'Copied' : 'Could not copy here'))
+      void $.ui.copy({ text, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? '已复制' : '此处无法复制'))
     }
     const fields = (e.props.input ?? {}) as { file_path?: unknown; notebook_path?: unknown }
     const path = fields.file_path ?? fields.notebook_path
@@ -1048,7 +1048,7 @@ export const register: Register = on => {
     const active = await activeSkin($)
     const output = e.props.output as { stdout?: unknown } | null
     const copy = (text: string) => {
-      void $.ui.copy({ text, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? 'Copied' : 'Could not copy here'))
+      void $.ui.copy({ text, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? '已复制' : '此处无法复制'))
     }
     // Only the terminal's shell card has a fold control here.
     const needs = { folds: e.surface === 'terminal' && SHELLS.has(e.props.tool) }
@@ -1179,7 +1179,7 @@ export const register: Register = on => {
     const svg = e.surface !== 'terminal' && active.prefs.tables === 'on' && 'Svg' in ui ? ui.Svg : undefined
     lastColumns = e.viewport?.columns
     const copy = (copied: string) => {
-      void $.ui.copy({ text: copied, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? 'Copied' : 'Could not copy here'))
+      void $.ui.copy({ text: copied, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? '已复制' : '此处无法复制'))
     }
 
     const base = await sessionLook($, e, lookOf(ui, active, e.surface, copy), replyNeeds(text, segments))
@@ -1208,7 +1208,7 @@ export const register: Register = on => {
     const ui = $.ui.resolve(e)
     const svg = e.surface !== 'terminal' && active.prefs.tables === 'on' && 'Svg' in ui ? ui.Svg : undefined
     const copy = (copied: string) => {
-      void $.ui.copy({ text: copied, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? 'Copied' : 'Could not copy here'))
+      void $.ui.copy({ text: copied, surface: e.surface }).then(result => $.ui.toast(result.isCopied ? '已复制' : '此处无法复制'))
     }
 
     const base = await sessionLook($, e, lookOf(ui, active, e.surface, copy), replyNeeds(e.props.text, segments))
@@ -1291,7 +1291,7 @@ export const register: Register = on => {
       $.clock.after(1, () =>
         $.command
           .run({ command: 'compact' })
-          .catch((error: unknown) => $.ui.toast(`Compacting failed: ${error instanceof Error ? error.message : String(error)}`))
+          .catch((error: unknown) => $.ui.toast(`压缩失败：${error instanceof Error ? error.message : String(error)}`))
           .finally(() => update($, compactingAtom, () => false)),
       )
     }

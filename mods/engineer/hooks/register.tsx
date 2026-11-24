@@ -55,7 +55,7 @@ function drawStatus($: $, f: EngineerFeature | null, rows: readonly EngineerAgen
   const running = rows.filter(a => a.status === 'running').length
   $.ui.status([
     f.cp !== null ? `CP${f.cp} ▸ ${f.met}/${f.total}` : f.slug,
-    `${running} agent${running === 1 ? '' : 's'}`,
+    `${running} 个代理`,
     `${kTok(rows.reduce((n, a) => n + a.tokens, 0))} tok`,
   ].join(' · '))
 }
@@ -76,7 +76,7 @@ async function startSync($: $, dir: string, handoff: string): Promise<string> {
   const running = syncs.get(dir)
   if (running !== undefined) {
     running.isPending = true
-    return 'a progress sync is already running for this feature and re-runs when it ends'
+    return '该功能已有进度同步在运行，结束后会重新执行'
   }
   const slug = slugOf(dir)
   syncs.set(dir, { isPending: false })
@@ -91,10 +91,10 @@ async function startSync($: $, dir: string, handoff: string): Promise<string> {
   })
   if (spawned.deny !== undefined || spawned.agentId === undefined) {
     syncs.delete(dir)
-    return `the progress sync could not start (${spawned.deny ?? 'no agent'}): dispatch an economy /engineer.progress-log ${slug} yourself`
+    return `进度同步无法启动（${spawned.deny ?? '无代理'}）：请自行派发经济型 /engineer.progress-log ${slug}`
   }
   syncs.set(dir, { agentId: spawned.agentId, isPending: false })
-  return `progress sync dispatched (agent ${spawned.agentId}); do not dispatch /engineer.progress-log yourself for this handoff`
+  return `进度同步已派发（代理 ${spawned.agentId}）；此交接请勿自行派发 /engineer.progress-log`
 }
 
 async function onHandoff($: $, dir: string, path: string): Promise<string> {
@@ -103,8 +103,8 @@ async function onHandoff($: $, dir: string, path: string): Promise<string> {
     loadFeature($, dir),
   ])
   const verdict = check.stdout.trim().split('\n')[0] ?? ''
-  if (check.exitCode !== 0) alert($, `DAE ${slugOf(dir)}: handoff check failed: ${verdict}`)
-  if (f?.human_action_needed) alert($, `DAE ${f.slug}: a gate needs you (human_action_needed: yes)`)
+  if (check.exitCode !== 0) alert($, `DAE ${slugOf(dir)}：交接检查失败：${verdict}`)
+  if (f?.human_action_needed) alert($, `DAE ${f.slug}：有需要你处理的关卡（human_action_needed: yes）`)
   await show($, f)
   const sync = await startSync($, dir, path)
   return `engineer mod: dae_handoff.py ${check.exitCode === 0 ? 'passed' : `FAILED: ${verdict}`}; ${sync}.`
@@ -161,7 +161,7 @@ export const register: Register = (on, options) => {
   on('session.start', async ($, e, next) => {
     const [resolved] = await Promise.all([
       py($, 'dae_resolve.py', e.cwd).catch(() => undefined),
-      $.command.register({ name: PANE, description: 'DAE coordinator pane: running agents, segment, cost' }),
+      $.command.register({ name: PANE, description: 'DAE 协调面板：运行中的代理、阶段与成本' }),
       $.tool.register({
         name: 'cost_ledger',
         description:
@@ -180,14 +180,14 @@ export const register: Register = (on, options) => {
 
   on('command.run', { command: PANE }, async $ => {
     await $.ui.open({ id: PANE, title: 'DAE' })
-    return { text: 'DAE pane opened.' }
+    return { text: 'DAE 面板已打开。' }
   })
 
   on('tool.call', { tool: 'mcp__engineer__cost_ledger' }, async $ => {
     const rows = Object.values(await getLedger($)).map(r => ({
       ...r, avgTokens: Math.round(r.tokens / r.runs), avgMinutes: +(r.ms / r.runs / 60000).toFixed(1),
     }))
-    return { result: rows.length ? JSON.stringify(rows, null, 1) : 'No runs recorded yet: use the priors.' }
+    return { result: rows.length ? JSON.stringify(rows, null, 1) : '尚无运行记录：请使用先验数据。' }
   })
 
   // --- 1. handoff-write hook: validate, then sync deterministically ----------
@@ -266,7 +266,7 @@ export const register: Register = (on, options) => {
       addToLedger($, row, tokens, e.durationMs),
     ])
     if (row.role !== 'progress-log' || isFailed) {
-      alert($, `DAE: ${row.role}${row.cp ? ` (CP${row.cp})` : ''} ${isFailed ? `failed: ${e.reason}` : 'finished'}`)
+      alert($, `DAE：${row.role}${row.cp ? `（CP${row.cp}）` : ''} ${isFailed ? `失败：${e.reason}` : '已完成'}`)
     }
     if (!(await read($, agents)).some(a => a.status === 'running')) {
       ticker?.cancel()
@@ -284,7 +284,7 @@ export const register: Register = (on, options) => {
   })
 
   on('tool.call', { tool: 'AskUserQuestion' }, async ($, e, next) => {
-    if (e.agentId === undefined && shownDir !== undefined) alert($, 'DAE: a gate needs you')
+    if (e.agentId === undefined && shownDir !== undefined) alert($, 'DAE：有需要你处理的关卡')
     return next(e)
   })
 
@@ -321,8 +321,8 @@ export const register: Register = (on, options) => {
     const room = Math.max(1, e.props.scroll.bodyRows - 2)
     return (
       <Box flexDirection="column">
-        <Text bold>{f ? `${f.slug}${f.segment ? ` · segment ${f.segment}` : ''}` : 'No DAE feature in scope'}</Text>
-        {rows.length === 0 && <Text dimColor>No DAE agents dispatched this session.</Text>}
+        <Text bold>{f ? `${f.slug}${f.segment ? ` · 阶段 ${f.segment}` : ''}` : '当前范围内没有 DAE 功能'}</Text>
+        {rows.length === 0 && <Text dimColor>本次会话未派发 DAE 代理。</Text>}
         {rows.slice(-room).map(a => (
           <Text dimColor={a.status !== 'running'} color={a.status === 'failed' ? 'red' : undefined}>
             {ICON[a.status]} {a.role}

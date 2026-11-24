@@ -43,5 +43,5 @@ test('skipped hooks, a machine copy that is not the organization’s and an over
   const ids = debugFindings(log, { slideOn: true }).map((x) => x.id)
   assert.deepEqual(ids.sort(), ['mod-hooks-skipped', 'org-copy-not-org', 'skill-listing-over-budget'])
   const skill = debugFindings(log).find((x) => x.id === 'skill-listing-over-budget')
-  assert.match(skill.detail, /vercel \(37\)/)
+  assert.match(skill.detail, /vercel（37）/)
 })

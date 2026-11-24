@@ -21,9 +21,9 @@ const view: ClientModule<UsagePaneProps, State> = (props, surface) => {
   const { Box, Text, Button } = surface.elements;
   const state = surface.state ?? { selected: 'all', offset: 0 };
   const tabs = [
-    { id: 'all', name: 'All' },
+    { id: 'all', name: '全部' },
     ...props.providers,
-    { id: 'receipts', name: 'Receipts' },
+    { id: 'receipts', name: '账单' },
   ];
   const width = Math.max(10, surface.columns || 80);
   const lines = viewLines(props, state.selected).flatMap((line) => wrapLine(line, width));
@@ -66,21 +66,21 @@ const view: ClientModule<UsagePaneProps, State> = (props, surface) => {
           }),
         ),
       }),
-      Text({ dimColor: true, children: `Account data checked ${props.updatedAt}` }),
+      Text({ dimColor: true, children: `账户数据检查于 ${props.updatedAt}` }),
       Button({
         key: 'quota-advice',
-        label: `Quota-aware model selection: ${props.quotaAdviceEnabled ? 'On' : 'Off'}`,
+        label: `按额度选择模型：${props.quotaAdviceEnabled ? '开' : '关'}`,
         onPress: () => surface.post({ action: 'toggle-quota-advice' }),
       }),
       ...(props.error ? [Text({ color: 'yellow', children: props.error })] : []),
       ...lines.slice(offset, offset + height).map((line) => Text({ children: line })),
       Text({
         dimColor: true,
-        children: `${offset + 1}–${Math.min(lines.length, offset + height)} of ${lines.length} · ←/→ providers · ↑/↓ scroll · r refresh · Esc close`,
+        children: `${offset + 1}–${Math.min(lines.length, offset + height)} / ${lines.length} · ←/→ 切换供应商 · ↑/↓ 滚动 · r 刷新 · Esc 关闭`,
       }),
       Button({
         key: 'refresh',
-        label: 'Refresh',
+        label: '刷新',
         onPress: () => surface.post({ action: refreshAction }),
       }),
     ],
@@ -91,7 +91,7 @@ function viewLines(props: UsagePaneProps, selected: string): string[] {
   if (selected === 'receipts') {
     return props.receiptLines?.length
       ? props.receiptLines
-      : ['No completed receipts in this session.'];
+      : ['本会话中没有已完成的账单。'];
   }
   const provider = props.providers.find((item) => item.id === selected);
   if (provider) {

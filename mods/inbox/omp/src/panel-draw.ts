@@ -269,7 +269,7 @@ export function drawLine(line: Line, isSelected: boolean, d: Draw): string[] {
   if (line.buttons.some(b => !b.option) && ui.typing !== line.id)
     out.push(...buttonLines(line, ui, indent - 1, room, s))
   if (ui.typing === line.id) {
-    const hint = line.row ? replyHint(line.row, AGENT) : 'Your reply'
+    const hint = line.row ? replyHint(line.row, AGENT) : '你的回复'
     const text = ui.drafts[line.id]?.text ?? ''
     out.push(' '.repeat(indent) + s.dim(`${hint}:`))
     const field = wrapText(`${text}\u0000`, Math.max(10, room - indent - 1))

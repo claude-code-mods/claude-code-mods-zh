@@ -28,12 +28,12 @@ function panel(page, name) {
   return { uri: `ui://council/${page}/${hash}`, name, text }
 }
 
-const PANELS = [panel('settings', 'Council models'), panel('answers', 'Council answers'), panel('pick', 'Council picker')]
+const PANELS = [panel('settings', '议事厅模型'), panel('answers', '议事厅回答'), panel('pick', '议事厅选择器')]
 const [SETTINGS_PANEL, ANSWERS_PANEL, PICK_PANEL] = PANELS
 
 const { keys, tooShort } = council.readKeys(process.env)
 const theCouncil = council.openCouncil({ root: council.findPluginRoot(EXTENSION_ROOT), keys, tooShort, redact })
-const KEY_MARK = '[key removed]'
+const KEY_MARK = '[密钥已移除]'
 
 // Whether the connected app said it draws a tool's panel inside the chat.
 let drawsPanel = false

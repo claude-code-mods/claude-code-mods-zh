@@ -69,7 +69,7 @@ export function closeKeysWithoutRow(statusRowKeys: KeyAction[]): KeyAction[] {
       : [
           {
             key: `no-row-${hotkey}`,
-            label: 'Close',
+            label: '关闭',
             hotkey,
             kind: 'view',
             onPress: () => undefined,

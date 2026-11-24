@@ -90,22 +90,22 @@ function stageLine(state: SpecState): Line {
     const slices = tasksOfType(state, 'slice')
     const passed = counted(slices, (slice) => effectiveStatus(state, slice.id) === 'passed')
     const marks = phases(state).map((phase, index) => `P${index + 1} ${statusGlyph(effectiveStatus(state, phase.id)).glyph}`)
-    return line([...marks, `slices ${passed}/${slices.length}`].join('  '), 'dim')
+    return line([...marks, `切片 ${passed}/${slices.length}`].join('  '), 'dim')
   }
   if (stage === 'Verify') {
-    if (state.verify === undefined) return line('no verification recorded', 'dim')
+    if (state.verify === undefined) return line('尚无验证记录', 'dim')
     const drift = tasksOfType(state, 'drift').some(isOpen) ? '◐' : '✓'
     const constitution = { pass: '✓', fail: '✗', none: '–' }[state.verify.constitution]
-    return line(`drift ${drift}  constitution ${constitution}`, 'dim')
+    return line(`偏移 ${drift}  章程 ${constitution}`, 'dim')
   }
-  return line(state.archivedAt === undefined ? 'ready to archive' : `archived ${state.archivedAt.slice(0, 10)}`, 'dim')
+  return line(state.archivedAt === undefined ? '可归档' : `已归档于 ${state.archivedAt.slice(0, 10)}`, 'dim')
 }
 
 export function needsYou(state: SpecState, live: Live): Line[] {
   const items: Line[] = []
-  if (live.isAsking) items.push(line('? Claude is asking you a question', 'ask'))
-  for (const part of GATE_PARTS) if (state.gates[part] === 'draft') items.push(line(`◆ ${part} draft to approve`, 'ask'))
-  for (const decision of state.decisions.values()) if (!decision.confirmed) items.push(line(`? ${decision.id} ${decision.title ?? ''} — confirm`.trim(), 'ask'))
+  if (live.isAsking) items.push(line('? Claude 正在向你提问', 'ask'))
+  for (const part of GATE_PARTS) if (state.gates[part] === 'draft') items.push(line(`◆ ${part} 草稿待批准`, 'ask'))
+  for (const decision of state.decisions.values()) if (!decision.confirmed) items.push(line(`? ${decision.id} ${decision.title ?? ''} — 待确认`.trim(), 'ask'))
   for (const question of state.questions.values()) if (!question.resolved) items.push(line(`? ${question.id} ${question.text ?? ''}`.trim(), 'ask'))
   for (const assumption of state.assumptions.values()) {
     if (assumption.observable && assumption.status === 'proposed') items.push(line(`? ${assumption.id} ${assumption.text ?? ''}`.trim(), 'ask'))
@@ -113,20 +113,20 @@ export function needsYou(state: SpecState, live: Live): Line[] {
   const uncovered = uncoveredCriteria(state)
   if (uncovered.length > 0) {
     const shown = uncovered.slice(0, UNCOVERED_SHOWN).join(', ')
-    items.push(line(`✗ ${uncovered.length} AC in no slice: ${shown}${uncovered.length > UNCOVERED_SHOWN ? ', …' : ''}`, 'bad'))
+    items.push(line(`✗ ${uncovered.length} 条验收标准不在任何切片中：${shown}${uncovered.length > UNCOVERED_SHOWN ? '，…' : ''}`, 'bad'))
   }
-  for (const slice of slicesWithoutP0(state)) items.push(line(`✗ ${slice.name}: no P0 scenario`, 'bad'))
+  for (const slice of slicesWithoutP0(state)) items.push(line(`✗ ${slice.name}：没有 P0 场景`, 'bad'))
   for (const slice of tasksOfType(state, 'slice')) {
     const status = effectiveStatus(state, slice.id)
     const outcome = RESULT_LINE[state.results.get(slice.id)?.result ?? '']
     const iterations = state.results.get(slice.id)?.iterations
     const max = state.run?.maxIterations
-    const tries = iterations === undefined ? '' : `  it ${iterations}${max === undefined ? '' : `/${max}`}`
+    const tries = iterations === undefined ? '' : `  第 ${iterations}${max === undefined ? '' : `/${max}`} 次迭代`
     if (status !== 'passed' && outcome !== undefined) items.push(line(`${outcome.glyph} ${slice.name}  ${outcome.label}${tries}`, outcome.tone))
     else if (status === 'failed' || status === 'blocked') items.push(line(`${statusGlyph(status).glyph} ${slice.name}  ${status}`, 'bad'))
-    else if (ACTIVE_STATUSES.includes(status) && !isRunLive(state)) items.push(line(`⚠ ${slice.name}  ${status}, no run live`, 'warn'))
+    else if (ACTIVE_STATUSES.includes(status) && !isRunLive(state)) items.push(line(`⚠ ${slice.name}  ${status}，当前没有运行中的任务`, 'warn'))
   }
-  for (const drift of tasksOfType(state, 'drift')) if (isOpen(drift)) items.push(line(`⚠ drift: ${drift.name}`, 'warn'))
+  for (const drift of tasksOfType(state, 'drift')) if (isOpen(drift)) items.push(line(`⚠ 偏移：${drift.name}`, 'warn'))
   const stage = currentStage(state)
   if (stage === 'Verify' && state.verify === undefined) items.push(line('◆ run /start:validate drift', 'ask'))
   if (stage === 'Ship' && state.archivedAt === undefined) items.push(line('◆ run /start:archive', 'ask'))
@@ -136,14 +136,14 @@ export function needsYou(state: SpecState, live: Live): Line[] {
 function nowSection(state: SpecState, live: Live): Section | undefined {
   const isLive = isRunLive(state) || live.runningAgents > 0
   if (!isLive && currentStage(state) !== 'Build') return undefined
-  if (!isLive) return { key: 'now', title: 'NOW', lines: [line('no workflow running', 'dim')] }
+  if (!isLive) return { key: 'now', title: '当前', lines: [line('没有运行中的工作流', 'dim')] }
   const lines: Line[] = []
-  if (isRunLive(state)) lines.push(line(`/start:implement running · ${duration(live.now - Date.parse(state.run!.at))}`))
-  if (live.runningAgents > 0) lines.push(line(`${live.runningAgents} agent${live.runningAgents === 1 ? '' : 's'} running`, 'dim'))
+  if (isRunLive(state)) lines.push(line(`正在运行 /start:implement · ${duration(live.now - Date.parse(state.run!.at))}`))
+  if (live.runningAgents > 0) lines.push(line(`${live.runningAgents} 个代理正在运行`, 'dim'))
   for (const slice of tasksOfType(state, 'slice')) {
     if (ACTIVE_STATUSES.includes(slice.status)) lines.push(line(`◐ ${slice.name}  ${slice.status}`, 'warn'))
   }
-  return { key: 'now', title: 'NOW', lines }
+  return { key: 'now', title: '当前', lines }
 }
 
 function defineSection(state: SpecState): Section {
@@ -152,17 +152,17 @@ function defineSection(state: SpecState): Section {
   const confirmed = counted(decisions, (decision) => decision.confirmed)
   const lines = [
     line(`FR ${state.requirements.size} · AC ${acs}`),
-    line(`ADR ${decisions.length} (${confirmed} confirmed · ${decisions.length - confirmed} pending)`),
+    line(`ADR ${decisions.length} （${confirmed} 已确认 · ${decisions.length - confirmed} 待定）`),
   ]
   const slices = tasksOfType(state, 'slice')
-  if (slices.some((slice) => slice.covers !== undefined)) lines.push(line(`AC in a slice  ${acs - uncoveredCriteria(state).length}/${acs}`))
+  if (slices.some((slice) => slice.covers !== undefined)) lines.push(line(`切片中的验收标准  ${acs - uncoveredCriteria(state).length}/${acs}`))
   const scenarios = tasksOfType(state, 'scenario')
   if (scenarios.some((scenario) => scenario.priority !== undefined)) {
-    lines.push(line(`slices without P0  ${slicesWithoutP0(state).length}/${slices.length}`))
+    lines.push(line(`缺少 P0 的切片  ${slicesWithoutP0(state).length}/${slices.length}`))
     const byPriority = ['P0', 'P1', 'P2'].map((priority) => `${priority} ${counted(scenarios, (scenario) => scenario.priority === priority)}`)
-    lines.push(line(`scenarios  ${byPriority.join(' · ')}`))
+    lines.push(line(`场景  ${byPriority.join(' · ')}`))
   }
-  return { key: 'define', title: 'DEFINE', lines }
+  return { key: 'define', title: '定义', lines }
 }
 
 function buildSection(state: SpecState, columns: number): Section {
@@ -173,7 +173,7 @@ function buildSection(state: SpecState, columns: number): Section {
   const max = state.run?.maxIterations
   const nameWidth = Math.max(8, columns - SCORE_WIDTH - 13)
   const threshold = state.run?.threshold === undefined ? '' : `  threshold ${percent(state.run.threshold)}%`
-  const header = line(`${''.padEnd(nameWidth + 3)}${'biz/tech'.padStart(SCORE_WIDTH + 1)}  it`, 'dim')
+  const header = line(`${''.padEnd(nameWidth + 3)}${'业务/技术'.padStart(SCORE_WIDTH + 1)}  迭代`, 'dim')
   const rows = slices.map((slice) => {
     const result = state.results.get(slice.id)
     const { glyph, tone } = sliceGlyph(state, slice)
@@ -182,45 +182,45 @@ function buildSection(state: SpecState, columns: number): Section {
     return line(`${glyph} ${clip(slice.name, nameWidth)}  ${score.padStart(SCORE_WIDTH)}  ${tries}`, tone)
   })
   const title = `BUILD${phase === undefined ? '' : ` · P${index + 1}`}${threshold}`
-  return { key: 'build', title, lines: rows.length === 0 ? [line('no slices yet', 'dim')] : [header, ...rows] }
+  return { key: 'build', title, lines: rows.length === 0 ? [line('尚无切片', 'dim')] : [header, ...rows] }
 }
 
 function verifySection(state: SpecState): Section {
   const drift = tasksOfType(state, 'drift')
   const gaps = tasksOfType(state, 'gap')
-  const constitution = state.verify === undefined ? 'not checked' : { pass: 'pass', fail: 'fail', none: 'no constitution' }[state.verify.constitution]
+  const constitution = state.verify === undefined ? '未检查' : { pass: 'pass', fail: 'fail', none: '无章程' }[state.verify.constitution]
   return {
     key: 'verify',
-    title: 'VERIFY',
+    title: '验证',
     lines: [
-      line(`drift findings  ${counted(drift, isOpen)} open · ${counted(drift, (task) => !isOpen(task))} fixed`),
-      line(`known gaps  ${counted(gaps, isOpen)} open`),
-      line(`constitution  ${constitution}`, state.verify?.constitution === 'fail' ? 'bad' : 'plain'),
+      line(`偏移发现  ${counted(drift, isOpen)} 个未解决 · ${counted(drift, (task) => !isOpen(task))} 个已修复`),
+      line(`已知缺口  ${counted(gaps, isOpen)} 个未解决`),
+      line(`章程  ${constitution}`, state.verify?.constitution === 'fail' ? 'bad' : 'plain'),
     ],
   }
 }
 
-function openClosed(label: string, tasks: Task[], closedWord = 'closed'): Line | undefined {
+function openClosed(label: string, tasks: Task[], closedWord = '已关闭'): Line | undefined {
   if (tasks.length === 0) return undefined
-  return line(`${label}  ${counted(tasks, isOpen)} open · ${counted(tasks, (task) => !isOpen(task))} ${closedWord}`)
+  return line(`${label}  ${counted(tasks, isOpen)} 个未解决 · ${counted(tasks, (task) => !isOpen(task))} ${closedWord}`)
 }
 
 function trackerSection(state: SpecState): Section | undefined {
   if (state.tasks.size === 0) return undefined
   const slices = tasksOfType(state, 'slice').map((slice) => effectiveStatus(state, slice.id))
   const scenarios = tasksOfType(state, 'scenario').map((scenario) => scenario.status)
-  const lines: Line[] = [line(`phases ${phases(state).length}  slices ${slices.length}  scenarios ${scenarios.length}`)]
+  const lines: Line[] = [line(`阶段 ${phases(state).length}  切片 ${slices.length}  场景 ${scenarios.length}`)]
   if (slices.length > 0) {
     const active = counted(slices, (status) => ACTIVE_STATUSES.includes(status))
-    lines.push(line(`slices     ✓ ${counted(slices, (s) => s === 'passed')}  ◐ ${active}  ✗ ${counted(slices, (s) => s === 'failed' || s === 'blocked')}  ○ ${counted(slices, (s) => s === 'pending')}`))
+    lines.push(line(`切片     ✓ ${counted(slices, (s) => s === 'passed')}  ◐ ${active}  ✗ ${counted(slices, (s) => s === 'failed' || s === 'blocked')}  ○ ${counted(slices, (s) => s === 'pending')}`))
   }
   if (scenarios.some((status) => status !== 'pending')) {
-    lines.push(line(`scenarios  ✓ ${counted(scenarios, (s) => s === 'passed')}  ✗ ${counted(scenarios, (s) => s === 'failed')}  ○ ${counted(scenarios, (s) => s !== 'passed' && s !== 'failed')}`))
+    lines.push(line(`场景  ✓ ${counted(scenarios, (s) => s === 'passed')}  ✗ ${counted(scenarios, (s) => s === 'failed')}  ○ ${counted(scenarios, (s) => s !== 'passed' && s !== 'failed')}`))
   }
-  for (const extra of [openClosed('bugs', tasksOfType(state, 'bug')), openClosed('gaps', tasksOfType(state, 'gap')), openClosed('drift', tasksOfType(state, 'drift'), 'fixed')]) {
+  for (const extra of [openClosed('bugs', tasksOfType(state, 'bug')), openClosed('gaps', tasksOfType(state, 'gap')), openClosed('drift', tasksOfType(state, 'drift'), '已修复')]) {
     if (extra !== undefined) lines.push(extra)
   }
-  return { key: 'tracker', title: 'TRACKER', lines }
+  return { key: 'tracker', title: '追踪器', lines }
 }
 
 function ledgerSection(state: SpecState): Section {
@@ -230,8 +230,8 @@ function ledgerSection(state: SpecState): Section {
   const proposed = counted(assumptions, (assumption) => assumption.status === 'proposed')
   return {
     key: 'ledger',
-    title: 'LEDGER',
-    lines: [line(`Q ${counted(questions, (question) => !question.resolved)} open · A ${assumptions.length} (${proposed} proposed) · ADR ${decisions.length}`)],
+    title: '台账',
+    lines: [line(`Q ${counted(questions, (question) => !question.resolved)} 个未解决 · A ${assumptions.length}（${proposed} 个待定） · ADR ${decisions.length}`)],
   }
 }
 
@@ -240,7 +240,7 @@ export function view(state: SpecState, live: Live, columns: number): View {
   const stage = currentStage(state)
   const stageSection = stage === 'Define' ? defineSection(state) : stage === 'Build' ? buildSection(state, columns) : stage === 'Verify' ? verifySection(state) : undefined
   const sections = [
-    { key: 'needs', title: `NEEDS YOU (${needs.length})`, lines: needs.length === 0 ? [line('nothing needs you', 'dim')] : needs },
+    { key: 'needs', title: `需要你处理 (${needs.length})`, lines: needs.length === 0 ? [line('无需你处理', 'dim')] : needs },
     nowSection(state, live),
     stageSection,
     trackerSection(state),

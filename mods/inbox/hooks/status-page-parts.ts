@@ -13,7 +13,7 @@ import type { StatusBranch, StatusCount, StatusRow, StatusStall } from './status
  */
 const LISTED_NAMES = 2
 /** What ends a line of names that holds more names than it shows. */
-export const namedFoldMore = (n: number) => `+${n} more`
+export const namedFoldMore = (n: number) => `另有 ${n} 项`
 
 /** The first `LISTED_NAMES` of `names`, joined by commas, then the count of the rest as "+N more". */
 export function namedList(names: readonly string[]): string {
@@ -23,7 +23,7 @@ export function namedList(names: readonly string[]): string {
 }
 
 /** What a named fold says before the names it holds. Each closed status gets its own fold, in this order. */
-export const NAMED_FOLD_TEXT = { done: 'Done: ', dropped: 'Dropped: ' } as const
+export const NAMED_FOLD_TEXT = { done: '已完成：', dropped: '已放弃：' } as const
 
 /** A part's closed work past its rows that the person has not seen, named in one fold for each closed status. */
 export const namedFolds = (prefix: string, named: Subject[], depth: number): StatusRow[] =>
@@ -62,8 +62,8 @@ const CHILD_MARK: { mark: string; tone: StatusTone } = SUBJECT_MARKS.working
 
 /** The words a `counts` row gives each mark. */
 const COUNT_WORDS: Record<'working' | 'waits-on-other', string> = {
-  working: 'working',
-  'waits-on-other': 'waiting',
+  working: '进行中',
+  'waits-on-other': '等待中',
 }
 
 /** The statuses a `counts` row counts, in the page's order of marks. Queued work gets no count. */
@@ -91,7 +91,7 @@ function subjectStall(x: Subject, isHeld: boolean, isWorkRunning: boolean, now: 
   const idleMs = now - x.changedAt
   const isIdle = isOpen(x) && !isWorkRunning && idleMs >= IDLE_AFTER_MS
 
-  return isIdle ? { text: `idle ${Math.floor(idleMs / DAY_MS)}d`, tone: 'muted' } : null
+  return isIdle ? { text: `空闲 ${Math.floor(idleMs / DAY_MS)} 天`, tone: 'muted' } : null
 }
 
 /** Whether `c` runs and waits on no one: not a delegate at a question or an approval, and not one that finished. */
@@ -146,7 +146,7 @@ export function finishedLine(c: Pick<Child, 'startedAt' | 'endedAt' | 'summary'>
   if (c.endedAt === null) return null
   const finished = ago(now - c.endedAt)
 
-  return `Ran ${duration(c.endedAt - c.startedAt)}, finished ${finished}`
+  return `运行 ${duration(c.endedAt - c.startedAt)}，于${finished}完成`
 }
 
 /** A child's row. `text` is the line under its name, which only a finished delegate in a done fold draws. */
@@ -273,7 +273,7 @@ export function partRows(
         kind: 'more',
         id: `${x.id}-more`,
         depth: depth + 1,
-        text: `+ ${hidden.length} more${isEveryHiddenRunning ? ' running' : ''}`,
+        text: `+ 另有 ${hidden.length} 项${isEveryHiddenRunning ? '运行中' : ''}`,
         branch: 'last',
       })
   }

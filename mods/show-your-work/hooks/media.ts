@@ -329,20 +329,20 @@ export async function prepareAudio($: EngineInterface, real: string, title: stri
 
 // What to tell Claude and the person when a video can't be cut into frames.
 export const NO_FFMPEG =
-  "videos need ffmpeg, and it isn't installed. Pictures still work. Install it with `brew install ffmpeg` " +
-  '(Claude can run that for you), then restart Claude Code. No Homebrew? Install it first from https://brew.sh.'
+  "视频需要 ffmpeg，但当前未安装。图片仍可正常显示。请使用 `brew install ffmpeg` " +
+  '安装（Claude 可以替你执行），然后重启 Claude Code。没有 Homebrew？请先从 https://brew.sh 安装。'
 
 // On Linux ffmpeg also turns pictures other than PNG into PNG.
 export const NO_FFMPEG_LINUX =
-  "videos and pictures other than PNG need ffmpeg, and it isn't installed. Install it with your package manager, " +
-  'for example `sudo apt install ffmpeg` or `sudo dnf install ffmpeg` (Claude can run that for you), then restart Claude Code.'
+  "视频和非 PNG 图片需要 ffmpeg，但当前未安装。请使用系统包管理器安装，" +
+  '例如 `sudo apt install ffmpeg` 或 `sudo dnf install ffmpeg`（Claude 可以替你执行），然后重启 Claude Code。'
 export const noFfmpeg = (mac: boolean) => (mac ? NO_FFMPEG : NO_FFMPEG_LINUX)
 export const FFMPEG_PROMPT_LINUX =
-  "Install ffmpeg for me with this machine's package manager (for example `sudo apt install ffmpeg`). Then show it again."
+  "用这台机器的包管理器帮我安装 ffmpeg（例如 `sudo apt install ffmpeg`），然后再展示一次。"
 
 // What the person pastes back so Claude installs ffmpeg and tries again.
 export const FFMPEG_PROMPT =
-  'Install ffmpeg for me with `brew install ffmpeg`. If Homebrew isn\'t installed, tell me how to install it first. Then show the video again.'
+  '用 `brew install ffmpeg` 帮我安装 ffmpeg。如果尚未安装 Homebrew，请先告诉我要如何安装，然后再展示一次视频。'
 
 // A failure as the person and Claude see it: a box in place of the picture,
 // one plain message for Claude, and a prompt to paste back. Never raw tool
@@ -356,70 +356,70 @@ export function noticeOf(err: unknown, path: string, homeDir = ''): Notice {
   const shown = homeDir && path.startsWith(`${homeDir}/`) ? `~${path.slice(homeDir.length)}` : path
   const name = path.split('/').pop() || path
   if (raw.includes(NO_FFMPEG_LINUX)) return {
-    kind: 'no_ffmpeg', title: 'This needs ffmpeg', message: NO_FFMPEG_LINUX, prompt: FFMPEG_PROMPT_LINUX,
-    text: "ffmpeg isn't installed, so videos and pictures other than PNG can't show here. Copy the prompt and paste it to Claude to install it, or install it yourself, for example `sudo apt install ffmpeg`.",
+    kind: 'no_ffmpeg', title: '此项需要 ffmpeg', message: NO_FFMPEG_LINUX, prompt: FFMPEG_PROMPT_LINUX,
+    text: "未安装 ffmpeg，因此视频和非 PNG 图片无法显示。复制提示词并粘贴给 Claude 来安装，或自行安装，例如 `sudo apt install ffmpeg`。",
   }
   if (raw.includes(NO_FFMPEG)) return {
-    kind: 'no_ffmpeg', title: 'Videos need ffmpeg', message: NO_FFMPEG, prompt: FFMPEG_PROMPT,
-    text: "ffmpeg isn't installed, so this video can't play here. Pictures still work. Copy the prompt and paste it to Claude to install it, or run `brew install ffmpeg` yourself. No Homebrew? Get it from brew.sh first.",
+    kind: 'no_ffmpeg', title: '视频需要 ffmpeg', message: NO_FFMPEG, prompt: FFMPEG_PROMPT,
+    text: "未安装 ffmpeg，因此该视频无法播放。图片仍可正常显示。复制提示词并粘贴给 Claude 来安装，或自行运行 `brew install ffmpeg`。没有 Homebrew？请先从 brew.sh 安装。",
   }
   if (/^not audio:/i.test(raw)) return {
-    kind: 'not_image', title: "This isn't an audio file",
-    text: `${name} isn't MP3 or WAV, so it can't play here. Convert it to WAV and show it again.`,
+    kind: 'not_image', title: '这不是音频文件',
+    text: `${name} 不是 MP3 或 WAV 文件，因此无法播放。请将其转换为 WAV 后再展示。`,
     message: `${shown} isn't an audio file (show_audio opens MP3 and WAV). Convert it, for example to WAV with ffmpeg, then show it again; use show_video for a video with sound.`,
     prompt: `Convert ${shown} to WAV (or MP3) for me, then show it to me again.`,
   }
   if (/does not contain any stream|matches no streams|no frames in|Output file is empty/i.test(raw)) return AUDIO.test(path) ? {
-    kind: 'no_picture', title: "This audio can't be read",
-    text: `${name} is too short or empty to draw, so there's nothing to play.`,
+    kind: 'no_picture', title: '无法读取此音频',
+    text: `${name} 太短或为空，无法绘制，因此没有可播放的内容。`,
     message: `${shown} is too short or empty to play. Don't retry it; show a real audio file instead.`,
     prompt: `${shown} is too short to play. Find a real audio file and show it to me again.`,
   } : {
-    kind: 'no_picture', title: 'This video has no picture',
-    text: `${name} has sound but no picture, so there's nothing to play.`,
+    kind: 'no_picture', title: '此视频没有画面',
+    text: `${name} 只有声音没有画面，因此没有可播放的内容。`,
     message: `${shown} has no video track (sound only), so there's nothing to play. Don't retry it; show a file with a picture instead.`,
     prompt: `${shown} has no picture, only sound. Find the right video and show it to me again.`,
   }
   if (/ffmpeg could not read|Invalid data|moov atom|could not find codec|Error opening input/i.test(raw)) return AUDIO.test(path) ? {
-    kind: 'broken_video', title: "This audio can't be read",
-    text: `${name} couldn't be opened as audio. It may be cut off, still being written, or not really an audio file.`,
+    kind: 'broken_video', title: '无法读取此音频',
+    text: `无法将 ${name} 作为音频打开。它可能被截断、仍在写入，或者并非音频文件。`,
     message: `${shown} couldn't be read as audio: it's damaged, unfinished (still being recorded or cut off), or not an audio file. Re-export it, then show it again.`,
     prompt: `${shown} couldn't be read as audio. Check it, re-export it if it's broken, then show it to me again.`,
   } : {
-    kind: 'broken_video', title: "This video can't be read",
-    text: `${name} couldn't be opened as a video. It may be cut off, still being written, or not really a video.`,
+    kind: 'broken_video', title: '无法读取此视频',
+    text: `无法将 ${name} 作为视频打开。它可能被截断、仍在写入，或者并非视频文件。`,
     message: `${shown} couldn't be read as a video: it's damaged, unfinished (still recording or cut off), or not a video. Re-export or re-record it, then show it again.`,
     prompt: `${shown} couldn't be read as a video. Check it, re-export or re-record it if it's broken, then show it to me again.`,
   }
   if (/could not convert|not an image|Cannot extract image|sips/i.test(raw)) return {
-    kind: 'not_image', title: "This isn't a picture",
-    text: `${name} isn't a picture, so it can't be shown. Pictures can be PNG, JPEG, WebP, GIF or TIFF.`,
+    kind: 'not_image', title: '这不是图片',
+    text: `${name} 不是图片，因此无法显示。图片可以是 PNG、JPEG、WebP、GIF 或 TIFF 格式。`,
     message: `${shown} isn't a picture (show_image opens PNG, JPEG, WebP, GIF and TIFF). Show an image file, or use show_video for a video.`,
     prompt: `${shown} isn't a picture. Show me the right file instead.`,
   }
   if (/ENOENT|no such file|not found/i.test(raw)) return {
-    kind: 'missing', title: 'File not found',
-    text: `There's no file at ${shown}.`,
+    kind: 'missing', title: '找不到文件',
+    text: `${shown} 处没有文件。`,
     message: `There's no file at ${shown}. Check the path (it may have moved or not been saved yet), then show it again.`,
     prompt: `There's no file at ${shown}. Find the right file and show it to me again.`,
   }
   if (/pages need Chrome or Chromium/i.test(raw)) return {
-    kind: 'other', title: 'Pages need a browser',
-    text: `${name} is an HTML page, and no Chrome or Chromium was found to render it. Copy the prompt and paste it to Claude to install one, or install it yourself.`,
+    kind: 'other', title: '网页需要浏览器',
+    text: `${name} 是 HTML 页面，但未找到可用于渲染的 Chrome 或 Chromium。复制提示词并粘贴给 Claude 来安装，或自行安装。`,
     message: `${shown} is an HTML page, and no Chrome or Chromium was found to render it. Screenshot it with headless Playwright instead and show that with show_image.`,
     prompt: `Install Google Chrome or Chromium for me, then restart Claude Code. After that, show ${shown} to me again.`,
   }
   // A page Chrome couldn't render still reaches the person as a picture.
   if (/the page couldn't be rendered/i.test(raw)) return {
-    kind: 'other', title: "Couldn't render the page",
-    text: `${name} couldn't be rendered as a page. Claude can screenshot it another way and show that.`,
+    kind: 'other', title: '无法渲染页面',
+    text: `无法将 ${name} 渲染为页面。Claude 可以用其他方式截图并展示。`,
     message: `${shown} couldn't be rendered as a page. Screenshot it with headless Playwright instead and show that with show_image.`,
     prompt: `${shown} couldn't be rendered as a page. Screenshot it with headless Playwright and show it to me with show_image.`,
   }
   const detail = (raw.split('\n')[0] ?? '').replace(/\/(?:private\/)?tmp\/\S+|\S*\/\.show-your-work\/\S+/g, name).slice(0, 160)
   return {
-    kind: 'other', title: "Couldn't show it",
-    text: `${name} couldn't be shown: ${detail}`,
+    kind: 'other', title: '无法显示',
+    text: `无法显示 ${name}：${detail}`,
     message: `${shown} couldn't be shown: ${detail}`,
     prompt: `${shown} couldn't be shown (${detail}). Look into it and show it to me again.`,
   }

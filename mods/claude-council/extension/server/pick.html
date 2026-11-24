@@ -1,11 +1,11 @@
 <!doctype html>
 <!-- ABOUTME: The council picker panel Claude Desktop draws under a council_pick call (an MCP App page) -->
 <!-- ABOUTME: The user picks seats and verbosity and presses Ask; the answers show here and reach Claude through council_result -->
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Council picker</title>
+<title>议事厅选择器</title>
 <style>
   /* @include panel-style.css */
   /* @include seat-cards.css */
@@ -46,8 +46,8 @@
 </head>
 <body>
 <main>
-  <header><h1>Council picker</h1><span id="status" role="status"></span></header>
-  <p class="lead" id="question">Waiting for the question.</p>
+  <header><h1>议事厅选择器</h1><span id="status" role="status"></span></header>
+  <p class="lead" id="question">正在等待问题。</p>
   <div id="picker" class="seat-list"></div>
   <div id="seats" class="seat-list" aria-live="polite"></div>
   <div id="handoff"></div>
@@ -138,7 +138,7 @@ function seatRow(seat, box, saving, renamed) {
       // The chosen option is gone with the list; focus goes back where it opened.
       button.focus()
     } catch (err) {
-      const problem = err.message.startsWith('Not saved') ? err.message : `Not saved (${err.message}).`
+      const problem = err.message.startsWith('Not saved') || err.message.startsWith('未保存') ? err.message : `未保存（${err.message}）。`
       draw(provider, problem)
     } finally {
       saving(false)
@@ -255,7 +255,7 @@ function drawPicker(result) {
     const args = { question: data.question, providers: picked.map(seat => seat.provider), verbosity }
     if (pickedRun !== undefined) args.run = pickedRun
     run(args, picked, ask, data.answerWithinMs, () => { pickedRun = undefined }).catch(err => {
-      report('failed', true)
+      report('失败', true)
       seats.replaceChildren(element('p', { className: 'lead bad', textContent: `The panel could not show the answers (${err.message}).` }))
       host.reportSize()
       return false
@@ -311,17 +311,17 @@ function showWaiting(picked, button) {
 // `answerWithinMs`, the server's own bound on the run, and calls `answered`
 // once the server's result has come back.
 async function run(args, picked, button, answerWithinMs, answered) {
-  report('asking the council')
+  report('正在询问议事厅')
   handoff.replaceChildren()
   const stopWaiting = showWaiting(picked, button)
   let result
   try {
     result = await host.request('tools/call', { name: 'council_pick_ask', arguments: args }, answerWithinMs)
   } catch (err) {
-    report('failed', true)
+    report('失败', true)
     const problem = err instanceof HostTimeout
-      ? `No answer came back within ${answerWithinMs / 60000} minutes, so the panel stopped waiting. Press Ask to try again.`
-      : `Claude Desktop did not run the question (${err.message}).`
+      ? `${answerWithinMs / 60000} 分钟内没有收到回答，面板已停止等待。请按“询问”重试。`
+      : `Claude Desktop 未执行该提问（${err.message}）。`
     seats.replaceChildren(element('p', { className: 'lead bad', textContent: problem }))
     host.reportSize()
     return false
@@ -335,13 +335,13 @@ async function run(args, picked, button, answerWithinMs, answered) {
   const id = result?.structuredContent?.run
   const awaited = result?.structuredContent?.awaited === true
   if (id === undefined) {
-    const line = awaited ? 'No seat answered, and Claude has the errors. Press Ask to try again.' : 'No seat answered. Press Ask to try again.'
+    const line = awaited ? '没有席位回答，Claude 已收到错误信息。请按“询问”重试。' : '没有席位回答。请按“询问”重试。'
     handoff.replaceChildren(element('p', { className: 'lead', textContent: line }))
     host.reportSize()
     return false
   }
   if (awaited) {
-    handoff.replaceChildren(element('p', { className: 'lead', textContent: 'Claude is writing the synthesis.' }))
+    handoff.replaceChildren(element('p', { className: 'lead', textContent: 'Claude 正在撰写综合意见。' }))
     host.reportSize()
   } else {
     handOff(id)
@@ -356,13 +356,13 @@ async function run(args, picked, button, answerWithinMs, answered) {
 // with text already in the box, Desktop asks the user whether to replace it
 // and answers late or never.
 function handOff(id) {
-  const line = element('p', { className: 'lead', textContent: `Press Enter in the message box to get Claude's synthesis of run ${id}.` })
+  const line = element('p', { className: 'lead', textContent: `在输入框中按回车，即可获取 Claude 对第 ${id} 次议事的综合意见。` })
   handoff.replaceChildren(line)
   host.reportSize()
-  host.request('ui/message', { role: 'user', content: [{ type: 'text', text: `Synthesise the council's answers (run ${id}).` }] })
-    .then(reply => { if (reply?.isError) throw new Error('refused') })
+  host.request('ui/message', { role: 'user', content: [{ type: 'text', text: `综合议事厅的回答（第 ${id} 次）。` }] })
+    .then(reply => { if (reply?.isError) throw new Error('已拒绝') })
     .catch(() => {
-      line.textContent = `Ask Claude: "synthesise council run ${id}"`
+      line.textContent = `请对 Claude 说：“综合第 ${id} 次议事的结果”`
       host.reportSize()
     })
 }
@@ -370,16 +370,16 @@ function handOff(id) {
 host.connect('council-pick', {
   'ui/notifications/tool-input': params => {
     if (typeof params?.arguments?.question === 'string') question.textContent = params.arguments.question
-    report('listing the seats')
+    report('正在列出席位')
     host.reportSize()
   },
   'ui/notifications/tool-result': drawPicker,
   'ui/notifications/tool-cancelled': () => {
-    report('cancelled', true)
-    picker.replaceChildren(element('p', { className: 'lead', textContent: 'The picker was cancelled.' }))
+    report('已取消', true)
+    picker.replaceChildren(element('p', { className: 'lead', textContent: '选择器已取消。' }))
     host.reportSize()
   },
-}).catch(err => { picker.replaceChildren(element('p', { className: 'lead bad', textContent: `Could not connect to Claude Desktop (${err.message}).` })) })
+}).catch(err => { picker.replaceChildren(element('p', { className: 'lead bad', textContent: `无法连接到 Claude Desktop（${err.message}）。` })) })
 </script>
 </body>
 </html>

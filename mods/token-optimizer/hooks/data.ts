@@ -36,11 +36,11 @@ export const STATUS_TIMEOUT_MS = 4_000
 export const GIT_TIMEOUT_MS = 1_000
 
 /** Shown as the savings reason when no Token Optimizer install is found. */
-export const NOT_FOUND = 'Token Optimizer not found'
+export const NOT_FOUND = '未找到 Token Optimizer'
 /** No Python 3 launcher starts: Token Optimizer's scripts cannot run. */
-export const NO_PYTHON = 'Token Optimizer needs Python 3 to measure savings.'
+export const NO_PYTHON = 'Token Optimizer 需要 Python 3 才能测量节省量。'
 /** The installed Token Optimizer predates the status command this band reads. */
-export const OUTDATED = 'Update Token Optimizer to see savings.'
+export const OUTDATED = '请更新 Token Optimizer 以查看节省量。'
 
 /**
  * Python launchers in the order tried on macOS and Linux. A launcher that

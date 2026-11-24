@@ -107,12 +107,12 @@ export function bumped(c: Counts, ...keys: (keyof Counts)[]): Counts {
 
 /** "checks 13 · none 8 · notes 2 · repeats 1 · failed 1 · out of credits 1": checks is the outcomes added up, so it cannot drift from them. */
 export function countsLine(c: Counts): string {
-  return `checks ${c.none + c.notes + c.repeats + c.failed + c.quota} · none ${c.none} · notes ${c.notes} · repeats ${c.repeats} · failed ${c.failed} · out of credits ${c.quota}`
+  return `检查 ${c.none + c.notes + c.repeats + c.failed + c.quota} 次 · 无发现 ${c.none} · 提示 ${c.notes} · 重复 ${c.repeats} · 失败 ${c.failed} · 额度用尽 ${c.quota}`
 }
 
 /** "learn 2 · tell 1 · knew 0 · understood 1 · dismiss 1 · turned off 0 · typed past 3" */
 export function pressesLine(c: Counts): string {
-  return `learn ${c.learn} · tell ${c.tell} · knew ${c.knew} · understood ${c.understood} · dismiss ${c.dismiss} · turned off ${c.turnOff} · typed past ${c.typedPast}`
+  return `了解更多 ${c.learn} · 告诉 Claude ${c.tell} · 已知晓 ${c.knew} · 已理解 ${c.understood} · 忽略 ${c.dismiss} · 已关闭 ${c.turnOff} · 直接跳过 ${c.typedPast}`
 }
 
 /**
@@ -179,18 +179,18 @@ export function tokenCount(n: number): string {
  */
 export function tokensLine(t: Tokens): string {
   const counted = t.checks + t.unreported
-  if (counted === 0) return 'none since this version'
-  const checks = `${counted} ${counted === 1 ? 'check' : 'checks'}`
-  const parts = [t.unreported === 0 ? `${checks} since this version` : `${t.checks} of ${checks} reported since this version`]
+  if (counted === 0) return '自本版本以来无数据'
+  const checks = `${counted} 次检查`
+  const parts = [t.unreported === 0 ? `自本版本以来${checks}` : `自本版本以来 ${checks} 中有 ${t.checks} 次上报用量`]
   if (t.checks > 0) {
-    const split = (amount: number, gave: number, name: string) => (gave === 0 ? '' : `, ${tokenCount(amount)} ${name}${gave < t.checks ? ` on ${gave} of ${t.checks}` : ''}`)
+    const split = (amount: number, gave: number, name: string) => (gave === 0 ? '' : `，${tokenCount(amount)} ${name}${gave < t.checks ? `（${t.checks} 次中的 ${gave} 次）` : ''}`)
     parts.push(
-      `${tokenCount(t.input)} in${split(t.cached, t.cachedChecks, 'cached')}`,
-      `${tokenCount(t.output)} out${split(t.reasoning, t.reasoningChecks, 'reasoning')}`,
-      `${tokenCount(Math.round((t.input + t.output) / t.checks))} per check`,
+      `输入 ${tokenCount(t.input)}${split(t.cached, t.cachedChecks, '缓存')}`,
+      `输出 ${tokenCount(t.output)}${split(t.reasoning, t.reasoningChecks, '推理')}`,
+      `每次检查 ${tokenCount(Math.round((t.input + t.output) / t.checks))}`,
     )
   }
-  return parts.join(' \u00b7 ')
+  return parts.join(' · ')
 }
 
 export type HeadsUpCommand =
@@ -214,7 +214,7 @@ export function headsUpCommand(args: string): HeadsUpCommand {
   if (rest.length > 1) return { action: 'unknown', why: `on takes one seat, got ${rest.length}: ${rest.join(', ')}` }
   const [seat] = rest
   if (seat === undefined) return { action: 'on' }
-  if (!SEAT_SHAPE.test(seat)) return { action: 'unknown', why: `seat ${JSON.stringify(seat)} is not a plain lowercase word` }
+  if (!SEAT_SHAPE.test(seat)) return { action: 'unknown', why: `席位 ${JSON.stringify(seat)} 不是纯小写单词` }
   return { action: 'on', seat }
 }
 
@@ -263,31 +263,31 @@ export type HeadsUpStatus = { state: string; rows: [string, string][] }
 export function headsUpStatus(config: HeadsUpConfig, rowOn: boolean, fileText: string | undefined, counts: Counts, tokens: Tokens, paused: Paused | null): HeadsUpStatus {
   const row = rowOn ? 'on' : 'off'
   const file = fileText === undefined ? undefined : fileEnabled(fileText)
-  const fileNote = fileText === undefined ? `no ${CONFIG_FILE} here` : `${CONFIG_FILE} leaves it to the row`
+  const fileNote = fileText === undefined ? `此处没有 ${CONFIG_FILE}` : `${CONFIG_FILE} 将其交由设置行决定`
   const rows: [string, string][] = []
   let state: string
   if (!config.enabled && config.problem !== undefined) {
-    state = 'off'
-    rows.push(['problem', config.problem])
+    state = '已关闭'
+    rows.push(['问题', config.problem])
   } else if (config.enabled) {
-    state = file === true ? 'on for this project' : 'on for every project'
-    rows.push(['by', file === true ? `${CONFIG_FILE} (the /config row is ${row})` : `the /config row (${fileNote})`])
-    rows.push(['seat', seatLabel(config.seat, config.model)], ['every', `${config.every} requests`])
+    state = file === true ? '已对本项目开启' : '已对所有项目开启'
+    rows.push(['依据', file === true ? `${CONFIG_FILE}（/config 中为 ${row}）` : `/config 设置行（${fileNote}）`])
+    rows.push(['席位', seatLabel(config.seat, config.model)], ['频率', `每 ${config.every} 次请求`])
   } else if (file === false) {
-    state = 'off for this project'
-    rows.push(['by', `${CONFIG_FILE} (the /config row is ${row})`], ['turn on', `/${COMMAND} on [seat] turns it on here`])
+    state = '已对本项目关闭'
+    rows.push(['依据', `${CONFIG_FILE}（/config 中为 ${row}）`], ['开启', `/${COMMAND} on [席位] 可在此处开启`])
   } else {
-    state = 'off'
-    rows.push(['by', `the /config row is off, ${fileNote}`], ['turn on', `/${COMMAND} on [seat] for this project, the /config row "Heads-up side-check" for every project`])
+    state = '已关闭'
+    rows.push(['依据', `/config 设置行已关闭，${fileNote}`], ['开启', `本项目用 /${COMMAND} on [席位]，所有项目用 /config 中的“Heads-up side-check”设置行`])
   }
-  if (paused !== null) rows.push(['paused', `${paused.seat}: ${paused.detail} · /${COMMAND} on resumes this session`])
-  rows.push(['checks', countsLine(counts)], ['tokens', tokensLine(tokens)], ['presses', pressesLine(counts)])
+  if (paused !== null) rows.push(['已暂停', `${paused.seat}：${paused.detail} · /${COMMAND} on 可恢复本会话`])
+  rows.push(['检查', countsLine(counts)], ['用量', tokensLine(tokens)], ['点击', pressesLine(counts)])
   return { state, rows }
 }
 
 export function statusText({ state, rows }: HeadsUpStatus): string {
   const width = Math.max(...rows.map(([label]) => label.length))
-  return [`Heads-up side-check: ${state}`, ...rows.map(([label, value]) => `  ${label.padEnd(width)}  ${value}`)].join('\n')
+  return [`旁听核查：${state}`, ...rows.map(([label, value]) => `  ${label.padEnd(width)}  ${value}`)].join('\n')
 }
 
 /**
@@ -297,17 +297,17 @@ export function statusText({ state, rows }: HeadsUpStatus): string {
  * ends, so the toast is what the person sees at once.
  */
 export function toastLine({ state, rows }: HeadsUpStatus): string {
-  const kept = new Set(['seat', 'every', 'paused', 'checks'])
-  const parts = rows.flatMap(([label, value]) => (kept.has(label) ? [label === 'every' ? `every ${value}` : value] : []))
-  return [`Heads-up side-check: ${state}`, ...parts].join(' \u00b7 ')
+  const kept = new Set(['席位', '频率', '已暂停', '检查'])
+  const parts = rows.flatMap(([label, value]) => (kept.has(label) ? [label === '频率' ? `检查频率 ${value}` : value] : []))
+  return [`旁听核查：${state}`, ...parts].join(' · ')
 }
 
 /** The /heads-up setup dialogs: scope, seat, cadence. */
-export const SCOPE = { project: 'This project', all: 'Every project', off: 'Off for this project' } as const
-export const SCOPE_QUESTION = 'Where should the heads-up side-check run?'
-export const SEAT_QUESTION = 'Which seat should reread the turn?'
-export const EVERY_QUESTION = 'How often should a long turn be checked?'
-export const EVERY_LABELS = ['Every 3 requests', 'Every 6 requests', 'Every 9 requests'] as const
+export const SCOPE = { project: '本项目', all: '所有项目', off: '对本项目中止' } as const
+export const SCOPE_QUESTION = '旁听核查应在什么范围内运行？'
+export const SEAT_QUESTION = '由哪个席位重读本轮对话？'
+export const EVERY_QUESTION = '多长时间检查一次长对话？'
+export const EVERY_LABELS = ['每 3 次请求', '每 6 次请求', '每 9 次请求'] as const
 
 /**
  * The seats discover_providers printed, the council's own test for what is set
@@ -331,7 +331,7 @@ export function seatFromAnswer(answer: string): { seat: string } | { why: string
   const [seat] = words
   if (seat === undefined) return { why: 'no seat named' }
   if (words.length > 1) return { why: `one seat, got ${words.length}: ${words.join(', ')}` }
-  return SEAT_SHAPE.test(seat) ? { seat } : { why: `seat ${JSON.stringify(seat)} is not a plain lowercase word` }
+  return SEAT_SHAPE.test(seat) ? { seat } : { why: `席位 ${JSON.stringify(seat)} 不是纯小写单词` }
 }
 
 export function everyFromAnswer(answer: string): { every: number } | { why: string } {
@@ -340,10 +340,10 @@ export function everyFromAnswer(answer: string): { every: number } | { why: stri
   return Number.isInteger(every) && every >= 2 ? { every } : { why: `every must be a whole number of at least 2, got ${JSON.stringify(answer.trim())}` }
 }
 
-export const MODEL_QUESTION = (seat: string) => `Which model should ${seat} use?`
-export const EFFORT_QUESTION = 'How hard should codex think?'
-const KEEP = 'Keep '
-const TYPE_ONE = 'Type a model id under Other'
+export const MODEL_QUESTION = (seat: string) => `${seat} 应使用哪个模型？`
+export const EFFORT_QUESTION = 'codex 应进行多大程度的思考？'
+const KEEP = '保留 '
+const TYPE_ONE = '在“其他”下输入模型 ID'
 
 /** The current model first; then the catalog's others, four in all; or a prompt to type one. */
 export function modelOptions(current: string, catalog: readonly string[] | undefined): string[] {
@@ -361,19 +361,19 @@ export function modelFromAnswer(answer: string): string | undefined {
 export function effortOptions(efforts: readonly string[], defaultEffort: string): string[] {
   const others = efforts.filter(effort => effort !== defaultEffort)
   if (defaultEffort === '') return (others.length > 0 ? others : ['low', 'medium', 'high', 'xhigh']).slice(0, 4)
-  return [`${defaultEffort} (default)`, ...others].slice(0, 4)
+  return [`${defaultEffort}（默认）`, ...others].slice(0, 4)
 }
 
 /** The chosen effort, {} to keep codex's default, or why the answer is unusable. */
 export function effortFromAnswer(answer: string): { effort?: string } | { why: string } {
   const text = answer.trim()
-  if (text.endsWith(' (default)')) return {}
-  return EFFORT_SHAPE.test(text) ? { effort: text } : { why: `effort must be lowercase letters, got ${JSON.stringify(text)}` }
+  if (text.endsWith('（默认）')) return {}
+  return EFFORT_SHAPE.test(text) ? { effort: text } : { why: `思考程度必须为小写字母，得到 ${JSON.stringify(text)}` }
 }
 
 /** What a check that found nothing leaves on the prompt hint: "heads-up: gemini read 8.5 KB in 11 s, nothing to flag". */
 export function receiptLine(r: Extract<RunResult, { kind: 'none' }>): string {
-  return `heads-up: ${r.seats.map(seat => seat.seat).join(', ')} read ${kilobytes(r.payloadBytes)} in ${seconds(totalMs(r.seats))}, nothing to flag`
+  return `旁听核查：${r.seats.map(seat => seat.seat).join(', ')} 在 ${seconds(totalMs(r.seats))} 内读取 ${kilobytes(r.payloadBytes)}，未发现需提示的内容`
 }
 
 /** "codex (gpt-6.1-sol, high)", "gemini (gemini-2.5-pro)", or the bare name. */
@@ -405,7 +405,7 @@ function fileEnabled(text: string): boolean | undefined {
 export function introTail(p: { shown: boolean; enabled: boolean }): { tail?: string; markShown: boolean } {
   if (p.shown) return { markShown: false }
   if (p.enabled) return { markShown: true }
-  return { tail: `Tip: /${COMMAND} on lets another model watch long turns and flag what Claude missed`, markShown: true }
+  return { tail: `提示：/${COMMAND} on 可让另一个模型留意长对话并提示 Claude 可能遗漏的内容`, markShown: true }
 }
 
 /** Persisted in $.store under STORE_KEY, shared across sessions (read-merge-write). */
@@ -483,7 +483,7 @@ export function acknowledgePause(s: Session): Session {
 
 /** The red row above the prompt while the pause is not dismissed. */
 export function pausedLine(p: Paused): string {
-  return `heads-up paused · ${p.seat}: ${p.detail}`
+  return `旁听核查已暂停 · ${p.seat}：${p.detail}`
 }
 
 /** The row above the prompt that the heads-up session and a council run contend for. */
@@ -750,13 +750,13 @@ const totalMs = (seats: readonly SeatOutcome[]) => seats.reduce((total, seat) =>
 
 /** One line per finished check, drawn or not: "heads-up: codex · none · 12.4 KB · 27 s". */
 export function checkLine(r: RunResult): string {
-  if (r.kind === 'note') return `heads-up: ${r.note.seat} · note · ${kilobytes(r.note.payloadBytes)} · ${seconds(r.note.elapsedMs)}`
-  if (r.kind === 'none') return `heads-up: ${r.seats.map(seat => seat.seat).join(', ')} · none · ${kilobytes(r.payloadBytes)} · ${seconds(totalMs(r.seats))}`
-  if (r.kind === 'skipped') return `heads-up: skipped · ${r.detail}`
-  if (r.kind === 'quota') return `heads-up: paused · ${r.seat} after ${seconds(totalMs(r.seats))}: ${r.detail} · /${COMMAND} on resumes`
-  if (r.kind === 'refused') return `heads-up: paused · ${r.seat}: ${r.detail} · /${COMMAND} on resumes`
+  if (r.kind === 'note') return `旁听核查：${r.note.seat} · 提示 · ${kilobytes(r.note.payloadBytes)} · ${seconds(r.note.elapsedMs)}`
+  if (r.kind === 'none') return `旁听核查：${r.seats.map(seat => seat.seat).join(', ')} · 无发现 · ${kilobytes(r.payloadBytes)} · ${seconds(totalMs(r.seats))}`
+  if (r.kind === 'skipped') return `旁听核查：已跳过 · ${r.detail}`
+  if (r.kind === 'quota') return `旁听核查：已暂停 · ${r.seat}（${seconds(totalMs(r.seats))} 后）：${r.detail} · /${COMMAND} on 可恢复`
+  if (r.kind === 'refused') return `旁听核查：已暂停 · ${r.seat}：${r.detail} · /${COMMAND} on 可恢复`
   const reasons = r.seats.map(seat => `${seat.seat} ${seat.outcome} after ${seconds(seat.elapsedMs)}${seat.detail ? `: ${seat.detail}` : ''}`)
-  return `heads-up: failed · ${kilobytes(r.payloadBytes)} · ${reasons.join('; ')}`
+  return `旁听核查：失败 · ${kilobytes(r.payloadBytes)} · ${reasons.join('；')}`
 }
 
 /**

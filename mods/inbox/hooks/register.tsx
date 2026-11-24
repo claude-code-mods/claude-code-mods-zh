@@ -1188,7 +1188,7 @@ function openPane($: EngineInterface, isFieldOpen = false) {
   paneState.paneClosesOnEscape = !isFieldOpen
   const opened = $.ui.open({
     id: PANE,
-    title: 'Inbox',
+    title: '收件箱',
     focus: true,
     ...(isFieldOpen ? {} : { closeOnEscape: true as const }),
   })
@@ -1300,7 +1300,7 @@ async function matchPaneEscape($: EngineInterface) {
   if (closesOnEscape === paneState.paneClosesOnEscape) return
   paneState.paneClosesOnEscape = closesOnEscape
   if (!(await $.ui.panes()).some(p => p.id === PANE)) return
-  await $.ui.open({ id: PANE, title: 'Inbox', ...(closesOnEscape ? { closeOnEscape: true as const } : {}) })
+  await $.ui.open({ id: PANE, title: '收件箱', ...(closesOnEscape ? { closeOnEscape: true as const } : {}) })
 }
 
 async function openTopRow($: EngineInterface) {
@@ -2829,7 +2829,7 @@ export const register: Register = on => {
       <Box flexDirection="row" alignItems="flex-start" gap={1}>
         <Box flexGrow={1} flexShrink={1} minWidth={0}>
           <Text wrap="truncate-end">
-            {showsDemoNotices ? <Text dimColor>Demo: </Text> : null}
+            {showsDemoNotices ? <Text dimColor>示例：</Text> : null}
             {counts.length > 0 ? (
               counts.flatMap((p, n) => (n === 0 ? [p] : [<Text dimColor>{DOT}</Text>, p]))
             ) : (
@@ -2837,8 +2837,8 @@ export const register: Register = on => {
             )}
           </Text>
         </Box>
-        {showsDemoNotices ? <Button key="hide-demo" label="Hide demo" onPress={() => void setDemo($, false)} /> : null}
-        <Button key="open-inbox" label="Open inbox" onPress={() => void openInbox($, isDemo)} />
+        {showsDemoNotices ? <Button key="hide-demo" label="隐藏示例" onPress={() => void setDemo($, false)} /> : null}
+        <Button key="open-inbox" label="打开收件箱" onPress={() => void openInbox($, isDemo)} />
       </Box>
     )
     if (!stop)
@@ -2852,7 +2852,7 @@ export const register: Register = on => {
     // An API error resumes from
     // [Resume], which keeps its key while it sends, so the desktop app keeps the band's focus.
     const canResume = isResumable(stop)
-    const notSent = canResume && sessionState.resuming?.is === 'refused' ? `Not sent: ${sessionState.resuming.why}` : ''
+    const notSent = canResume && sessionState.resuming?.is === 'refused' ? `未发送：${sessionState.resuming.why}` : ''
     const isNotSentOwnRow = notSent !== '' && e.surface === 'desktop' && e.props.maxRows > 2
     const fix = canResume ? '' : stopFix(stop)
     const inlineNotSent = isNotSentOwnRow ? '' : notSent
@@ -2860,7 +2860,7 @@ export const register: Register = on => {
       <Box flexDirection="row" alignItems="flex-start" gap={1}>
         <Box flexShrink={1} minWidth={0}>
           <Text wrap="truncate-end">
-            <Text color="error">Stopped {ago(now - stop.at)}: </Text>
+            <Text color="error">已停止 {ago(now - stop.at)}：</Text>
             {stopText(stop)}.{fix ? <Text dimColor> {fix}</Text> : null}
             {inlineNotSent ? <Text color="error"> {inlineNotSent}</Text> : null}
           </Text>
@@ -3426,18 +3426,18 @@ export const register: Register = on => {
     // Claude Code sends a key no Button binds to the prompt and gives it the keyboard, so the keys
     // stay bound when there is nothing to move to or close.
     const moveKeys: KeyAction[] = [
-      { key: 'next', label: 'Next', hotkey: 'j', kind: 'view', onPress: () => moveBy(1) },
-      { key: 'previous', label: 'Previous', hotkey: 'k', kind: 'view', onPress: () => moveBy(-1) },
+      { key: 'next', label: '下一行', hotkey: 'j', kind: 'view', onPress: () => moveBy(1) },
+      { key: 'previous', label: '上一行', hotkey: 'k', kind: 'view', onPress: () => moveBy(-1) },
       {
         key: 'collapse',
-        label: 'Collapse',
+        label: '折叠',
         hotkey: COLLAPSE_KEY,
         kind: 'view',
         onPress: () => (isListShown && !isHelpShown ? toggleRow($, null) : undefined),
       },
       {
         key: 'fold-all',
-        label: 'Fold all',
+        label: '全部折叠',
         hotkey: FOLD_ALL_KEY,
         kind: 'view',
         onPress: () => !isHelpShown && foldAll($, null),
@@ -3506,7 +3506,7 @@ export const register: Register = on => {
         {showsDemoNotices ? (
           <Box flexDirection="column" paddingX={isInline ? 2 : 1} marginBottom={blankLine}>
             {banner(bannerOf('demo', DEMO_NOTICE), {
-              action: <Button key="hide-demo" label="Hide demo" onPress={() => void setDemo($, false)} />,
+              action: <Button key="hide-demo" label="隐藏示例" onPress={() => void setDemo($, false)} />,
             })}
           </Box>
         ) : null}

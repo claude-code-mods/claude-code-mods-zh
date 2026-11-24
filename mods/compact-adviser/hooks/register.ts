@@ -82,10 +82,10 @@ import {
 
 const COMMAND = "compact-adviser";
 const PANE_ID = "compact-adviser";
-const HINT = "work appears completed or recorded. Run /compact to save tokens.";
+const HINT = "工作看起来已完成或已记录。运行 /compact 以节省 token。";
 const COMPACT_INSTRUCTIONS =
   "The session reached a natural boundary; keep the current work, pending tasks, referenced files, and the next step exact.";
-const BEFORE_COMPACT_STATUS = "running the before-compact prompt…";
+const BEFORE_COMPACT_STATUS = "正在运行压缩前提示词…";
 /** A before-compact turn that outlives this does not compact. */
 export const BEFORE_COMPACT_TIMEOUT_MS = 300_000;
 const BEFORE_COMPACT_RETRY_MS = 60_000;
@@ -93,7 +93,7 @@ const SLASH_COMMAND = /^\/([A-Za-z0-9_:-]{1,64})(?:\s+([\s\S]*))?$/;
 const PENDING_NOTICE_KEY = "pendingNotice";
 const LOOPBACK_ENDPOINT = /^http:\/\/127\.0\.0\.1:\d{1,5}\/[\x21-\x7e]*$/;
 const USAGE =
-  "Use /compact-adviser, auto, hint, off, status, threshold <tokens|default>, budget <tokens|off>, snooze or dismiss.";
+  "可用参数：/compact-adviser、auto、hint、off、status、threshold <tokens|default>、budget <tokens|off>、snooze 或 dismiss。";
 
 // Per module environment (a hot reload starts fresh; see the header).
 let activation: Promise<boolean> | undefined;
@@ -369,7 +369,7 @@ async function armBeforeCompact(
   $.ui.status(BEFORE_COMPACT_STATUS);
   $.clock.after(BEFORE_COMPACT_TIMEOUT_MS, () => {
     if (beforeCompact?.seq !== seq) return;
-    void abandonBeforeCompact($, "The before-compact prompt timed out. Context left unchanged.");
+    void abandonBeforeCompact($, "压缩前提示词超时。上下文未更改。");
   });
   try {
     if (beforeCompact?.seq === seq) beforeCompact.dispatched = true;
@@ -377,7 +377,7 @@ async function armBeforeCompact(
   } catch {
     if (beforeCompact?.seq !== seq) return;
     beforeCompact.dispatched = false;
-    await abandonBeforeCompact($, "The before-compact prompt did not run. Context left unchanged.");
+    await abandonBeforeCompact($, "压缩前提示词未运行。上下文未更改。");
   }
 }
 
@@ -387,7 +387,7 @@ async function compactNow($: EngineInterface, key: string): Promise<void> {
   compacting = true;
   // A status line, not a toast: the host drops a toast within two seconds of the last,
   // which would swallow the completion notice of a quick compaction.
-  $.ui.status("compacting at a checkpoint (experimental auto)…");
+  $.ui.status("在检查点压缩中（实验性自动模式）…");
   let failure: string | undefined;
   let tokens: { before?: number; after?: number } = {};
   try {
@@ -409,7 +409,7 @@ async function compactNow($: EngineInterface, key: string): Promise<void> {
     });
     notice(
       $,
-      "Compaction failed or was cancelled. No immediate retry; Claude Code remains in control.",
+      "压缩失败或已取消。不会立即重试；仍由 Claude Code 掌控。",
     );
     clearStatus($);
     return;
@@ -418,11 +418,11 @@ async function compactNow($: EngineInterface, key: string): Promise<void> {
   await $.store.set(key, initialState(true, after));
   const completed =
     tokens.before !== undefined && tokens.after !== undefined
-      ? `compaction completed: ${formatTokens(tokens.before)} to ${formatTokens(tokens.after)} tokens.`
-      : "compaction completed.";
+      ? `压缩完成：从 ${formatTokens(tokens.before)} 到 ${formatTokens(tokens.after)} 个 token。`
+      : "压缩完成。";
   // The dim transcript line (never sent to the model) records the automatic action even
   // when the host throttles the toast. Claude Code prefixes $.ui.log with the plugin name.
-  $.ui.log(`automatic ${completed}`);
+  $.ui.log(`自动 ${completed}`);
   $.ui.toast(completed);
   clearStatus($);
 }
@@ -551,14 +551,14 @@ async function settle($: EngineInterface): Promise<void> {
   try {
     config = await loadConfig($);
   } catch (error) {
-    notice($, error instanceof Error ? error.message : "Cannot read compact-adviser settings.");
+    notice($, error instanceof Error ? error.message : "无法读取 compact-adviser 设置。");
     return;
   }
   if (judging || !(await eligible($, config, state, context.tokens, now))) return;
   const epoch = generation;
   $.clock.after(0, () => {
     void judgeCheckpoint($, epoch).catch(() =>
-      notice($, "Compact adviser could not inspect this checkpoint; context left unchanged."),
+      notice($, "compact adviser 无法检查此检查点；上下文未更改。"),
     );
   });
 }
@@ -576,7 +576,7 @@ async function saveRow(
   const result = await $.config.set({ key, value });
   if (result.deny !== undefined) {
     await $.store.delete(PENDING_NOTICE_KEY);
-    $.ui.toast(`Not saved: ${result.deny}`, { timeoutMs: 8000 });
+    $.ui.toast(`未保存：${result.deny}`, { timeoutMs: 8000 });
     return false;
   }
   if (key === API_KEY_KEY && typeof value === "string") {
@@ -629,7 +629,7 @@ async function saveConsent($: EngineInterface, patch: Partial<Omit<Consent, "ver
 function openPane($: EngineInterface): Promise<void> {
   return $.ui.open({
     id: PANE_ID,
-    title: "Compact adviser (saved for all sessions)",
+    title: "Compact adviser（已为所有会话保存）",
     focus: true,
     closeOnEscape: true,
     rows: 12,
@@ -670,17 +670,17 @@ async function placeRing($: EngineInterface, attempts = 10): Promise<void> {
 }
 
 const MODE_LABELS: Record<Mode, string> = {
-  hint: "Hints only (default)",
-  auto: "Automatic (experimental)",
+  hint: "仅提示（默认）",
+  auto: "自动（实验性）",
   off: "Off",
 };
 
 /** What the list row says about the key in effect: its source, never its value. */
 const KEY_SOURCE_LABELS: Record<TypesafeKeySource, string> = {
-  env: "from the environment",
-  saved: "saved",
-  ".env": "from .env",
-  missing: "missing",
+  env: "来自环境变量",
+  saved: "已保存",
+  ".env": "来自 .env",
+  missing: "缺失",
 };
 
 /** The key view's explanation: which key is in effect, and what the actions here change. */
@@ -688,14 +688,14 @@ function keyDetail(source: TypesafeKeySource, saved: boolean): string {
   switch (source) {
     case "env":
       return saved
-        ? "In effect: TYPESAFE_API_KEY from the launch environment, which wins over the key saved here."
-        : "In effect: TYPESAFE_API_KEY from the launch environment.";
+        ? "当前生效：启动环境中的 TYPESAFE_API_KEY，优先于此处保存的密钥。"
+        : "当前生效：启动环境中的 TYPESAFE_API_KEY。";
     case "saved":
-      return "In effect: the key saved here, for all sessions.";
+      return "当前生效：此处保存的密钥，适用于所有会话。";
     case ".env":
-      return "In effect: TYPESAFE_API_KEY from the .env file in the working directory.";
+      return "当前生效：工作目录中 .env 文件里的 TYPESAFE_API_KEY。";
     default:
-      return "No key in effect. Save one here, or set TYPESAFE_API_KEY in the environment or a .env file.";
+      return "当前没有生效的密钥。请在此保存，或在环境变量或 .env 文件中设置 TYPESAFE_API_KEY。";
   }
 }
 
@@ -711,7 +711,7 @@ async function confirm(
   fromPane: boolean,
 ) {
   try {
-    return (await $.ui.ask(question, { options: [yes, "Cancel"], header })) === yes;
+    return (await $.ui.ask(question, { options: [yes, "取消"], header })) === yes;
   } catch {
     return false;
   } finally {
@@ -724,9 +724,9 @@ async function changeMode($: EngineInterface, mode: Mode, fromPane = false): Pro
     if (!(await loadConsent($)).autoAcknowledged) {
       const confirmed = await confirm(
         $,
-        "Automatic mode persists across all Claude Code sessions and projects. Compaction is lossy and timing accuracy is not proven. It only acts at eligible checkpoints; it does not compact immediately. Enable experimental automatic compaction?",
-        "Enable automatic mode",
-        "Auto mode",
+        "自动模式会应用于所有 Claude Code 会话和项目。压缩会有信息损失，时机准确性也未得到验证。它只在符合条件的检查点触发，不会立即压缩。是否启用实验性自动压缩？",
+        "启用自动模式",
+        "自动模式",
         fromPane,
       );
       if (!confirmed) return;
@@ -736,7 +736,7 @@ async function changeMode($: EngineInterface, mode: Mode, fromPane = false): Pro
       $,
       MODE_KEY,
       "auto",
-      "Automatic mode saved (all sessions). A TypeSafe key is still required.",
+      "自动模式已保存（所有会话）。仍需要 TypeSafe 密钥。",
     );
     return;
   }
@@ -744,7 +744,7 @@ async function changeMode($: EngineInterface, mode: Mode, fromPane = false): Pro
     $,
     MODE_KEY,
     mode,
-    `${mode === "hint" ? "Hints only" : "Off"} saved (all sessions). Claude Code's built-in compaction is unchanged.`,
+    `${mode === "hint" ? "仅提示" : "关闭"}已保存（所有会话）。Claude Code 自带的压缩不受影响。`,
   );
 }
 
@@ -756,8 +756,8 @@ async function changeBudget($: EngineInterface, text: string): Promise<boolean> 
     BUDGET_KEY,
     count,
     count > 0
-      ? `Context budget saved: ${formatTokens(count)} tokens (all sessions).`
-      : "Context budget off (all sessions): the hint floor follows Claude Code's own limit.",
+      ? `上下文预算已保存：${formatTokens(count)} 个 token（所有会话）。`
+      : "上下文预算已关闭（所有会话）：提示阈值将跟随 Claude Code 自身的上限。",
   );
 }
 
@@ -767,13 +767,13 @@ async function changeMinimum($: EngineInterface, text: string): Promise<boolean>
   const { context } = await $.session.usage();
   const warning =
     count >= context.window
-      ? ` Warning: this is at or above the active model's ${formatTokens(context.window)}-token window, so advice will not trigger before Claude Code's own compaction.`
+      ? `警告：该值已达到或超过当前模型的 ${formatTokens(context.window)} token 窗口，因此在 Claude Code 自身压缩之前不会触发建议。`
       : "";
   return saveRow(
     $,
     MINIMUM_KEY,
     count,
-    `Minimum context saved: ${formatTokens(count)} tokens (all sessions).${warning}`,
+    `最小上下文已保存：${formatTokens(count)} 个 token（所有会话）。${warning}`,
   );
 }
 
@@ -783,8 +783,8 @@ async function changeLogRequests($: EngineInterface, enabled: boolean): Promise<
     LOG_KEY,
     enabled,
     enabled
-      ? `TypeSafe request logging on (all sessions). ${await sessionLogPath($)}`
-      : "TypeSafe request logging off (all sessions).",
+      ? TypeSafe `请求记录已开启（所有会话）。${await sessionLogPath($)}`
+      : "TypeSafe 请求记录已关闭（所有会话）。",
   );
 }
 
@@ -793,7 +793,7 @@ async function changeSavedApiKey($: EngineInterface, text: string): Promise<bool
     $,
     API_KEY_KEY,
     parseSavedApiKey(text),
-    "TypeSafe API key saved (all sessions). Status shows the source, never the value.",
+    "TypeSafe API 密钥已保存（所有会话）。状态只显示来源，不显示密钥本身。",
   );
 }
 
@@ -802,7 +802,7 @@ async function clearSavedApiKey($: EngineInterface): Promise<boolean> {
     $,
     API_KEY_KEY,
     "",
-    "Saved TypeSafe API key cleared (all sessions). Launch environment and .env still apply.",
+    "已清除保存的 TypeSafe API 密钥（所有会话）。启动环境变量和 .env 仍然有效。",
   );
 }
 
@@ -816,16 +816,16 @@ async function statusText($: EngineInterface): Promise<string> {
     breakdown === undefined
       ? ""
       : breakdown.isAutoCompactEnabled && breakdown.autoCompactThreshold !== undefined
-        ? ` Claude Code auto-compacts at ${formatTokens(breakdown.autoCompactThreshold)} tokens.`
-        : " Claude Code auto-compact is off.";
+        ? ` Claude Code 会在 ${formatTokens(breakdown.autoCompactThreshold)} 个 token 时自动压缩。`
+        : " Claude Code 的自动压缩已关闭。";
   const cooldown =
     typeof tokens === "number"
       ? (cooldownReason(state, tokens, await $.clock.now()) ??
-        "No cooldown; semantic checks still apply.")
-      : "Waiting for fresh model usage.";
+        "无冷却期；语义检查仍然适用。")
+      : "等待新的模型用量数据。";
   const budget = config.contextBudgetTokens;
   const fraction = usageFraction(usage.context, budget);
-  return `Mode: ${config.mode}${config.mode === "auto" && !config.autoAcknowledged ? " (not confirmed)" : ""}. Minimum: ${formatTokens(config.minContextTokens)} tokens. Budget: ${budget > 0 ? `${formatTokens(budget)} tokens` : "off"}. Context: ${typeof tokens === "number" ? formatTokens(tokens) : "unknown"}${Number.isFinite(fraction) ? ` (${Math.round(fraction * 100)}% of the ${effectiveBudget(contextLimit(usage.context), budget) > 0 ? "budget" : "context limit"}; hint floor ${floorFor(fraction, parseProfile(config.profile)).toFixed(2)})` : ""}. ${formatKeyStatus((await resolvedKey($)).source)}. ${cooldown}${engine} Request log: ${config.logRequests ? await sessionLogPath($) : "off"}. Settings: /config (compact-adviser rows) and /compact-adviser.`;
+  return `模式：${config.mode}${config.mode === "auto" && !config.autoAcknowledged ? "（未确认）" : ""}。最小上下文：${formatTokens(config.minContextTokens)} 个 token。预算：${budget > 0 ? `${formatTokens(budget)} 个 token` : "关闭"}。上下文：${typeof tokens === "number" ? formatTokens(tokens) : "未知"}${Number.isFinite(fraction) ? `（${Math.round(fraction * 100)}% 的${effectiveBudget(contextLimit(usage.context), budget) > 0 ? "预算" : "上下文上限"}；提示阈值 ${floorFor(fraction, parseProfile(config.profile)).toFixed(2)}）` : ""}。${formatKeyStatus((await resolvedKey($)).source)}。${cooldown}${engine} 请求记录：${config.logRequests ? await sessionLogPath($) : "关闭"}。设置：/config（compact-adviser 项）和 /compact-adviser。`;
 }
 
 async function snoozeOrDismiss($: EngineInterface, command: "snooze" | "dismiss") {
@@ -863,7 +863,7 @@ export const register: Register = (on, options) => {
     foreignSubmitted = false;
     await $.command.register({
       name: COMMAND,
-      description: "Configure persistent compaction advice, experimental auto, and token minimum",
+      description: "配置持久化的压缩建议、实验性自动模式和最小 token 数",
       argumentHint: "[auto|hint|off|status|threshold <tokens|default>|snooze|dismiss]",
     });
     try {
@@ -963,7 +963,7 @@ export const register: Register = (on, options) => {
     try {
       await settle($);
     } catch {
-      notice($, "Compact adviser could not inspect this checkpoint; context left unchanged.");
+      notice($, "compact adviser 无法检查此检查点；上下文未更改。");
     }
     return result;
   });
@@ -1054,11 +1054,11 @@ export const register: Register = (on, options) => {
         marginBottom: 1,
         children: [
           Text({ bold: true, children: "Compact adviser" }),
-          Text({ dimColor: true, children: crumb ? ` › ${crumb}` : "  saved for all sessions" }),
+          Text({ dimColor: true, children: crumb ? ` › ${crumb}` : "  已为所有会话保存" }),
         ],
       });
     const hint = (leave: string) =>
-      Text({ dimColor: true, children: `↑↓ move · Enter select · Esc ${leave}` });
+      Text({ dimColor: true, children: `↑↓ 移动 · Enter 选择 · Esc ${leave}` });
     const closePane = () => void $.ui.close({ id: PANE_ID });
     const redraw = async () => {
       await $.ui.invalidate("ui.render");
@@ -1082,7 +1082,7 @@ export const register: Register = (on, options) => {
         Text({ color: "error", children: errorMessage(error) }),
         Button({
           key: "menu:close",
-          label: "Close",
+          label: "关闭",
           plain: true,
           autoFocus: true,
           onPress: closePane,
@@ -1131,7 +1131,7 @@ export const register: Register = (on, options) => {
                 else pick(choice.value);
               },
             })),
-            { key: "back", label: "  Back", dim: true, onPress: back },
+            { key: "back", label: "  返回", dim: true, onPress: back },
           ],
           `${view}:${current}`,
         ),
@@ -1140,7 +1140,7 @@ export const register: Register = (on, options) => {
 
     if (view === "mode") {
       return options(
-        "Mode",
+        "模式",
         config.mode,
         (["hint", "auto", "off"] as const).map((value) => ({ value, label: MODE_LABELS[value] })),
         (mode) => run(() => changeMode($, mode, true)),
@@ -1148,24 +1148,24 @@ export const register: Register = (on, options) => {
     }
     if (view === "logging") {
       return options(
-        "Log TypeSafe requests",
+        "记录 TypeSafe 请求",
         config.logRequests ? "on" : "off",
         [
-          { value: "off", label: "Off (default)" },
-          { value: "on", label: "On" },
+          { value: "off", label: "关闭（默认）" },
+          { value: "on", label: "开启" },
         ],
         (value) => run(() => changeLogRequests($, value === "on")),
       );
     }
     if (view === "minimum") {
       return column([
-        heading("Minimum context"),
+        heading("最小上下文"),
         Input({
           key: "minimum",
-          label: "Tokens",
+          label: "Token 数",
           value: minimumDraft?.text ?? String(config.minContextTokens),
           placeholder: String(DEFAULT_MINIMUM),
-          submitLabel: "save",
+          submitLabel: "保存",
           autoFocus: true,
           onSubmit: (text: string) => {
             run(async () => {
@@ -1182,22 +1182,22 @@ export const register: Register = (on, options) => {
           ? Text({ color: "error", children: minimumDraft.error })
           : Text({
               dimColor: true,
-              children: "A token count, not a percentage; no judgment below it.",
+              children: "token 数，不是百分比；低于该值不做判断。",
             }),
-        list([{ key: "back", label: "Back", dim: true, onPress: back }], ""),
+        list([{ key: "back", label: "返回", dim: true, onPress: back }], ""),
         hint("back"),
       ]);
     }
     if (view === "key") {
       return column([
-        heading("TypeSafe API key"),
+        heading("TypeSafe API 密钥"),
         Text({ dimColor: true, wrap: "wrap", children: keyDetail(key.source, savedKey) }),
         Input({
           key: "typesafeApiKey",
-          label: "Key",
+          label: "密钥",
           value: keyDraft?.text ?? "",
-          placeholder: savedKey ? "paste a key to replace the saved one" : "paste a key to save it",
-          submitLabel: "save",
+          placeholder: savedKey ? "粘贴密钥以替换已保存的密钥" : "粘贴密钥以保存",
+          submitLabel: "保存",
           autoFocus: true,
           onSubmit: (text: string) => {
             run(async () => {
@@ -1217,7 +1217,7 @@ export const register: Register = (on, options) => {
               ? [
                   {
                     key: "clearKey",
-                    label: "Clear saved key",
+                    label: "清除已保存的密钥",
                     onPress: () => {
                       run(async () => {
                         if (await clearSavedApiKey($)) showMenu();
@@ -1226,7 +1226,7 @@ export const register: Register = (on, options) => {
                   },
                 ]
               : []),
-            { key: "back", label: "Back", dim: true, onPress: back },
+            { key: "back", label: "返回", dim: true, onPress: back },
           ],
           "",
         ),
@@ -1248,17 +1248,17 @@ export const register: Register = (on, options) => {
         [
           {
             key: "menu:mode",
-            label: setting("Mode", modeValue),
+            label: setting("模式", modeValue),
             onPress: open("mode", "menu:mode", `mode:${config.mode}`),
           },
           {
             key: "menu:minimum",
-            label: setting("Minimum context", `${formatTokens(config.minContextTokens)} tokens`),
+            label: setting("最小上下文", `${formatTokens(config.minContextTokens)} tokens`),
             onPress: open("minimum", "menu:minimum", "minimum"),
           },
           {
             key: "menu:logRequests",
-            label: setting("Log TypeSafe requests", config.logRequests ? "On" : "Off"),
+            label: setting("记录 TypeSafe 请求", config.logRequests ? "开启" : "关闭"),
             onPress: open(
               "logging",
               "menu:logRequests",
@@ -1267,12 +1267,12 @@ export const register: Register = (on, options) => {
           },
           {
             key: "menu:typesafeApiKey",
-            label: setting("TypeSafe API key", KEY_SOURCE_LABELS[key.source]),
+            label: setting("TypeSafe API 密钥", KEY_SOURCE_LABELS[key.source]),
             onPress: open("key", "menu:typesafeApiKey", "typesafeApiKey"),
           },
           {
             key: "menu:reset",
-            label: `Reset minimum to ${formatTokens(DEFAULT_MINIMUM)}`,
+            label: `将最小值重置为 ${formatTokens(DEFAULT_MINIMUM)}`,
             onPress: () => {
               menuRow = "menu:reset";
               run(() => changeMinimum($, "default"));
@@ -1280,7 +1280,7 @@ export const register: Register = (on, options) => {
           },
           {
             key: "menu:status",
-            label: "Status",
+            label: "状态",
             onPress: () => {
               menuRow = "menu:status";
               run(async () => {
@@ -1288,7 +1288,7 @@ export const register: Register = (on, options) => {
               });
             },
           },
-          { key: "menu:close", label: "Close", onPress: closePane },
+          { key: "menu:close", label: "关闭", onPress: closePane },
         ],
         menuRow,
       ),

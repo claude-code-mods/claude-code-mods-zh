@@ -130,7 +130,7 @@ export async function act(
     }
   } catch {
     if (tabState.isDisposed || generation !== tabState.viewGeneration || !isLatest()) return
-    errors.set(rowId, 'Not confirmed: the inbox did not answer.')
+    errors.set(rowId, '未确认：收件箱没有响应。')
   } finally {
     tabState.activePresses--
     if (isLatest()) {

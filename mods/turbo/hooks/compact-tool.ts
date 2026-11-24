@@ -49,12 +49,12 @@ export async function compactAfterTurn($: EngineInterface, reason: TurnCompleteR
     })
 
     if (compacted.skip !== undefined) {
-      $.ui.toast(`${compacted.skip}: compaction skipped. Run /compact, then reply "continue".`, TOAST)
+      $.ui.toast(`${compacted.skip}：已跳过压缩。请运行 /compact，然后回复“continue”。`, TOAST)
 
       return
     }
   } catch (error) {
-    $.ui.toast(`${messageOf(error)}: compaction failed. Run /compact, then reply "continue".`, TOAST)
+    $.ui.toast(`${messageOf(error)}：压缩失败。请运行 /compact，然后回复“continue”。`, TOAST)
 
     return
   }

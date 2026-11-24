@@ -40,7 +40,7 @@ type Screen =
       timedChangeAt: number | null
     }
 
-const TRIMMED_NOTE = 'This session is too large to show in full, so its older closed items are left out.'
+const TRIMMED_NOTE = '此会话过大，无法完整显示，因此较早的已关闭条目被省略。'
 
 const message = (title: string, hint: string | null, isError = false): Screen => ({
   is: 'message',
@@ -50,26 +50,26 @@ const message = (title: string, hint: string | null, isError = false): Screen =>
 /** The message for a terminal that shows no inbox, or for a session file the look could not use. */
 function messageOf(followed: Followed, read: ReadSession | null): Screen | null {
   if (followed.is === 'no-terminal')
-    return message('No terminal in this tab', 'Open an agent with the inbox in this tab to see it here.')
+    return message('此标签页没有终端', '在此标签页中打开带收件箱的智能体即可看到。')
   if (followed.is === 'no-inbox')
     return message(
-      'No inbox in this terminal',
+      '此终端中没有收件箱',
       followed.program
-        ? `${followed.program} runs here without the inbox.`
-        : 'Start an agent with the inbox here to see its questions and findings.',
+        ? `此处运行的 ${followed.program} 未带收件箱。`
+        : '在此启动带收件箱的智能体，即可查看它的问题和发现。',
     )
-  if (followed.is === 'ended') return message('The session ended', 'This terminal is back at its shell.')
+  if (followed.is === 'ended') return message('会话已结束', '此终端已返回 shell。')
   if (read === null) return message(READING_TEXT, null)
   if (read.is === 'missing')
-    return message('Waiting for the inbox', 'The agent publishes its inbox here after its next reply.')
+    return message('正在等待收件箱', '智能体将在下次回复后在此发布其收件箱。')
   if (read.is === 'torn') return message(READING_TEXT, null)
   if (read.is === 'newer')
     return message(
-      'This panel is out of date',
-      `The agent writes its inbox in format ${read.format}. Update the inbox to read it.`,
+      '此面板已过期',
+      `智能体以格式 ${read.format} 写入收件箱。请更新收件箱以读取。`,
       true,
     )
-  if (read.is === 'refused') return message("Can't read this inbox", `Its file has ${read.reason}.`, true)
+  if (read.is === 'refused') return message('无法读取此收件箱', `其文件存在以下问题：${read.reason}。`, true)
 
   return null
 }

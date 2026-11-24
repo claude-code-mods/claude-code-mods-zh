@@ -252,9 +252,9 @@ async function main(): Promise<void> {
   // one): which platform this shell runs in (platforms.ts), and what to run next.
   if (command === "detect") {
     const found = detectPlatform();
-    const next = !found.platform ? (found.matches.includes("codebuddy") ? `CodeBuddy's agent, without WorkBuddy's marks. In WorkBuddy: node "${join(import.meta.dirname, "cam.ts")}" connect workbuddy --apply. The CodeBuddy CLI on its own has no adapter yet; ask the user which it is.` : "Not sure which agent this is: ask the user, then follow that agent's section of INSTALL.md.")
-      : found.platform === "codex" ? "Follow the Codex section of INSTALL.md."
-      : found.platform === "claude" ? "Follow the Claude Desktop section of INSTALL.md."
+    const next = !found.platform ? (found.matches.includes("codebuddy") ? `CodeBuddy 的代理，但没有 WorkBuddy 的标记。在 WorkBuddy 里：node "${join(import.meta.dirname, "cam.ts")}" connect workbuddy --apply。CodeBuddy 命令行本身还没有适配器；请先问清楚是哪一个。` : "不确定这是哪个代理：请先问用户，再按 INSTALL.md 里对应代理的小节操作。")
+      : found.platform === "codex" ? "请按 INSTALL.md 里的 Codex 小节操作。"
+      : found.platform === "claude" ? "请按 INSTALL.md 里的 Claude Desktop 小节操作。"
       : found.platform === "dsh" ? `dsh plugin --profile ${process.env.DSH_PROFILE || "<your profile>"} add "${join(import.meta.dirname, "adapters", "dsh")}"`
       : `node "${join(import.meta.dirname, "cam.ts")}" connect ${found.platform} --apply`;
     console.log(JSON.stringify({ command, platform: found.platform, matches: found.matches, next }, null, 2));
@@ -265,10 +265,10 @@ async function main(): Promise<void> {
   // `disconnect`). --base-url names that address; --provider the provider, for a platform with one per provider.
   if (command === "connect" || command === "disconnect") {
     const platform = corePlatformOf(threadId);
-    if (!platform) throw new Error(`usage: cam.ts ${command} <${CORE_PLATFORMS.map((one) => one.name).join("|")}> [--apply] [--provider NAME] [--base-url URL]`);
+    if (!platform) throw new Error(`用法：cam.ts ${command} <${CORE_PLATFORMS.map((one) => one.name).join("|")}> [--apply] [--provider NAME] [--base-url URL]`);
     if (command === "disconnect") {
       const undone = undoEdits(platform.name, dataDir());
-      console.log([`${platform.title}: settings put back in ${undone.files.length ? undone.files.join(", ") : "no file (nothing was applied)"}.`, ...undone.kept.map((setting) => `Left as you changed it: ${setting}`), `Restart ${platform.title}.`].join("\n"));
+      console.log([`${platform.title}：设置已恢复${undone.files.length ? "（" + undone.files.join("、") + "）" : "（没有写入过文件）"}。`, ...undone.kept.map((setting) => `按你改过的样子保留：${setting}`), `请重启 ${platform.title}。`].join("\n"));
       return;
     }
     const flag = (name: string) => (process.argv.includes(name) ? process.argv[process.argv.indexOf(name) + 1] ?? null : null);
@@ -277,32 +277,32 @@ async function main(): Promise<void> {
     // Connected before: the address stays where that route goes.
     const ours = plan?.current ? /^http:\/\/(?:127\.0\.0\.1|localhost):\d+\/__cam\/routes\/([a-f0-9]{32})/.exec(plan.current) : null;
     const baseUrl = flag("--base-url") ?? (ours ? readRoute(ours[1])?.baseUrl ?? null : plan?.current) ?? plan?.fallback ?? platform.upstream;
-    if (!baseUrl) throw new Error(`${platform.title}: give the address its requests go to now, with --base-url (e.g. https://api.anthropic.com/v1)`);
+    if (!baseUrl) throw new Error(`${platform.title}：请用 --base-url 指定它现在要发往的地址（例如 https://api.anthropic.com/v1）`);
     try { validateBaseUrl(baseUrl, port); } catch (error) { throw localized(error); }
     const route = registerRoute({ platform: platform.name, baseUrl });
     const url = routeBaseUrl(port, route.id).replace("localhost", "127.0.0.1");
     const mcp = { command: stableNode(), args: [join(import.meta.dirname, "plugin-server.ts")], env: { CAM_HOST: platform.name } };
     if (apply && plan?.manual) {
-      console.log([`${platform.title}: ${plan.manual}.`, `${url} -> ${baseUrl}`, ...platform.connect({ url, mcp }).map((step, at) => `${at + 1}. ${step}`)].join("\n"));
+      console.log([`${platform.title}：${plan.manual}。`, `${url} -> ${baseUrl}`, ...platform.connect({ url, mcp }).map((step, at) => `${at + 1}. ${step}`)].join("\n"));
       return;
     }
     if (apply) {
-      if (!plan) throw new Error(`${platform.title}: its settings are not in a file this command writes; set them by hand: cam connect ${platform.name}`);
+      if (!plan) throw new Error(`${platform.title}：它的设置不在本命令能写入的文件里；请手动设置：cam connect ${platform.name}`);
       const files = applyEdits(platform.name, plan.edits({ url, mcp }), dataDir());
-      console.log([`${platform.title}: requests go through the engine to ${baseUrl}.`, `Changed: ${files.join(", ")}`, ...(plan.note ? [plan.note] : []), `Restart ${platform.title}. To undo: cam disconnect ${platform.name}`].join("\n"));
+      console.log([`${platform.title}：请求经引擎发往 ${baseUrl}。`, `已修改：${files.join("、")}`, ...(plan.note ? [plan.note] : []), `请重启 ${platform.title}。撤销：cam disconnect ${platform.name}`].join("\n"));
       return;
     }
     // Plain lines, to copy from: inside JSON the paths' backslashes would be escaped twice.
-    console.log([`${platform.title}: ${url} -> ${baseUrl}`, ...platform.connect({ url, mcp }).map((step, at) => `${at + 1}. ${step}`)].join("\n"));
+    console.log([`${platform.title}：${url} -> ${baseUrl}`, ...platform.connect({ url, mcp }).map((step, at) => `${at + 1}. ${step}`)].join("\n"));
     return;
   }
-  if (!command || !threadId) throw new Error("usage: cam.ts install [--port N] | setup [--port N] | uninstall | status | detect | connect|disconnect <platform> [--apply] [--provider NAME] [--base-url URL] | list|uncheck|check|check-all <thread id> [IMG-…]");
+  if (!command || !threadId) throw new Error("用法：cam.ts install [--port N] | setup [--port N] | uninstall | status | detect | connect|disconnect <platform> [--apply] [--provider NAME] [--base-url URL] | list|uncheck|check|check-all <thread id> [IMG-…]");
   const options = { sessionsDir: join(codexHome(), "sessions") };
   if (command === "list") console.log(table(loadPanelState(threadId, options)));
   else if (command === "uncheck") console.log(table(applySelection(threadId, { uncheck: ids }, options)));
   else if (command === "check") console.log(table(applySelection(threadId, { check: ids }, options)));
   else if (command === "check-all") console.log(table(applySelection(threadId, { checkAll: true }, options)));
-  else throw new Error(`unknown command ${command}`);
+  else throw new Error(`未知命令 ${command}`);
 }
 
 if (isEntryPoint(import.meta.url)) await main();

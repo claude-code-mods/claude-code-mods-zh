@@ -1,11 +1,11 @@
 import type { EngineInterface } from 'claude-code'
 
-const TODO_TOOLS_STATUS = 'set CLAUDE_CODE_ENABLE_TODO_TOOLS=1 in settings env (see SETUP.md)'
+const TODO_TOOLS_STATUS = '请在设置环境变量中设置 CLAUDE_CODE_ENABLE_TODO_TOOLS=1（见 SETUP.md）'
 
 const TODO_TOOLS_NOTICE =
   '- `CLAUDE_CODE_ENABLE_TODO_TOOLS` is not set to `1` in this session, so the task tools are missing. Before running a Turbo pipeline, tell the user that its step tracking will not work until they add `"CLAUDE_CODE_ENABLE_TODO_TOOLS": "1"` under `env` in `~/.claude/settings.json` and restart Claude Code.'
 
-const COPY_INSTALL_STATUS = 'run /update-turbo once to migrate to the plugin'
+const COPY_INSTALL_STATUS = '运行一次 /update-turbo 以迁移到插件'
 
 const COPY_INSTALL_NOTICE =
   '- An earlier Turbo copy install is still present on this machine. Tell the user to run `/update-turbo` once to migrate to the plugin, or, when that skill is gone, to have you follow https://github.com/tobihagemann/turbo/blob/main/claude/UPDATE.md; until then, copied skills in `~/.claude/skills` shadow the plugin skills of the same name.'

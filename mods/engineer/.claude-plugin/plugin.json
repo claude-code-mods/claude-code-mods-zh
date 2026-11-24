@@ -20,14 +20,14 @@
   "userConfig": {
     "economyModel": {
       "type": "string",
-      "title": "Economy model alias",
-      "description": "The model alias the economy class resolves to for the mod's own dispatches (model-classes.md). Change it when the lineup changes.",
+      "title": "经济型模型别名",
+      "description": "该模组自身派发任务时，经济型类别解析到的模型别名（见 model-classes.md）。模型阵容变化时请更新此项。",
       "default": "sonnet"
     },
     "frontierModels": {
       "type": "string",
-      "title": "Frontier model aliases",
-      "description": "Comma-separated aliases (or id fragments) that count as the frontier class for the loop guard.",
+      "title": "前沿模型别名",
+      "description": "以逗号分隔的别名（或 id 片段），用于循环守卫判断前沿模型类别。",
       "default": "fable"
     }
   }

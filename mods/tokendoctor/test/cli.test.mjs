@@ -45,13 +45,13 @@ test('apply is a dry run until --write, and --write leaves a backup', () => {
   writeFileSync(file, JSON.stringify({ autoCompactThreshold: 0.5 }, null, 2) + '\n')
   const dry = run('tokendoctor-apply', ['compact-threshold-undocumented', '--project', project])
   assert.equal(dry.status, 0, dry.stderr)
-  assert.match(dry.stdout, /Dry run/)
+  assert.match(dry.stdout, /试运行/)
   assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), { autoCompactThreshold: 0.5 })
 
   const real = run('tokendoctor-apply', ['compact-threshold-undocumented', '--project', project, '--write'])
   assert.equal(real.status, 0, real.stderr)
   assert.deepEqual(JSON.parse(readFileSync(file, 'utf8')), {})
-  assert.match(real.stdout, /backup: .*\.bak/)
+  assert.match(real.stdout, /备份：.*\.bak/)
 })
 
 test('apply refuses an unknown finding, a finding without a fix and a bad scope', () => {
@@ -81,13 +81,13 @@ test('undo lists what tokendoctor-set wrote and puts one change back, unless it 
     [{ key: 'promptCacheTtl', before: '1h', after: '5m' }],
   ])
   // A dry run first, then the write; the slide comes off and the cache stays.
-  assert.match(run('tokendoctor-undo', ['1']).stdout, /Dry run/)
+  assert.match(run('tokendoctor-undo', ['1']).stdout, /试运行/)
   assert.equal(JSON.parse(readFileSync(settings, 'utf8')).pluginConfigs['tokendoctor@tokendoctor'].options.slide, true)
-  assert.match(run('tokendoctor-undo', ['1', '--write']).stdout, /written/)
+  assert.match(run('tokendoctor-undo', ['1', '--write']).stdout, /已写入/)
   const after = JSON.parse(readFileSync(settings, 'utf8'))
   assert.equal(after.pluginConfigs['tokendoctor@tokendoctor'].options.slide, undefined)
   assert.equal(after.promptCacheTtl, '5m')
   // The cache changed again since change 4 (the oldest: the undo itself was noted too) wrote it: that one is kept.
   assert.equal(run('tokendoctor-set', ['promptCacheTtl', '"1h"', '--write']).status, 0)
-  assert.match(run('tokendoctor-undo', ['4', '--write']).stdout, /kept promptCacheTtl: changed again since \(now "1h"\)\nNothing to put back/)
+  assert.match(run('tokendoctor-undo', ['4', '--write']).stdout, /保留 promptCacheTtl：此后又被修改（现在为 "1h"）\n没有可恢复的修改。/)
 })

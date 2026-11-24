@@ -9,7 +9,7 @@ const ARCHIVED_EVENTS_SUFFIX = '.events.jsonl'
 const SKILL_PREFIX = 'start:'
 const LIFECYCLE_SKILLS = new Set(['specify', 'specify-meta', 'specify-requirements', 'specify-solution', 'specify-plan', 'implement', 'validate', 'archive'])
 const SPEC_PATH_MARKERS = ['.start/', 'task.js', 'spec.js']
-const NO_SPEC = 'No spec has recorded events yet. A spec records them in .start/specs/<id>/events.jsonl; run spec.js <id> --snapshot to start one for an existing spec.'
+const NO_SPEC = '尚无规格记录过事件。规格会在 .start/specs/<id>/events.jsonl 中记录事件；运行 spec.js <id> --snapshot 可为已有规格创建事件日志。'
 
 type EventLog = { path: string; name: string; modifiedAt: number }
 
@@ -22,7 +22,7 @@ const collapsed = new Set<string>(['ledger'])
 
 export function register(on) {
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: DASHBOARD_COMMAND, description: 'Open or close the start dashboard; pass a spec id to show that spec', argumentHint: '[spec-id]' }).catch(() => undefined)
+    await $.command.register({ name: DASHBOARD_COMMAND, description: '打开或关闭 start 仪表盘；传入规格 id 可显示该规格', argumentHint: '[spec-id]' }).catch(() => undefined)
     await refresh($).catch(() => undefined)
     return next(e)
   })
@@ -132,19 +132,19 @@ async function runCommand($, specId: string): Promise<string> {
     pinnedSpec = specId
     isDismissed = false
     await refresh($)
-    if (spec === undefined) return `No event log found for spec ${specId}`
+    if (spec === undefined) return `未找到规格 ${specId} 的事件日志`
     await openPane($)
-    return `Dashboard showing ${spec.name}`
+    return `仪表盘正在显示 ${spec.name}`
   }
   if ((await $.ui.panes()).some((pane) => pane.id === DASHBOARD_PANE)) {
     isDismissed = true
     await $.ui.close({ id: DASHBOARD_PANE })
-    return 'Dashboard closed'
+    return '仪表盘已关闭'
   }
   isDismissed = false
   await refresh($)
   await openPane($)
-  return spec === undefined ? NO_SPEC : `Dashboard showing ${spec.name}`
+  return spec === undefined ? NO_SPEC : `仪表盘正在显示 ${spec.name}`
 }
 
 async function openPane($): Promise<void> {

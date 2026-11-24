@@ -21,28 +21,28 @@
   "hooks": "./hooks/hooks.json",
   "userConfig": {
     "sidebar": {
-      "title": "Ledger dashboard",
+      "title": "台账仪表盘",
       "type": "boolean",
       "default": true,
-      "description": "Draw the .story/ ledger in a pane beside the transcript. On by default; turn it off with /plugin configure storybloq. Projects with no .story/ directory show nothing either way (T-508, T-516)."
+      "description": "在对话记录旁的侧边面板中显示 .story/ 台账。默认开启；可用 /plugin configure storybloq 关闭。没有 .story/ 目录的项目无论开关都不会显示（T-508、T-516）。"
     },
     "startupLogo": {
-      "title": "Storyfield startup logo",
+      "title": "Storyfield 启动标志",
       "type": "boolean",
       "default": true,
-      "description": "Show a brief copper dot-wave logo before the dashboard. Turn off to show the board immediately."
+      "description": "在仪表盘前短暂显示铜色点波标志。关闭后直接显示看板。"
     },
     "motion": {
-      "title": "Dashboard motion",
+      "title": "仪表盘动画",
       "type": "boolean",
       "default": true,
-      "description": "Animate startup, phase progress, story updates, activity, and the context meter. Turn off for a static dashboard that still shows current status and activity."
+      "description": "为启动、阶段进度、故事更新、活动和上下文计量器添加动画。关闭后仪表盘保持静态，但仍显示当前状态与活动。"
     },
     "changeHighlights": {
-      "title": "Story status highlights",
+      "title": "故事状态高亮",
       "type": "boolean",
       "default": true,
-      "description": "Briefly highlight changed stories and destination counts, and show Ready when a blocker clears. Requires Dashboard motion."
+      "description": "短暂高亮发生变化的故事和目标计数，并在障碍解除时显示“就绪”。需要开启仪表盘动画。"
     }
   },
   "metadata": {

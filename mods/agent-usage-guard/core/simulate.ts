@@ -60,16 +60,16 @@ export function simulate(rule: SimulatedRule, config: Config, now: number, canAs
       return agentGate(state, [], config, now, agent)
     case 'schedule':
       state.limits.five_hour = fiveHour(config.limitDenyPercent)
-      return scheduleGate(state, [], config, now, { loop: MAIN, tool: 'ScheduleWakeup', fingerprint: 'simulated', label: 'this conversation' })
+      return scheduleGate(state, [], config, now, { loop: MAIN, tool: 'ScheduleWakeup', fingerprint: 'simulated', label: '本对话' })
     case 'depth':
       return agentGate(state, [], config, now, { ...agent, depth: config.depthMax + 1 })
     case 'retry':
       state.failures.simulated = { count: config.failureMax, last: now - MINUTE, loop: MAIN }
-      return toolGate(state, config, now, { loop: MAIN, tool: 'Bash', fingerprint: 'simulated', label: 'this conversation' })
+      return toolGate(state, config, now, { loop: MAIN, tool: 'Bash', fingerprint: 'simulated', label: '本对话' })
     case 'tool-budget':
       main.context = config.toolContext + 50_000
       main.heavyCalls = Array.from({ length: config.toolMax }, () => now - MINUTE)
-      return toolGate(state, config, now, { loop: MAIN, tool: 'Read', fingerprint: 'simulated', label: 'this conversation' })
+      return toolGate(state, config, now, { loop: MAIN, tool: 'Read', fingerprint: 'simulated', label: '本对话' })
     case 'prompt-context':
       main.context = config.contextHard + 20_000
       return promptGate(state, [], config, now, { source: 'user', text: '' })

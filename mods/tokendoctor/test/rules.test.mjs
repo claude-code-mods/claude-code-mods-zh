@@ -142,7 +142,7 @@ test('an advisor that cannot run is reported with the reason', () => {
   const below = clean()
   below.settings.user.model = 'opus'
   below.settings.user.advisorModel = 'sonnet'
-  assert.match(only(below, 'advisor-inactive').detail, /ranks below/)
+  assert.match(only(below, 'advisor-inactive').detail, /级别低于/)
 
   const ok = clean()
   ok.settings.user.advisorModel = 'opus'
@@ -151,7 +151,7 @@ test('an advisor that cannot run is reported with the reason', () => {
 
 test('long instruction files and a missing compact section are flagged', () => {
   const long = clean({ instructionFiles: [{ path: 'AGENTS.md', lines: 300, compactInstructions: true }] })
-  assert.match(only(long, 'instructions-long').detail, /AGENTS.md: 300 lines/)
+  assert.match(only(long, 'instructions-long').detail, /AGENTS.*：300 行/)
   const none = clean({ instructionFiles: [{ path: 'CLAUDE.md', lines: 20, compactInstructions: false }] })
   assert.ok(ids(none).includes('compact-instructions-missing'))
   assert.ok(!ids(clean({ instructionFiles: [] })).includes('compact-instructions-missing'))
@@ -160,9 +160,9 @@ test('long instruction files and a missing compact section are flagged', () => {
 test('a large always-on surface lists what is large', () => {
   const s = clean({ skills: { total: 30, autoLoaded: 30, names: [] }, enabledPlugins: 9, mcpServers: 7 })
   const f = only(s, 'context-surface')
-  assert.match(f.detail, /30 skills/)
-  assert.match(f.detail, /9 enabled plugins/)
-  assert.match(f.detail, /7 MCP servers/)
+  assert.match(f.detail, /30 个技能的描述/)
+  assert.match(f.detail, /9 个已启用的插件/)
+  assert.match(f.detail, /7 个 MCP 服务/)
 })
 
 test('heavy directories not covered by a Read deny rule get a project fix', () => {
@@ -217,7 +217,7 @@ test('an expensive default model, inheriting agents, duplicate skills', () => {
   delete s.settings.user.statusLine
   assert.match(only(s, 'main-model-expensive').title, /claude-opus-5-5/)
   assert.match(only(s, 'agents-inherit-model').detail, /reviewer/)
-  assert.match(only(s, 'duplicate-skills').detail, /^b\./)
+  assert.match(only(s, 'duplicate-skills').detail, /^b。/)
   assert.ok(ids(s).includes('no-statusline'))
 })
 
@@ -268,7 +268,7 @@ test('every-tool hooks on any tool event are counted and each scope gets a drop 
   }
   s.settings.project.hooks = { PostToolUse: [{ matcher: '*', hooks: [] }] }
   const f = only(s, 'every-tool-hooks')
-  assert.match(f.detail, /^4 /)
+  assert.match(f.detail, /^4 个/)
   assert.deepEqual(
     f.fixes.map((x) => x.scope),
     ['user', 'project'],
@@ -279,12 +279,12 @@ test('every-tool hooks on any tool event are counted and each scope gets a drop 
 test('long instructions name the mechanisms that do cut context, and imports are not one of them', () => {
   const f = only(clean({ instructionFiles: [{ path: 'CLAUDE.md', lines: 300, compactInstructions: true }] }), 'instructions-long')
   assert.match(f.detail, /paths/)
-  assert.match(f.detail, /imports? .*do(es)? not/i)
+  assert.match(f.detail, /@import 不会/)
 })
 
 test('the context-surface advice says MCP tool definitions are deferred', () => {
   const f = only(clean({ mcpServers: 9 }), 'context-surface')
-  assert.match(f.detail, /deferred/)
+  assert.match(f.detail, /延迟加载/)
 })
 
 test('a missing status line is fixed by installing the script and pointing statusLine at it', () => {
@@ -340,7 +340,7 @@ test('tool search turned off warns when MCP servers are configured', () => {
 test('a raised bash output limit is reported, and the setting wins over the variable', () => {
   const s = clean()
   s.env.BASH_MAX_OUTPUT_LENGTH = '150000'
-  assert.match(only(s, 'bash-output-raised').detail, /BASH_MAX_OUTPUT_LENGTH is 150000/)
+  assert.match(only(s, 'bash-output-raised').detail, /BASH_MAX_OUTPUT_LENGTH 为 150000/)
   s.settings.user.bashOutputMaxChars = 20000
   assert.ok(!ids(s).includes('bash-output-raised'))
 })
@@ -367,14 +367,14 @@ test('CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: the point it sets, a warning below half, 
   const env = (v) => clean({ env: { CLAUDE_CODE_SUBAGENT_MODEL: 'sonnet', CLAUDE_AUTOCOMPACT_PCT_OVERRIDE: v } })
   const f = only(env('75'), 'compact-pct-override')
   assert.equal(f.severity, 'info')
-  assert.match(f.detail, /about 225K of the 300K window/)
+  assert.match(f.detail, /约 225K，窗口为 300K/)
   assert.equal(only(env('40'), 'compact-pct-override').severity, 'warn')
   assert.equal(only(env('abc'), 'compact-pct-override').severity, 'error')
 })
 
 test('a skill naming another model is flagged unless it runs as a fork', () => {
   const skills = (models) => clean({ skills: { total: 2, autoLoaded: 2, names: [], models } })
-  assert.match(only(skills([{ name: 'cheap', model: 'haiku', fork: false }]), 'skill-model-switch').detail, /cheap \(model: haiku\)/)
+  assert.match(only(skills([{ name: 'cheap', model: 'haiku', fork: false }]), 'skill-model-switch').detail, /cheap（模型：haiku）/)
   assert.equal(only(skills([{ name: 'cheap', model: 'haiku', fork: true }]), 'skill-model-switch'), undefined)
   assert.equal(only(skills([{ name: 'same', model: 'claude-sonnet-5-5', fork: false }]), 'skill-model-switch'), undefined)
 })

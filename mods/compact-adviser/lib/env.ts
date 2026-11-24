@@ -56,5 +56,5 @@ export function resolveTypesafeApiKey(
 }
 
 export function formatKeyStatus(source: TypesafeKeySource): string {
-  return `Key: ${source}`;
+  return `密钥：${source}`;
 }

@@ -57,8 +57,8 @@ export function marketplaceManifest() {
   return {
     name: ORG_MARKETPLACE,
     owner: { name: 'tokendoctor' },
-    description: 'tokendoctor installed as this machine’s own mod, so its slide runs after the built-in guard.',
-    plugins: [{ name: 'tokendoctor', source: './tokendoctor', description: 'tokendoctor, loaded in place' }],
+    description: 'tokendoctor 作为本机自己的模组安装，因此它的 slide 在内置守卫之后运行。',
+    plugins: [{ name: 'tokendoctor', source: './tokendoctor', description: '原地加载的 tokendoctor' }],
   }
 }
 
@@ -83,8 +83,8 @@ export function guardState({ account, env = {}, managed = {}, mdm = false, remot
   const teamLogin = !otherCredential && isTeamOrg(account?.organizationType)
   const managedPresent = has(managed) || mdm || has(remote)
   const reasons = [
-    teamLogin && `you sign in with a ${/enterprise/i.test(account.organizationType) ? 'Enterprise' : 'Team'} plan`,
-    managedPresent && 'this machine has managed settings',
+    teamLogin && `你登录的是 ${/enterprise/i.test(account.organizationType) ? 'Enterprise' : 'Team'} 套餐`,
+    managedPresent && '这台机器有托管设置',
   ].filter(Boolean)
   const seated = reasons.length > 0
 
@@ -118,13 +118,13 @@ export function blockedNote(state) {
   if (state.slideRuns) return null
   const why = state.reasons.join(' and ')
   const fix = state.filesHidden
-    ? 'Your organization delivers its own managed settings, which hide any file on this machine: ask an administrator to add tokendoctor as an organization mod (plugins/mods/admin.md).'
+    ? '你的组织下发自己的托管设置，它会隐藏本机上的任何文件：请让管理员把 tokendoctor 加为组织模组（plugins/mods/admin.md）。'
     : state.orgInstalled
-      ? 'tokendoctor is installed as this machine’s mod: restart Claude Code so that copy loads instead of this one.'
-      : 'Run `tokendoctor-org-install` (dry run, then the one sudo command it prints) to install tokendoctor as this machine’s own mod, which runs after the guard. `tokendoctor-org-install --uninstall` undoes it.'
+      ? 'tokendoctor 已作为本机模组安装：请重启 Claude Code，让它加载那份副本，而不是当前这份。'
+      : '运行 `tokendoctor-org-install`（先试运行，再执行它打印出的那条 sudo 命令），把 tokendoctor 安装为本机自己的模组，它就会在守卫之后运行。`tokendoctor-org-install --uninstall` 可以撤销。'
   return (
-    `The slide cannot run here: ${why}, so Claude Code seats its built-in guard (cc-plugin-sec-default) ` +
-    'ahead of the mods you install, and it sends compaction past them. Claude Code summarizes as usual. ' +
+    `slide 在这里无法运行：${why}，所以 Claude Code 会把内置守卫（cc-plugin-sec-default）安排在你安装的模组之前，` +
+    '并把压缩事件绕过它们发送。Claude Code 会照常进行总结。' +
     fix
   )
 }

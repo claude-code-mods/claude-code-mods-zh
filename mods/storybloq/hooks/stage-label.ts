@@ -10,26 +10,26 @@
  */
 
 export const STAGE_LABELS: Readonly<Record<string, string>> = Object.freeze({
-  INIT: "Start",
-  LOAD_CONTEXT: "Load",
-  PICK_TICKET: "Pick",
-  PLAN: "Plan",
-  PLAN_REVIEW: "Review",
-  WRITE_TESTS: "Tests",
-  IMPLEMENT: "Code",
-  TEST: "Test",
-  CODE_REVIEW: "Review",
-  BUILD: "Build",
-  VERIFY: "Verify",
-  FINALIZE: "Commit",
-  KNOWLEDGE_REVIEW: "Ledger",
-  COMPACT: "Compacted",
-  LESSON_CAPTURE: "Lessons",
-  ISSUE_FIX: "Fix",
-  ISSUE_SWEEP: "Sweep",
-  HANDOVER: "Handover",
-  COMPLETE: "Done",
-  SESSION_END: "Ended",
+  INIT: "开始",
+  LOAD_CONTEXT: "加载",
+  PICK_TICKET: "挑选",
+  PLAN: "规划",
+  PLAN_REVIEW: "评审",
+  WRITE_TESTS: "测试",
+  IMPLEMENT: "编码",
+  TEST: "测试",
+  CODE_REVIEW: "评审",
+  BUILD: "构建",
+  VERIFY: "验证",
+  FINALIZE: "提交",
+  KNOWLEDGE_REVIEW: "台账",
+  COMPACT: "已压缩",
+  LESSON_CAPTURE: "经验",
+  ISSUE_FIX: "修复",
+  ISSUE_SWEEP: "清理",
+  HANDOVER: "交接",
+  COMPLETE: "完成",
+  SESSION_END: "已结束",
 });
 
 /**
@@ -94,7 +94,7 @@ export function statusField(value: unknown): string | null {
 export function stageLabel(state: string): string {
   if (Object.hasOwn(STAGE_LABELS, state)) return STAGE_LABELS[state]!;
   const fallback = displaySafe(state.toLowerCase().replace(/_/g, " ")).replace(/\s+/g, " ");
-  return fallback === "" ? "unknown" : fallback;
+  return fallback === "" ? "未知" : fallback;
 }
 
 /** True only when the stamp reads as a time more than STAGE_STALE_MS before `now`. */

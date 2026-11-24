@@ -7,7 +7,7 @@ import { baseName } from './open-targets'
 /** The tools Claude Code writes its own task list with. They are off unless the person turns them on. */
 export const HOST_TASK_TOOLS: ReadonlySet<string> = new Set(['TaskCreate', 'TaskUpdate', 'TodoWrite'])
 export const TOOLS_REFUSED_TEXT =
-  "Claude cannot record or close items here. Your organization's settings block the inbox's tools."
+  'Claude 无法在此记录或关闭条目。你所在组织的设置屏蔽了收件箱的工具。'
 export const MAX_PERSON_LINES = 200
 /**
  * The calls tool.check saw that may still wait on a dialog: tool_use_id to `callKey`, the key their dialog has. A

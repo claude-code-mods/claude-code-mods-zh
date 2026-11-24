@@ -323,7 +323,7 @@ export function createInbox(pi: ExtensionAPI, deps: HostDeps = defaultDeps): Inb
       loadMode: 'essential',
       approval: 'read',
       execute: async (_toolCallId, args, _signal, _onUpdate, ctx) => {
-        if (isUnattended(ctx)) return { content: [{ type: 'text', text: 'The inbox is not shown in this session.' }] }
+        if (isUnattended(ctx)) return { content: [{ type: 'text', text: '此会话未显示收件箱。' }] }
         let answer: Omit<ToolAnswer, 'ledger'> = { result: '', personLine: null }
         await change(sessionIdOf(ctx), s => {
           const r = recorded(OMP, s, name, args as Record<string, unknown>, deps.now(), TOOL_FIELDS)
@@ -469,7 +469,7 @@ export function createInbox(pi: ExtensionAPI, deps: HostDeps = defaultDeps): Inb
           }).screen(NO_HOLDS)
         : await inbox.screen(ctx)
       const { needsYou, findings } = screen.view
-      ctx.ui.notify(`Asks ${needsYou.count}, Finds ${findings.count}`, 'info')
+      ctx.ui.notify(`询问 ${needsYou.count} 项，发现 ${findings.count} 项`, 'info')
     },
   })
 

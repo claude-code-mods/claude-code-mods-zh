@@ -37,32 +37,32 @@ else runUser()
 
 function runSystem() {
   if (process.platform === 'win32') {
-    say('On Windows, copy the files by hand: see the comment at the top of this script.')
+    say('在 Windows 上请手动复制文件：见本脚本顶部的说明。')
     process.exit(2)
   }
   const isRoot = process.getuid?.() === 0
   if (uninstall) {
-    say(`${write ? 'Removing' : 'Would remove'}:\n  ${paths.dropIn}\n  ${paths.marketplace}`)
-    if (!write) return say('\nDry run. Re-run with --write (as root) to apply.')
-    if (!isRoot) fail('Needs root: run it with sudo.')
+    say(`${write ? '正在删除' : '将删除'}：\n  ${paths.dropIn}\n  ${paths.marketplace}`)
+    if (!write) return say('\n试运行。以 root 身份加 --write 重新运行即可应用。')
+    if (!isRoot) fail('需要 root 权限：请用 sudo 运行。')
     rmSync(paths.dropIn, { force: true })
     rmSync(paths.marketplace, { recursive: true, force: true })
-    return say('Done. Restart Claude Code.')
+    return say('完成。请重启 Claude Code。')
   }
   if (state.filesHidden) {
-    say('This machine takes its policy from server-managed settings or an MDM profile, which hide managed')
-    say('settings files: a drop-in here would do nothing. Ask an administrator to add tokendoctor as an')
+    say('这台机器的策略来自服务端托管设置或 MDM 配置，它们会隐藏托管')
+    say('设置文件：在这里放 drop-in 不会起作用。请让管理员把 tokendoctor 添加为')
     say('organization mod: https://code.claude.com/docs/en/plugins/mods/admin.md#install-your-organizations-mods')
     process.exit(1)
   }
   const dropIn = JSON.stringify(dropInSettings(), null, 2) + '\n'
-  say(`${write ? 'Installing' : 'Would install'}:`)
-  say(`  ${paths.plugin}   a root-owned copy of ${root}`)
+  say(`${write ? '正在安装' : '将安装'}：`)
+  say(`  ${paths.plugin}   ${root} 的 root 所有副本`)
   say(`  ${join(paths.marketplace, '.claude-plugin', 'marketplace.json')}`)
   say(`  ${paths.dropIn}:`)
   say(dropIn.replace(/^/gm, '    '))
-  if (!write) return say('Dry run. Re-run with --write, as root (sudo), to apply.')
-  if (!isRoot) fail('Needs root: managed settings and what they load must be writable only by an administrator.')
+  if (!write) return say('试运行。以 root 身份（sudo）加 --write 重新运行即可应用。')
+  if (!isRoot) fail('需要 root 权限：托管设置及它们加载的内容必须只有管理员能写。')
   rmSync(paths.plugin, { recursive: true, force: true })
   for (const part of PARTS) {
     const from = join(root, part)
@@ -76,16 +76,16 @@ function runSystem() {
   // person (or anything running as them) could rewrite the mod the guard trusts (admin.md).
   rootOwn(paths.marketplace)
   rootOwn(paths.dropIn)
-  say('Done. Now run `tokendoctor-org-install --write` without sudo for your own settings, then restart Claude Code.')
-  say('After a tokendoctor update, run this again to refresh the copy.')
+  say('完成。现在不用 sudo，运行 `tokendoctor-org-install --write` 处理你自己的设置，然后重启 Claude Code。')
+  say('tokendoctor 更新后，再次运行此命令以刷新副本。')
 }
 
 function runUser() {
-  if (process.getuid?.() === 0) fail('Run this half as yourself, not root: it edits your own settings.')
+  if (process.getuid?.() === 0) fail('这一步请以你自己的身份运行，不要用 root：它会修改你自己的设置。')
   if (!uninstall) {
     if (!state.seated) {
-      say('No guard is seated here (no managed settings, not a Team or Enterprise login): the slide already')
-      say('runs from the plugin as you installed it. Nothing to do.')
+      say('这里没有守卫就位（没有托管设置，也不是 Team 或 Enterprise 登录）：slide 已经可以')
+      say('从你安装的插件运行。无需操作。')
       return
     }
     const note = blockedNote(state)
@@ -99,17 +99,17 @@ function runUser() {
     ? wasOn === false ? [{ op: 'set', key: `enabledPlugins.${USER_ID}`, value: true }] : []
     : [{ op: 'set', key: `enabledPlugins.${USER_ID}`, value: false }]
   const plan = planOps(settingsPath('user'), 'user', ops)
-  say(`${write ? 'Applying' : 'Would change'} (user): ${describePlan(plan)}`)
+  say(`${write ? '正在应用' : '将修改'}（user）：${describePlan(plan)}`)
   if (write) {
     const r = writePlan(plan)
-    say(r.written ? `  written${r.backup ? `, backup: ${r.backup}` : ''}` : `  skipped: ${r.reason}`)
+    say(r.written ? `  已写入${r.backup ? `，备份：${r.backup}` : ''}` : `  已跳过：${r.reason}`)
   }
   const me = join(root, 'bin', 'tokendoctor-org-install')
   say('')
-  say(uninstall ? 'And the system half:' : 'The system half (needs your password once):')
+  say(uninstall ? '以及系统部分：' : '系统部分（需要你输入一次密码）：')
   say(`  sudo node "${me}" --system${uninstall ? ' --uninstall' : ''} --write`)
-  if (!write) say('\nDry run. Re-run with --write to apply your half.')
-  if (!uninstall && state.orgInstalled) say('\nThe system half is already in place.')
+  if (!write) say('\n试运行。加 --write 重新运行即可应用你这一半。')
+  if (!uninstall && state.orgInstalled) say('\n系统部分已经就位。')
 }
 
 function rootOwn(path) {

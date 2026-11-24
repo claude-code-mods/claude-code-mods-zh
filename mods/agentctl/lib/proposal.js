@@ -70,14 +70,14 @@ export function previewLines(pending) {
   const one = (x) => (Array.isArray(x) ? x.join(' ') : Array.isArray(x?.argv) ? x.argv.join(' ') + (x.check ? ' (check)' : '') : String(x))
   const fmt = (xs) => (xs?.length ? xs.map((x) => sanitize(one(x), 160)).join('; ') : 'none')
   return [
-    `Proposed task ${pending.digest} — ${sanitize(e.goal, 120)}`,
-    `  Replaces: ${e.base ? `task ${sanitize(e.base, 64)}` : 'nothing (no task bound)'}`,
-    `  Edits: ${e.allow.includes('edit') ? `allowed in ${fmt(e.editRoots)}` : 'not allowed'}`,
-    `  Checks and executors: ${fmt(e.executors)}`,
-    `  Needs a person: ${fmt(e.needsUser)}`,
-    `  Other tools: ${fmt(e.tools)}`,
-    `  Forbidden (task): ${fmt(e.forbid)} · plus the built-in production-write and remote-git-write classes`,
-    ...(e.acceptance.length ? [`  Acceptance: ${e.acceptance.map((a) => sanitize(a, 160)).join('; ')}`] : []),
-    `  Accept this scope: /agentctl accept ${pending.digest.slice(0, 8)} — it binds the scope only; it does not start any work · or /agentctl discard`,
+    `建议任务 ${pending.digest} — ${sanitize(e.goal, 120)}`,
+    `  替换：${e.base ? `任务 ${sanitize(e.base, 64)}` : '无（未绑定任务）'}`,
+    `  编辑：${e.allow.includes('edit') ? `允许于 ${fmt(e.editRoots)}` : '不允许'}`,
+    `  检查与执行器：${fmt(e.executors)}`,
+    `  需要人工：${fmt(e.needsUser)}`,
+    `  其他工具：${fmt(e.tools)}`,
+    `  禁止（任务）：${fmt(e.forbid)} · 另加内置的生产写入和远程 git 写入类别`,
+    ...(e.acceptance.length ? [`  验收：${e.acceptance.map((a) => sanitize(a, 160)).join('; ')}`] : []),
+    `  确认此范围：/agentctl accept ${pending.digest.slice(0, 8)} — 只会绑定范围，不会开始任何工作 · 或 /agentctl discard`,
   ]
 }

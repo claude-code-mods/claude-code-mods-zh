@@ -111,7 +111,7 @@ type UpdateCheck =
 let updateCheck: UpdateCheck = { phase: 'checking' }
 export async function openUpdate($: EngineInterface) {
   updateCheck = { phase: 'checking' }
-  await $.ui.open({ id: UPDATE, title: 'Updates', focus: true, closeOnEscape: true, holdToasts: true, rows: 9, columns: 70 })
+  await $.ui.open({ id: UPDATE, title: '更新', focus: true, closeOnEscape: true, holdToasts: true, rows: 9, columns: 70 })
   await update($, welcome, n => n + 1)
   await loadSettings($)
   const branch = settings.stable_updates ? BRANCHES.stable : BRANCHES.latest
@@ -131,52 +131,52 @@ async function installFound($: EngineInterface, found: Extract<Found, { kind: 'u
 
 export function UpdatePane(ui: Ui, $: EngineInterface) {
   const { Box, Text, Button } = ui
-  const channel = settings.stable_updates ? 'Stable releases' : 'Latest releases'
-  const close = <Button key="update-close" label="Close" onPress={() => void $.ui.close({ id: UPDATE })} />
+  const channel = settings.stable_updates ? '稳定版' : '最新版'
+  const close = <Button key="update-close" label="关闭" onPress={() => void $.ui.close({ id: UPDATE })} />
   const c = updateCheck
   const found = c.phase === 'found' ? c.found : null
   // Each outcome of the check sets a bold headline, a dim second line, and
   // the buttons. Install shows only when there is a newer version.
-  let head = 'Checking for updates…'
-  let line = `On ${state.pluginVersion} · ${channel}`
+  let head = '正在检查更新…'
+  let line = `当前版本 ${state.pluginVersion} · ${channel}`
   let actions: Ui[] = []
   if (found?.kind === 'update' || found?.kind === 'move') {
-    head = `Version ${found.latest} is available`
-    actions = [<Button key="update-install" variant="primary" label="Install" onPress={() => void installFound($, found)} />, close]
+    head = `版本 ${found.latest} 可供安装`
+    actions = [<Button key="update-install" variant="primary" label="安装" onPress={() => void installFound($, found)} />, close]
   } else if (found?.kind === 'current') {
-    head = "You're on the latest version"
+    head = '你已安装最新版本'
     actions = [close]
   } else if (found?.kind === 'pending') {
-    head = `Version ${found.latest} is installed`
-    line = 'Restart Claude Code to start using it.'
+    head = `已安装版本 ${found.latest}`
+    line = '重启 Claude Code 即可开始使用。'
     actions = [close]
   } else if (found?.kind === 'folder') {
-    head = 'This copy runs from a folder, so it doesn\'t update'
+    head = '此副本从文件夹运行，因此不会更新'
     actions = [close]
   } else if (found?.kind === 'busy') {
-    head = 'An update is being installed'
-    line = 'Check again in a minute.'
+    head = '正在安装更新'
+    line = '请稍后再检查。'
     actions = [close]
   } else if (found?.kind === 'pinned') {
-    head = `This install is pinned to ${found.ref}, so it doesn't update`
+    head = `此安装已固定到 ${found.ref}，因此不会更新`
     actions = [close]
   } else if (found?.kind === 'no_cli') {
-    head = "Couldn't find Claude Code's command"
-    line = 'Update by hand with: claude plugin update show-your-work@iamumeransari'
+    head = '找不到 Claude Code 的命令'
+    line = '请手动更新：claude plugin update show-your-work@iamumeransari'
     actions = [close]
   } else if (found?.kind === 'offline') {
-    head = "Couldn't check for updates"
-    line = 'Check your connection and run /show-your-work update again.'
+    head = '无法检查更新'
+    line = '请检查网络连接，然后再次运行 /show-your-work update。'
     actions = [close]
   } else if (c.phase === 'installing') {
-    head = `Installing ${c.latest}…`
+    head = `正在安装 ${c.latest}…`
   } else if (c.phase === 'installed') {
-    head = `Version ${c.latest} is installed`
-    line = 'Restart Claude Code to start using it.'
+    head = `已安装版本 ${c.latest}`
+    line = '重启 Claude Code 即可开始使用。'
     actions = [close]
   } else if (c.phase === 'failed') {
-    head = "Couldn't install the update"
-    line = `Try again, or run: claude plugin update ${PLUGIN}@iamumeransari`
+    head = '无法安装更新'
+    line = `请重试，或运行：claude plugin update ${PLUGIN}@iamumeransari`
     actions = [close]
   }
   return (
@@ -190,7 +190,7 @@ export function UpdatePane(ui: Ui, $: EngineInterface) {
 
 // /show-your-work: the switches, in a pane.
 export async function openSettings($: EngineInterface) {
-  await $.ui.open({ id: WELCOME, title: 'Settings', focus: true, closeOnEscape: true, holdToasts: true, rows: 10, columns: 70 })
+  await $.ui.open({ id: WELCOME, title: '设置', focus: true, closeOnEscape: true, holdToasts: true, rows: 10, columns: 70 })
   await update($, welcome, n => n + 1)
 }
 
@@ -217,16 +217,16 @@ async function prepareSplash($: EngineInterface) {
   // setup, ticking as the opening plays.
   splash = opened && {
     ...opened,
-    changesTitle: 'What it does',
+    changesTitle: '功能介绍',
     changes: [
-      { title: 'Installed', at: 1.8 },
-      { title: 'Everything Claude can show you', at: 5.0 },
-      { title: 'Claude shows what it builds', at: 15.7 },
+      { title: '已安装', at: 1.8 },
+      { title: 'Claude 能向你展示的一切', at: 5.0 },
+      { title: 'Claude 展示它构建的内容', at: 15.7 },
     ],
     checks: [
-      { name: 'This terminal draws pictures', ok: state.canImage, at: 2.2 },
-      { name: 'ffmpeg plays videos', ok: !!opened.frames, at: 5.5 },
-      { name: 'Plugin installed', ok: true, at: 16.0 },
+      { name: '此终端可以绘制图片', ok: state.canImage, at: 2.2 },
+      { name: 'ffmpeg 可以播放视频', ok: !!opened.frames, at: 5.5 },
+      { name: '插件已安装', ok: true, at: 16.0 },
     ],
   }
   await update($, welcome, n => n + 1)
@@ -239,10 +239,10 @@ export function Settings(ui: Ui, $: EngineInterface) {
   return (
     <Box flexDirection="column" paddingX={2} paddingBottom={1}>
       <Box flexDirection="row" columnGap={2} marginBottom={1}>
-        <Button key="close" label="✕ Close" onPress={() => void $.ui.close({ id: WELCOME })} />
-        <Button key="tour" label="Take a tour" onPress={() => { act('tour_from_settings'); void $.ui.close({ id: WELCOME }).then(() => openTour($)) }} />
+        <Button key="close" label="✕ 关闭" onPress={() => void $.ui.close({ id: WELCOME })} />
+        <Button key="tour" label="查看导览" onPress={() => { act('tour_from_settings'); void $.ui.close({ id: WELCOME }).then(() => openTour($)) }} />
       </Box>
-      <Box marginBottom={1}><Text bold>Show Your Work Settings</Text></Box>
+      <Box marginBottom={1}><Text bold>Show Your Work 设置</Text></Box>
       {SettingRows(ui, $)}
     </Box>
   )
@@ -276,7 +276,7 @@ function SettingRows(ui: Ui, $: EngineInterface) {
           })}
         </Box>
       ))}
-      <Box marginTop={1}><Text dimColor>Usage data is anonymous and helps fix bugs and improve the product experience. No sensitive data is ever shared.</Text></Box>
+      <Box marginTop={1}><Text dimColor>使用数据是匿名的，有助于修复错误并改善产品体验。绝不会分享敏感数据。</Text></Box>
     </Box>
   )
 }
@@ -292,10 +292,10 @@ export async function Opening($: EngineInterface, e: Parameters<EngineInterface[
   }
   return (
     <Box flexDirection="column" rowGap={1}>
-      {view ?? <Text bold color="claude">✦ show-your-work is installed and ready</Text>}
+      {view ?? <Text bold color="claude">✦ show-your-work 已安装并就绪</Text>}
       <Box flexDirection="column">
-        <Text>Claude now shows you pictures and videos right here in the chat. Try asking Claude to create something and show it to you in the chat, as an image or a recording.</Text>
-        <Text dimColor>It keeps itself updated and sends anonymous usage counts. Change this with /show-your-work, and see every feature with /show-your-work tour.</Text>
+        <Text>Claude 现在可以直接在聊天中向你展示图片和视频。试着让 Claude 创建一些内容，并以图片或录像的形式在聊天中展示给你。</Text>
+        <Text dimColor>它会自动更新并发送匿名使用统计。可使用 /show-your-work 修改设置，使用 /show-your-work tour 查看所有功能。</Text>
       </Box>
     </Box>
   )
@@ -328,39 +328,39 @@ async function prepareTour($: EngineInterface) {
   const recording = async () => {
     if (tourMedia.recording !== undefined) return
     tourMedia.recording = await (async () => {
-      const clip = await prepare($, `${dir}/trip-form.mp4`, 'New trip form')
+      const clip = await prepare($, `${dir}/trip-form.mp4`, '新建行程表单')
       const lead = clip.frames?.lead ?? 0
       const at = (s: number) => Math.max(0, s - lead)
       return {
         ...clip,
         // Where each step lands in the recording (its QA run, 1.3 s behind the log).
         changes: [
-          { title: 'Dates pick a range, nights in the summary', at: at(5.25) },
-          { title: 'Invalid emails rejected with a message', at: at(6.85) },
-          { title: 'Invites become chips', at: at(9.1) },
-          { title: 'Create trip opens the trip', at: at(10.5) },
+          { title: '日期可选择范围，摘要中显示晚数', at: at(5.25) },
+          { title: '无效邮箱会提示错误', at: at(6.85) },
+          { title: '邀请变成标签', at: at(9.1) },
+          { title: '创建行程后打开该行程', at: at(10.5) },
         ],
         checks: [
-          { name: 'Dates pick a range', ok: true, at: at(5.25) },
-          { name: 'Bad emails get a message', ok: true, at: at(6.85) },
-          { name: 'Invites become chips', ok: true, at: at(9.1) },
-          { name: 'Create trip opens the trip', ok: true, at: at(10.7) },
-          { name: 'Labels for screen readers', ok: true, at: at(11.2) },
+          { name: '日期可选择范围', ok: true, at: at(5.25) },
+          { name: '错误邮箱会收到提示', ok: true, at: at(6.85) },
+          { name: '邀请变成标签', ok: true, at: at(9.1) },
+          { name: '创建行程后打开该行程', ok: true, at: at(10.7) },
+          { name: '屏幕阅读器标签', ok: true, at: at(11.2) },
         ],
         summary: [
-          { label: 'Trip form works end to end', ok: true, passed: 4, total: 4 },
-          { label: 'Labels for screen readers', ok: true, passed: 1, total: 1 },
+          { label: '行程表单端到端可用', ok: true, passed: 4, total: 4 },
+          { label: '屏幕阅读器标签', ok: true, passed: 1, total: 1 },
         ],
       } as Shown
-    })().catch(() => prepare($, `${dir}/hero.jpg`, 'Tern homepage').catch(() => null))
+    })().catch(() => prepare($, `${dir}/hero.jpg`, 'Tern 首页').catch(() => null))
     await ready()
   }
   const compare = async () => {
     if (tourMedia.compare !== undefined) return
     tourMedia.compare = await (async () => ({
-      ...(await prepare($, `${dir}/hero.jpg`, 'Tern homepage')),
-      changes: [{ title: 'Trip card beside the headline' }, { title: 'Friends and trip count under the button' }],
-      compare: await prepare($, `${dir}/direction-b.jpg`, 'Original'),
+      ...(await prepare($, `${dir}/hero.jpg`, 'Tern 首页')),
+      changes: [{ title: '标题旁的行程卡片' }, { title: '按钮下方的好友与行程数量' }],
+      compare: await prepare($, `${dir}/direction-b.jpg`, '原始'),
     }) as Shown)().catch(() => null)
     await ready()
   }
@@ -369,14 +369,14 @@ async function prepareTour($: EngineInterface) {
     tourMedia.history = await (async () => {
       const hero = `${dir}/hero.jpg`
       return {
-        ...(await prepare($, `${dir}/breakpoints.jpg`, 'Tern homepage')),
-        changes: [{ title: 'Desktop, tablet and phone' }],
-        note: 'Desktop, tablet and phone',
+        ...(await prepare($, `${dir}/breakpoints.jpg`, 'Tern 首页')),
+        changes: [{ title: '桌面、平板和手机' }],
+        note: '桌面、平板和手机',
         compare: await preparedOf($, hero),
         history: [
-          { path: `${dir}/concepts.jpg`, note: 'Four directions' },
-          { path: `${dir}/direction-b.jpg`, note: 'Direction B, full size' },
-          { path: hero, note: 'Trip card beside the headline' },
+          { path: `${dir}/concepts.jpg`, note: '四个方向' },
+          { path: `${dir}/direction-b.jpg`, note: '方案 B，完整尺寸' },
+          { path: hero, note: '标题旁的行程卡片' },
         ],
         historyAt: 2,
       } as Shown
@@ -443,26 +443,26 @@ export async function Tour($: EngineInterface, e: Parameters<EngineInterface['ui
   const { Box, Text } = ui
   const s = STOPS[state.tourStop]!
   const media = mediaOf(s)
-  if (state.isTourDone) return <Text dimColor>✓ Tour finished. /show-your-work tour shows it again.</Text>
+  if (state.isTourDone) return <Text dimColor>✓ 导览已完成。可运行 /show-your-work tour 再次查看。</Text>
   // Pictures can't show here: the notice says how to turn them on, and the
   // tour runs again in the first session where they show.
   if (!state.canImage) {
     if (!isTourHeld) { isTourHeld = true; void $.store.set('toured', false).catch(() => undefined) }
     const notice = splash ? await Viewer($, e, atStep(splash, state.tourSite), state.tourSite, false, { columns: viewport?.columns ?? 100, rows: Math.max(24, viewport?.rows ?? 40) }) : null
-    return notice ?? <Text dimColor>Loading…</Text>
+    return notice ?? <Text dimColor>加载中…</Text>
   }
   const room = { columns: viewport?.columns ?? 100, rows: Math.max(24, viewport?.rows ?? 40) }
   if (!media && s.media) loadDemo($)
   // Nothing to look at yet: no bar, so Next can't be pressed before the demo shows.
-  if (!media && s.media) return <Text dimColor>Loading the demo…</Text>
+  if (!media && s.media) return <Text dimColor>正在加载演示…</Text>
   const view = media ? await Viewer($, e, atStep(media, state.tourSite), state.tourSite, false, room) : null
   const width = (view as { props?: { width?: number } } | null)?.props?.width ?? Math.min(room.columns - 2, 100)
   return (
     <Box flexDirection="column" rowGap={1}>
-      {view ?? (s.media && <Text dimColor>Loading the demo…</Text>)}
+      {view ?? (s.media && <Text dimColor>正在加载演示…</Text>)}
       {state.tourStop === STOPS.length - 1 && (
         <Box key="settings-box" flexDirection="column" borderStyle="round" borderColor="subtle" paddingX={1} width={width}>
-          <Text bold>Settings</Text>
+          <Text bold>设置</Text>
           <Box marginTop={1}>{SettingRows(ui, $)}</Box>
         </Box>
       )}
@@ -505,12 +505,12 @@ function TourBar(ui: Ui, $: EngineInterface, columns: number) {
         <Box flexGrow={1} flexShrink={1}><Text bold color="inverseText">{(isDone ? `✓  ${s.tag}` : s.tag).toUpperCase()}</Text></Box>
         <Box flexDirection="row" columnGap={3} flexShrink={0}>
           {/* No Back on the last step: it's a wrap-up, and Done is the only choice. */}
-          {at > 0 && !isLast && onBar('prev', '‹ Back', () => { act(`tour_back_${at}`); goToStop($, at - 1) }, { isButton: true })}
+          {at > 0 && !isLast && onBar('prev', '‹ 返回', () => { act(`tour_back_${at}`); goToStop($, at - 1) }, { isButton: true })}
           {/* Next fills in once the step is done; until then it's a plain button. */}
           {isLast
-            ? onBar('done', 'Done ›', () => void finishTour($, false), { isMain: true, isButton: true })
-            : onBar('next', 'Next ›', () => { act(`tour_next_${at}`); goToStop($, at + 1) }, { isMain: !s.goal || isDone, isButton: true })}
-          {!isLast && onBar('skip', 'Skip tour', () => void finishTour($, true))}
+            ? onBar('done', '完成 ›', () => void finishTour($, false), { isMain: true, isButton: true })
+            : onBar('next', '下一步 ›', () => { act(`tour_next_${at}`); goToStop($, at + 1) }, { isMain: !s.goal || isDone, isButton: true })}
+          {!isLast && onBar('skip', '跳过导览', () => void finishTour($, true))}
         </Box>
       </Box>
     </Box>

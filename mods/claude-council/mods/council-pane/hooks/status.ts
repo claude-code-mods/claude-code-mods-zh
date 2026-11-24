@@ -32,12 +32,12 @@ export function parseStatus(log: string): ProviderStatus[] {
 }
 
 const EVENT: Record<string, (name: string) => string> = {
-  complete: name => `${name} answered`,
-  cached: name => `${name} answered from cache`,
-  error: name => `${name} failed`,
+  complete: name => `${name} 已回答`,
+  cached: name => `${name} 从缓存中回答`,
+  error: name => `${name} 失败`,
   // Not always a failure: a CLI that cannot read an image is routed to its API by design.
-  fallback: name => `${name} answered through its API`,
-  querying: name => `asking ${name}`,
+  fallback: name => `${name} 通过其 API 回答`,
+  querying: name => `正在询问 ${name}`,
 }
 
 // The band's latest event: the last whole line of the log, in words. A line

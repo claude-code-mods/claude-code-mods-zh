@@ -149,38 +149,38 @@ export function pressFeedbackIn(
   return feedbackIn(id, state, last, undefined, turns, now, reportedAt)
 }
 
-export const fixLabel = (f: Pick<Finding, 'kind'>) => (f.kind === 'opportunity' ? 'Do it' : 'Fix')
+export const fixLabel = (f: Pick<Finding, 'kind'>) => (f.kind === 'opportunity' ? '处理' : '修复')
 
 const WORKING_LABELS: Record<string, string> = {
-  explain: 'Explaining…',
-  compare: 'Comparing…',
-  discuss: 'Discussing…',
-  'thread-discuss': 'Discussing…',
-  'thread-draft': 'Drafting a reply…',
-  'pr-rank-again': 'Ranking…',
-  'pr-conflicts': 'Resolving conflicts…',
-  'pr-address-all': 'Addressing…',
-  'pr-merge': 'Merging…',
-  'thread-address': 'Addressing…',
-  'check-fix': 'Fixing…',
+  explain: '正在解释…',
+  compare: '正在对比…',
+  discuss: '正在讨论…',
+  'thread-discuss': '正在讨论…',
+  'thread-draft': '正在起草回复…',
+  'pr-rank-again': '正在排序…',
+  'pr-conflicts': '正在解决冲突…',
+  'pr-address-all': '正在处理…',
+  'pr-merge': '正在合并…',
+  'thread-address': '正在处理…',
+  'check-fix': '正在修复…',
 }
 
 const DONE_LABELS: Record<string, (text: string) => string> = {
-  address: () => 'Handed off',
-  issue: () => 'Asked to file',
-  discuss: () => 'Discussed',
-  explain: () => 'Explained',
-  compare: () => 'Compared',
-  dismiss: () => 'Dismissed',
-  type: () => 'Replied',
-  'thread-address': () => 'Addressed',
-  'thread-discuss': () => 'Discussed',
-  'thread-draft': () => 'Drafted a reply',
-  'pr-conflicts': () => 'Asked to resolve conflicts',
-  'pr-merge': () => 'Asked to merge',
-  'pr-address-all': text => text.replace(/^Address\b/, 'Addressed'),
-  'check-fix': () => 'Asked to fix',
-  'pr-rank-again': () => 'Ranked',
+  address: () => '已移交',
+  issue: () => '已请求提交',
+  discuss: () => '已讨论',
+  explain: () => '已解释',
+  compare: () => '已对比',
+  dismiss: () => '已忽略',
+  type: () => '已回复',
+  'thread-address': () => '已处理',
+  'thread-discuss': () => '已讨论',
+  'thread-draft': () => '已起草回复',
+  'pr-conflicts': () => '已请求解决冲突',
+  'pr-merge': () => '已请求合并',
+  'pr-address-all': text => text.replace(/^处理/, '已处理'),
+  'check-fix': () => '已请求修复',
+  'pr-rank-again': () => '已排序',
 }
 
 /** What a press reads once its message arrived, before a reply's words: "Replied", "Explained", or the label pressed. */
@@ -299,22 +299,22 @@ export function isAfterTitle(f: Feedback): boolean {
 const runIt = (look: Look) =>
   isTerminalLike(look) ? 'Run it in a terminal, or type ! and paste.' : 'Run it in Terminal.'
 const VERBS = {
-  open: { pending: 'Opening', done: 'Opened', failed: 'open' },
-  copy: { pending: 'Copying', done: 'Copied', failed: 'copy' },
-  'refresh-prs': { pending: 'Refreshing', done: 'Refreshed', failed: 'refresh' },
-  rerun: { pending: 'Starting a re-run of', done: 'Started a re-run of', failed: 'start a re-run of' },
-  scroll: { pending: 'Showing', done: 'Shown', failed: 'show' },
+  open: { pending: '正在打开', done: '已打开', failed: '打开' },
+  copy: { pending: '正在复制', done: '已复制', failed: '复制' },
+  'refresh-prs': { pending: '正在刷新', done: '已刷新', failed: '刷新' },
+  rerun: { pending: '正在重新运行', done: '已重新运行', failed: '重新运行' },
+  scroll: { pending: '正在显示', done: '已显示', failed: '显示' },
 }
 const doneText = (p: LocalResult['parts'][number]) =>
-  p.kind === 'scroll' ? 'Shown in the conversation' : `${VERBS[p.kind].done} ${p.name}`
+  p.kind === 'scroll' ? '已在对话中显示' : `${VERBS[p.kind].done} ${p.name}`
 
 function localText(r: LocalResult, look: Look): string {
   const isPrs =
     r.parts.length > 1 && r.parts.every(p => p.kind === 'open' && p.error === null && /^PR #\d+$/.test(p.name))
-  const parts = isPrs ? [{ ...r.parts[0]!, name: `${r.parts.length} PRs` }] : r.parts
+  const parts = isPrs ? [{ ...r.parts[0]!, name: `${r.parts.length} 个 PR` }] : r.parts
   if (r.state === 'pending') return `${parts.map(p => `${VERBS[p.kind].pending} ${p.name}`).join(DOT)}…`
   const text = parts
-    .map(p => (p.error === null ? doneText(p) : `Could not ${VERBS[p.kind].failed} ${p.name}: ${p.error}`))
+    .map(p => (p.error === null ? doneText(p) : `无法${VERBS[p.kind].failed} ${p.name}：${p.error}`))
     .join(DOT)
   if (r.state === 'failed') return text
   const isCommand = parts.some(p => p.kind === 'copy' && p.isCommand)
@@ -335,15 +335,15 @@ export function feedbackText(f: Feedback, look: Look): string {
     case 'unconfirmed':
       return f.label
     case 'notSent':
-      return `Not sent: ${f.reason}`
+      return `未发送：${f.reason}`
     case 'done':
-      return f.isHandedStep ? `✓ Handed off: ${f.label}` : `✓ ${f.label}`
+      return f.isHandedStep ? `✓ 已移交：${f.label}` : `✓ ${f.label}`
     case 'working':
       return f.label
     case 'stillOpen':
-      return 'Still open'
+      return '仍未处理'
     case 'noComparison':
-      return 'No comparison came back'
+      return '没有收到对比结果'
     case 'closed':
       return f.label
   }

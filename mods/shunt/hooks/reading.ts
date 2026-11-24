@@ -19,10 +19,10 @@ export type Reading =
   | { problem: string; brief: string | null }
 
 /** The band's brief for a 401 or 403: the gateway refused the credential. */
-export const CREDENTIAL_REFUSED = 'credential refused'
+export const CREDENTIAL_REFUSED = '凭据被拒绝'
 
 /** The band's brief when shunt's own `apiKeyHelper` could not give a token. */
-export const HELPER_FAILED = 'gateway login unavailable'
+export const HELPER_FAILED = '网关登录不可用'
 
 /** The subset of the engine's `HttpResponse` a reading needs. */
 export type Response = { status: number; ok: boolean; text: string }
@@ -70,13 +70,13 @@ export function helperFailedOf(
       : stderr !== ''
         ? stderr
         : cause.exitCode === 0
-          ? 'it printed nothing'
-          : `it exited with ${cause.exitCode}`
+          ? '它没有输出任何内容'
+          : `它以退出码 ${cause.exitCode} 退出`
 
   return {
     problem:
-      'the apiKeyHelper is shunt gateway token, but running it failed ' +
-      `${'—'} ${detail}. Run shunt gateway login to log in again.`,
+      'apiKeyHelper 是 shunt gateway token，但运行失败 ' +
+      `${'—'} ${detail}。请运行 shunt gateway login 重新登录。`,
     brief: HELPER_FAILED,
   }
 }
@@ -90,9 +90,9 @@ export function helperFailedOf(
 export function unreachableOf(endpoint: Endpoint, error: unknown): Reading {
   return {
     problem:
-      `could not reach the gateway at ${endpoint.base} ` +
+      `无法访问网关 ${endpoint.base} ` +
       `${'—'} ${messageOf(error)}`,
-    brief: 'gateway unreachable',
+    brief: '网关不可达',
   }
 }
 
@@ -116,9 +116,9 @@ export function readingOf(endpoint: Endpoint, response: Response): Reading {
 
     return {
       problem:
-        `the gateway answered GET /usage with ${response.status}` +
+        `网关对 GET /usage 返回了 ${response.status}` +
         `${detail === '' ? '' : ` ${'—'} ${detail}`}`,
-      brief: `GET /usage answered ${response.status}`,
+      brief: `GET /usage 返回 ${response.status}`,
     }
   }
 

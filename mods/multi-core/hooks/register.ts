@@ -70,7 +70,7 @@ export const register: Register = (on, options) => {
     }
     await $.command.register({
       name: 'multi-usage',
-      description: 'Open provider quotas, spend, and session receipts.',
+      description: '查看各供应商额度、用量和会话账单。',
       immediate: true,
     });
     await greet($, await $.session.id(), await $.session.cwd());

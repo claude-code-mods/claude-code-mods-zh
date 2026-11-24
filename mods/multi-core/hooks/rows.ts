@@ -138,7 +138,7 @@ export const register = (on: On) => {
     }
     // The built-in shows the output itself: the engine draws it, a few lines
     // and `… +N lines` in the compact view, all of it under ctrl+o.
-    const shown = [{ type: 'text', text: output || '(No output)' }];
+    const shown = [{ type: 'text', text: output || '（无输出）' }];
     return next({ ...event, props: { ...event.props, output: shown } });
   });
 };

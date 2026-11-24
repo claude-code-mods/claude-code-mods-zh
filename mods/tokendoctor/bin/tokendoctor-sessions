@@ -32,9 +32,9 @@ function weekly(rows) {
 
 function printTrend(rows) {
   if (args.includes('--json')) return console.log(JSON.stringify(rows, null, 2))
-  if (!rows.length) return console.log(`No data for the last ${days} days.`)
+  if (!rows.length) return console.log(`过去 ${days} 天没有数据。`)
   const p = (x, of) => `${Math.round((100 * x) / (of || 1))}%`.padStart(5)
-  console.log(`${by === 'week' ? 'week of   ' : 'day       '}      cost($)  subagents  >400K  opus  turns  sessions`)
+  console.log(`${by === 'week' ? '该周      ' : '日期      '}      费用($)  子代理  >400K  opus  轮次  会话数`)
   for (const r of rows) {
     const top = (r.byModel.opus ?? 0) + (r.byModel.fable ?? 0)
     console.log(
@@ -53,16 +53,16 @@ if (args.includes('--json')) {
   const { compactions, ...rest } = t
   console.log(JSON.stringify({ days, totals: { ...rest, compactions: compactions.length }, topSessions: top, findings, usage }, null, 2))
 } else if (!sessions.length) {
-  console.log(`No sessions in the last ${days} days.`)
+  console.log(`过去 ${days} 天没有会话。`)
 } else {
-  console.log(`${t.sessions} sessions in the last ${days} days, $${t.cost.toFixed(2)} at API list prices (on a plan: what the same work would cost on the API).`)
-  if (t.hiddenCost) console.log(`Of it, $${t.hiddenCost.toFixed(2)} is requests the transcripts leave out (summary compactions, titles, WebFetch page reads), from Claude Code's own session totals where they hold, else estimated.`)
-  if (t.unpriced) console.log(`${t.unpriced} responses from models without a known price are left out.`)
-  console.log(`Main thread ${pct(t.mainCost)}, subagents ${pct(t.cost - t.mainCost)}; with ${'>'}400K in context ${pct(t.bigContextCost, t.mainCost)} of main.`)
-  console.log(`Main thread by model: ${byCost(t.byModel).map(([m, c]) => `${m} ${pct(c)}`).join(', ')}`)
-  console.log(`Subagents: ${byCost(t.agents, (a) => a.cost).slice(0, 5).map(([k, a]) => `${k} ${a.runs} runs ${pct(a.cost)}`).join(', ') || 'none'}`)
-  console.log(`Cache rebuilds: ${byCost(t.rebuilds, (e) => e.cost).map(([k, e]) => `${k} ${e.n}`).join(', ') || 'none'}; compactions ${t.compactions.length}`)
-  console.log(`Thinking: ${pct(t.thinking, t.output)} of output tokens\n`)
-  for (const f of findings) console.log(`[${f.severity}] ${f.id}: ${f.title}\n  ${f.detail}\n  ${f.doc}\n`)
-  if (!findings.length) console.log('No findings.')
+  console.log(`过去 ${days} 天有 ${t.sessions} 个会话，按 API 标价为 $${t.cost.toFixed(2)}（套餐下：同样工作在 API 上的费用）。`)
+  if (t.hiddenCost) console.log(`其中 $${t.hiddenCost.toFixed(2)} 是记录里看不到的请求（总结压缩、标题、WebFetch 页面读取）：有 Claude Code 自己的会话总计时用总计，否则为估算值。`)
+  if (t.unpriced) console.log(`${t.unpriced} 条来自没有已知价格的模型的回复未计入。`)
+  console.log(`主线程 ${pct(t.mainCost)}，子代理 ${pct(t.cost - t.mainCost)}；上下文超过 400K 时主线程占 ${pct(t.bigContextCost, t.mainCost)}。`)
+  console.log(`主线程按模型：${byCost(t.byModel).map(([m, c]) => `${m} ${pct(c)}`).join('、')}`)
+  console.log(`子代理：${byCost(t.agents, (a) => a.cost).slice(0, 5).map(([k, a]) => `${k} 运行 ${a.runs} 次 ${pct(a.cost)}`).join('；') || '无'}`)
+  console.log(`缓存重建：${byCost(t.rebuilds, (e) => e.cost).map(([k, e]) => `${k} ${e.n}`).join('；') || '无'}；压缩 ${t.compactions.length} 次`)
+  console.log(`思考占输出 token 的 ${pct(t.thinking, t.output)}\n`)
+  for (const f of findings) console.log(`[${f.severity}] ${f.id}：${f.title}\n  ${f.detail}\n  ${f.doc}\n`)
+  if (!findings.length) console.log('没有问题。')
 }

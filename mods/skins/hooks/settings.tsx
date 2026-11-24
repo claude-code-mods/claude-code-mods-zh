@@ -70,11 +70,20 @@ const mark = (on: boolean): string => (on ? '●' : '○')
 export function settingsPane(look: Look, ui: PaneUi, model: SettingsModel, actions: SettingsActions) {
   const { Box, Text, Button, Input, Select } = ui
   const { palette } = look.skin
+  const TABLE_LABEL = { on: '卡片', text: '文本', off: '关闭' } as const
+  const PROMPT_LABEL = { left: '左', right: '右', plain: '简洁' } as const
   const { prefs } = look
+  const WORD = {
+    rail: '侧栏', shimmer: '流光', band: '状态带', countdown: '倒计时',
+    clip: '截断', markdown: 'Markdown', quiet: '安静', charts: '图表',
+    math: '数学', commands: '命令', shell: '终端', highlight: '高亮',
+    hints: '提示', links: '链接', copy: '复制', fold: '折叠',
+    expand: '展开', compact: '压缩',
+  } as const
   const toggle = (word: ToggleWord, hotkey: string, on: boolean) => (
     <Button
       key={`toggle-${word}`}
-      label={`${word} ${mark(on)}`}
+      label={`${WORD[word]} ${mark(on)}`}
       hotkey={hotkey}
       plain
       dimColor={!on}
@@ -85,7 +94,7 @@ export function settingsPane(look: Look, ui: PaneUi, model: SettingsModel, actio
   return (
     <Box flexDirection="column" rowGap={1}>
       <Box flexDirection="row" flexWrap="wrap" columnGap={2}>
-        <Text color={palette.muted}>Skin</Text>
+        <Text color={palette.muted}>皮肤</Text>
         {model.names.map((name, i) => (
           <Button
             key={`skin-${name}`}
@@ -101,11 +110,11 @@ export function settingsPane(look: Look, ui: PaneUi, model: SettingsModel, actio
       {preview(look, model.width)}
 
       <Box flexDirection="row" flexWrap="wrap" columnGap={2}>
-        <Text color={palette.muted}>Look</Text>
+        <Text color={palette.muted}>外观</Text>
         {toggle('rail', 'r', prefs.rail)}
         <Button
           key="tables"
-          label={`tables ${prefs.tables}`}
+          label={`表格 ${TABLE_LABEL[prefs.tables] ?? prefs.tables}`}
           hotkey="t"
           plain
           dimColor={prefs.tables === 'off'}
@@ -128,10 +137,10 @@ export function settingsPane(look: Look, ui: PaneUi, model: SettingsModel, actio
         {toggle('fold', 'f', prefs.fold)}
         {toggle('expand', 'd', prefs.expand)}
         {toggle('compact', 'u', prefs.compact)}
-        <Button key="calm" label={`calm ${mark(prefs.calm !== null)}`} hotkey="k" plain dimColor={prefs.calm === null} onPress={() => actions.calm()} />
-        <Button key="icons" label={`icons ${prefs.icons}`} hotkey="i" plain onPress={() => actions.icons()} />
-        <Button key="prompt" label={`prompt ${prefs.prompt}`} hotkey="a" plain onPress={() => actions.prompt()} />
-        <Button key="words" label={`words ${prefs.words}`} hotkey="e" plain onPress={() => actions.words()} />
+        <Button key="calm" label={`静谧 ${mark(prefs.calm !== null)}`} hotkey="k" plain dimColor={prefs.calm === null} onPress={() => actions.calm()} />
+        <Button key="icons" label={`图标 ${prefs.icons === 'unicode' ? '字符' : 'ASCII'}`} hotkey="i" plain onPress={() => actions.icons()} />
+        <Button key="prompt" label={`提示符 ${PROMPT_LABEL[prefs.prompt] ?? prefs.prompt}`} hotkey="a" plain onPress={() => actions.prompt()} />
+        <Button key="words" label={`文案 ${prefs.words === 'claude' ? 'Claude' : '皮肤'}`} hotkey="e" plain onPress={() => actions.words()} />
       </Box>
 
       <Box flexDirection="column">
@@ -148,7 +157,7 @@ export function settingsPane(look: Look, ui: PaneUi, model: SettingsModel, actio
         <Box flexDirection="row" columnGap={2} marginTop={1}>
           <Select
             key="slot"
-            label="Colour"
+            label="颜色"
             value={model.editing}
             options={SLOTS.map(slot => ({ value: slot, label: slot }))}
             onSelect={(value: string) => actions.edit(value as SkinSlot)}
@@ -158,14 +167,14 @@ export function settingsPane(look: Look, ui: PaneUi, model: SettingsModel, actio
             label={palette[model.editing]}
             placeholder="#rrggbb"
             value=""
-            submitLabel="paint"
+            submitLabel="上色"
             onSubmit={(value: string) => actions.paint(value.trim())}
           />
         </Box>
       </Box>
 
       <Text color={palette.muted}>
-        Or ask Claude: <Text color={palette.fg}>“make me a skin that feels like a sunset”</Text>. Esc closes.
+        或让 Claude 帮你：<Text color={palette.fg}>“给我做一款像日落一样感觉的皮肤”</Text>。按 Esc 关闭。
       </Text>
     </Box>
   )

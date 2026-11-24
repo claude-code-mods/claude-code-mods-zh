@@ -6,56 +6,56 @@
   "userConfig": {
     "apiKey": {
       "type": "string",
-      "title": "TypeSafe API key",
-      "description": "TypeSafe API key. Leave unset to use TYPESAFE_API_KEY.",
+      "title": "TypeSafe API 密钥",
+      "description": "TypeSafe API 密钥。留空则使用 TYPESAFE_API_KEY。",
       "sensitive": true
     },
     "keepThreshold": {
       "type": "number",
-      "title": "Keep threshold",
-      "description": "Minimum Jev probability that a tool call or tool result is still needed; below it the item is removed.",
+      "title": "保留阈值",
+      "description": "工具调用或工具结果仍被需要的最小 Jev 概率；低于该值则删除此项。",
       "default": 0.5
     },
     "preserveRecentMessages": {
       "type": "number",
-      "title": "Recent messages to preserve",
-      "description": "Number of newest messages pinned from compaction.",
+      "title": "保留的最近消息数",
+      "description": "从压缩中固定保留的最新消息条数。",
       "default": 6
     },
     "compactAtPercent": {
       "type": "number",
-      "title": "Compaction percentage",
-      "description": "Context percentage at which turn.complete requests compaction.",
+      "title": "压缩百分比",
+      "description": "turn.complete 请求压缩时的上下文百分比。",
       "default": 60
     },
     "minReductionRatio": {
       "type": "number",
-      "title": "Minimum reduction ratio",
-      "description": "Minimum estimated character reduction required to replace history.",
+      "title": "最小缩减比例",
+      "description": "替换历史记录所需的最小预计字符缩减量。",
       "default": 0.25
     },
     "maxStateTokens": {
       "type": "number",
-      "title": "Maximum Jev state tokens",
-      "description": "Estimated token budget for the conversation state sent with every Jev request.",
+      "title": "最大 Jev 状态 token 数",
+      "description": "每次 Jev 请求所发送的会话状态的预估 token 预算。",
       "default": 25000
     },
     "maxRequestTokens": {
       "type": "number",
-      "title": "Maximum Jev request tokens",
-      "description": "Estimated token budget for state plus questions in one Jev request.",
+      "title": "最大 Jev 请求 token 数",
+      "description": "单次 Jev 请求中状态加问题的预估 token 预算。",
       "default": 30000
     },
     "truncateHeadChars": {
       "type": "number",
-      "title": "Truncated tool result head",
-      "description": "Characters of a tool result kept when Jev decides its full output is no longer needed; 0 keeps only the note.",
+      "title": "截断的工具结果开头",
+      "description": "当 Jev 判定工具结果的完整输出不再需要时保留的开头字符数；0 表示只保留说明。",
       "default": 300
     },
     "model": {
       "type": "string",
-      "title": "Jev model",
-      "description": "TypeSafe Jev model name.",
+      "title": "Jev 模型",
+      "description": "TypeSafe Jev 模型名称。",
       "default": "jev-latest"
     }
   }

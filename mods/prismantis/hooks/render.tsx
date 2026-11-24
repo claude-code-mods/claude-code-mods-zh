@@ -1447,7 +1447,7 @@ const NUMBER_MAX = 400
 const FOLD_AT = 30
 const FOLD_SHOW = 20
 
-const codeRest = ({ Text }: ElementTable, total: number, shown: number, key: string): RenderElement[] => (shown === DIFF_MAX && total > shown ? [<Text key={`${key}.rest`} dimColor>{`… +${total - shown} lines`}</Text>] : [])
+const codeRest = ({ Text }: ElementTable, total: number, shown: number, key: string): RenderElement[] => (shown === DIFF_MAX && total > shown ? [<Text key={`${key}.rest`} dimColor>{`… 还有 ${total - shown} 行`}</Text>] : [])
 
 const codeId = (lines: string[]): string => {
   let hash = 5381
@@ -1509,7 +1509,7 @@ export const MARK = 2
 
 export const markerRoom = (style: Style): number => (style.copyButtons && style.copyButtonStyle === 'hover' ? MARK : 0)
 
-const codeLabel = (block: Extract<Block, { kind: 'code' }>): string => `── ${block.lang || 'code'}`
+const codeLabel = (block: Extract<Block, { kind: 'code' }>): string => `── ${block.lang || '代码'}`
 
 type Float = { needs: number; marker: RenderElement }
 
@@ -1558,8 +1558,8 @@ export const renderBlocks = (el: ElementTable, style: Style, blocks: Block[], co
     const text = hover && holdsOnlyEmptyCode(block) ? undefined : blockSource(style, blocks, b)
     const isPlainCode = block.kind === 'code' && !drawn.get(b)?.element
     const { art, grid, hues } = artsOf(drawn.get(b), block, style.theme, rtlTables[b]!)
-    const first = text === undefined || isPlainCode ? null : copy?.(text, `copy${b}`, block.kind === 'table' ? '⧉ md' : art === undefined ? undefined : '⧉ source')
-    const second = first && art !== undefined ? copy?.(art, `art${b}`, '⧉ art') : null
+    const first = text === undefined || isPlainCode ? null : copy?.(text, `copy${b}`, block.kind === 'table' ? '⧉ md' : art === undefined ? undefined : '⧉ 源码')
+    const second = first && art !== undefined ? copy?.(art, `art${b}`, '⧉ 图案') : null
     const html = first && block.kind === 'table' ? copy?.(() => tableText(block), `html${b}`, '⧉ html', () => tableHtml(block, rtlTables[b])) : null
     return { first, second, html, png: second && copy?.(grid!, `png${b}`, '▣ png', 'png', hues) }
   })
@@ -1711,14 +1711,14 @@ const restSource = ({ Text }: ElementTable, rest: Block[], room: number): Render
   const fit = lines.findIndex(line => (room -= line.length + 1) < 0)
   const kept = fit < 0 ? lines : lines.slice(0, fit)
   const text = kept.length ? chunks(kept.join('\n').trimEnd()).map((text, i) => <Text key={`rest${i}`} dimColor>{text}</Text>) : []
-  return fit < 0 ? text : [...text, <Text key="restMore" dimColor>{`… +${lines.length - fit} lines · /prismantis copy for the whole reply`}</Text>]
+  return fit < 0 ? text : [...text, <Text key="restMore" dimColor>{`… 还有 ${lines.length - fit} 行 · /prismantis copy 可复制整条回复`}</Text>]
 }
 
 export type ToolRow = { tool: string; input: unknown; isRunning: boolean; isErrored: boolean; isInterrupted: boolean }
 
 const VERBS: Record<string, string> = {
-  Bash: 'Ran', PowerShell: 'Ran', Read: 'Read', Write: 'Wrote', Edit: 'Edited', MultiEdit: 'Edited', NotebookEdit: 'Edited',
-  Grep: 'Searched', Glob: 'Listed', WebFetch: 'Fetched', WebSearch: 'Searched the web for', Agent: 'Delegated', Task: 'Delegated',
+  Bash: '已运行', PowerShell: '已运行', Read: '已读取', Write: '已写入', Edit: '已编辑', MultiEdit: '已编辑', NotebookEdit: '已编辑',
+  Grep: '已搜索', Glob: '已列出', WebFetch: '已获取', WebSearch: '已搜索网页：', Agent: '已委派', Task: '已委派',
 }
 
 const field = (input: unknown, ...keys: string[]): string | undefined => {
@@ -1802,8 +1802,8 @@ export const renderShellResult = (el: ElementTable, style: Style, output: unknow
   const head = shown.slice(0, RESULT_LINES).map(l => shortenPaths(l, style))
   return (
     <Box flexDirection="column">
-      {head.length === 0 ? heldRow(el, style, 'l0', '  ⎿  ', '', <Text dimColor>(No output)</Text>) : head.map((l, i) => heldRow(el, style, `l${i}`, i ? '     ' : '  ⎿  ', l, <Text wrap="truncate-end">{l === '' ? ' ' : l}</Text>))}
-      {shown.length > head.length ? heldRow(el, style, 'more', '     ', '', <Text dimColor>{`… +${shown.length - head.length} lines`}</Text>) : null}
+      {head.length === 0 ? heldRow(el, style, 'l0', '  ⎿  ', '', <Text dimColor>（无输出）</Text>) : head.map((l, i) => heldRow(el, style, `l${i}`, i ? '     ' : '  ⎿  ', l, <Text wrap="truncate-end">{l === '' ? ' ' : l}</Text>))}
+      {shown.length > head.length ? heldRow(el, style, 'more', '     ', '', <Text dimColor>{`… 还有 ${shown.length - head.length} 行`}</Text>) : null}
     </Box>
   )
 }
@@ -2263,7 +2263,7 @@ const diffBox = (el: ElementTable, style: Style, rows: DiffLine[], fold: Fold, i
   return (
     <Box key={`card${key}`} flexDirection="column" flexShrink={1} {...frame}>
       {press ? press(<Text key="all">{head}{'\n'}{diffText(el, style, shown, path, columns, budget)}</Text>, { inverse: false }) : [head, ...diffBody(el, style, shown, path, columns, budget)]}
-      {hidden > 0 && toggle?.folded !== true ? <Text dimColor>{`… +${hidden} lines`}</Text> : null}
+      {hidden > 0 && toggle?.folded !== true ? <Text dimColor>{`… 还有 ${hidden} 行`}</Text> : null}
       {toggle?.element ?? null}
     </Box>
   )
@@ -2366,7 +2366,7 @@ export const hasShellOutput = (output: unknown): boolean => {
 
 const PREVIEW_LINES = 10
 
-export const lineCount = (n: number): string => (n === 0 ? 'empty' : `${n} ${n === 1 ? 'line' : 'lines'}`)
+export const lineCount = (n: number): string => (n === 0 ? '空' : `${n} 行`)
 
 const BAND_SHARE = 0.12
 const BAND_FLOOR = 0.06
@@ -2416,7 +2416,7 @@ const previewText = (el: ElementTable, style: Style, path: string, shown: string
 
 const wholeHead = (el: ElementTable, style: Style, file: WholeFile, band?: string): RenderElement => (
   <el.Text key="head">
-    {band ? <el.Text {...onBand(style.theme.codeText, band)}>{'Created '}</el.Text> : file.kind === 'created' ? 'Created ' : 'Deleted '}
+    {band ? <el.Text {...onBand(style.theme.codeText, band)}>{'已创建 '}</el.Text> : file.kind === 'created' ? '已创建 ' : '已删除 '}
     <el.Text color={style.theme.path} {...lift(style.theme.path, band)}>{shortPath(style, file.path)}</el.Text>
     <el.Text dimColor {...muted(style, band)}>{` (${lineCount(file.lines.length)})`}</el.Text>
   </el.Text>
@@ -2437,7 +2437,7 @@ type Toggle = ReturnType<Fold>
 const wholeToggle = (fold: Fold, file: WholeFile, head: RenderElement, id: string, key: string): Toggle => {
   const n = file.lines.length
   if (file.kind === 'created') return n > PREVIEW_LINES ? fold(id, n - PREVIEW_LINES, `fold${key}`) : null
-  return n > 0 ? fold(id, n, `fold${key}`, { label: `show ${lineCount(n)}`, face: () => head }) : null
+  return n > 0 ? fold(id, n, `fold${key}`, { label: `展开 ${lineCount(n)}`, face: () => head }) : null
 }
 
 const wholeBody = (el: ElementTable, style: Style, file: WholeFile, head: RenderElement, rows: RenderElement | null, toggle: Toggle, band: string | undefined): (RenderElement | null)[] | RenderElement => {
@@ -2460,7 +2460,7 @@ const wholeFileCard = (el: ElementTable, style: Style, file: WholeFile, fold: Fo
   return (
     <el.Box key={`file${key}`} flexDirection="column">
       {wholeBody(el, style, file, head, rows, toggle, band)}
-      {rest ? <el.Text key="rest" dimColor>{`… +${n - shown} lines`}</el.Text> : null}
+      {rest ? <el.Text key="rest" dimColor>{`… 还有 ${n - shown} 行`}</el.Text> : null}
       {toggle && !toggle.faced ? toggle.element : null}
     </el.Box>
   )
@@ -2550,7 +2550,7 @@ const shellLabel = (call: ToolRow, style: Style): string => {
   const plain = call.tool === 'Bash' ? describeShell(command, style) : undefined
   if (plain) return plain
   const description = field(call.input, 'description')
-  if (description === undefined) return `Ran ${shortenPaths(command.split('\n')[0]!, style)}`
+  if (description === undefined) return `已运行 ${shortenPaths(command.split('\n')[0]!, style)}`
   const programs = call.tool === 'Bash' ? programsOf(command) : []
   return programs.length ? `${description} · ${programs.join(', ')}` : description
 }
@@ -2560,9 +2560,9 @@ const callPieces = (call: ToolRow, style: Style): LinkPiece[] => {
   if (call.tool === 'Grep') {
     const pattern = field(call.input, 'pattern')
     const path = field(call.input, 'path')
-    if (pattern !== undefined) return path === undefined ? [{ text: `Searched . for "${pattern}"` }] : [{ text: 'Searched ' }, { text: shortTarget(style, path), path }, { text: ` for "${pattern}"` }]
+    if (pattern !== undefined) return path === undefined ? [{ text: `在 . 中搜索“${pattern}”` }] : [{ text: '已搜索 ' }, { text: shortTarget(style, path), path }, { text: ` 中的“${pattern}”` }]
   }
-  const verb = call.tool === 'Skill' ? 'Loaded skill' : VERBS[call.tool] ?? call.tool.replace(/^mcp__([^_]+)__/, '$1 ')
+  const verb = call.tool === 'Skill' ? '已加载技能' : VERBS[call.tool] ?? call.tool.replace(/^mcp__([^_]+)__/, '$1 ')
   const target = field(call.input, ...TARGET_FIELDS)
   const args = call.tool === 'Skill' ? field(call.input, 'args') : undefined
   if (target === undefined) return [{ text: verb }]
@@ -2574,11 +2574,11 @@ const quietToolRow = (el: ElementTable, style: Style, row: ToolRow, columns: num
   const t = style.theme
   const dot = statusColor(t, row)
   const pieces = callPieces(row, style)
-  const label = `${pieceText(pieces)}${row.isInterrupted ? ' interrupted' : row.isErrored ? ' failed' : ''}`
+  const label = `${pieceText(pieces)}${row.isInterrupted ? ' 已中断' : row.isErrored ? ' 失败' : ''}`
   return toolLayout(el, style, columns, label, dot, row.isRunning, (
     <el.Text wrap="truncate-end" dimColor={toolDim(style)}>
       {drawPieces(el, style, pieces)}
-      {row.isInterrupted ? <el.Text dimColor> interrupted</el.Text> : row.isErrored ? <el.Text color={t.codeFlag}> failed</el.Text> : null}
+      {row.isInterrupted ? <el.Text dimColor> 已中断</el.Text> : row.isErrored ? <el.Text color={t.codeFlag}> 失败</el.Text> : null}
     </el.Text>
   ))
 }
@@ -2594,13 +2594,13 @@ export const renderToolRow = (el: ElementTable, style: Style, row: ToolRow, colu
   const dot = statusColor(t, row)
   const isPath = target !== undefined && (found.path !== undefined || /^(~|\.{0,2}\/|[A-Za-z]:\\)/.test(target))
 
-  const label = `${verb}${target === undefined ? "" : ` ${target}`}${row.isInterrupted ? " interrupted" : row.isErrored ? " failed" : ""}`
+  const label = `${verb}${target === undefined ? "" : ` ${target}`}${row.isInterrupted ? " 已中断" : row.isErrored ? " 失败" : ""}`
   return toolLayout(el, style, columns, label, dot, row.isRunning, (
       <Text wrap="truncate-end" dimColor={toolDim(style)}>
         <Text bold={!toolDim(style)} dimColor={toolDim(style)}>{verb}</Text>
         {target === undefined ? null : <Text> </Text>}
         {target === undefined ? null : isShell ? codeLine(el, style, target, 'bash', 'cmd') : <Text color={isPath ? t.path : t.inlineCode} dimColor={toolDim(style)}>{drawPieces(el, style, [{ text: target, path: toolPath(row.tool, found.path) }])}</Text>}
-        {row.isInterrupted ? <Text dimColor> interrupted</Text> : row.isErrored ? <Text color={t.codeFlag}> failed</Text> : null}
+        {row.isInterrupted ? <Text dimColor> 已中断</Text> : row.isErrored ? <Text color={t.codeFlag}> 失败</Text> : null}
       </Text>
   ))
 }
@@ -2799,22 +2799,22 @@ const describeCommand = (name: string, args: string[], places: Places): string |
     const targets = ops.filter(a => a !== range)
     if (!range || !targets.length) return undefined
     const [from, to] = range.slice(0, -1).split(',')
-    return `Read ${files(targets)} lines ${from}${to ? `–${to}` : ''}`
+    return `已读取 ${files(targets)} 的第 ${from}${to ? `–${to}` : ''} 行`
   }
-  if (name === 'cat' || name === 'less' || name === 'nl') return ops.length ? `Read ${files(ops)}` : undefined
-  if (name === 'pdftotext') return ops.length ? `Read ${files(ops.slice(0, 1))}` : undefined
+  if (name === 'cat' || name === 'less' || name === 'nl') return ops.length ? `已读取 ${files(ops)}` : undefined
+  if (name === 'pdftotext') return ops.length ? `已读取 ${files(ops.slice(0, 1))}` : undefined
   if (name === 'head' || name === 'tail') {
     const targets = ops.filter(a => !/^\d+$/.test(a))
-    return targets.length ? `Read ${name === 'head' ? 'start' : 'end'} of ${files(targets)}` : undefined
+    return targets.length ? `已读取 ${files(targets)}的${name === 'head' ? '开头' : '末尾'}` : undefined
   }
   if (name === 'grep' || name === 'rg') {
     const e = args.indexOf('-e')
     const pattern = e >= 0 ? args[e + 1] : ops[0]
     const paths = e >= 0 ? ops : ops.slice(1)
-    return pattern === undefined ? undefined : `Searched ${paths.length ? files(paths) : '.'} for "${pattern}"`
+    return pattern === undefined ? undefined : `在 ${paths.length ? files(paths) : '.'} 中搜索“${pattern}”`
   }
-  if (name === 'ls' || name === 'tree') return `Listed ${ops.length ? files(ops) : '.'}`
-  if (name === 'find') return `Listed ${args[0] && !args[0].startsWith('-') ? files([args[0]]) : '.'}`
+  if (name === 'ls' || name === 'tree') return `已列出 ${ops.length ? files(ops) : '.'}`
+  if (name === 'find') return `已列出 ${args[0] && !args[0].startsWith('-') ? files([args[0]]) : '.'}`
   if (name === 'wc') return ops.length ? `Counted ${files(ops)}` : undefined
   return undefined
 }
@@ -2931,7 +2931,7 @@ const renderExpandedShell = (el: ElementTable, style: Style, row: ToolRow & { ou
       {row.isRunning ? null : (
         <Box paddingLeft={BOX_INDENT}>
           <Box flexDirection="column" alignSelf="flex-start" borderStyle="round" borderColor={t.codeComment} paddingRight={1}>
-            {rows.length === 0 ? heldRow(el, style, 'o0', ' ', '', <Text dimColor>(No output)</Text>) : rows.map((r, i) => heldRow(el, style, `o${i}`, ' ', r.text, <Text color={r.color}>{r.text === '' ? ' ' : r.text}</Text>))}
+            {rows.length === 0 ? heldRow(el, style, 'o0', ' ', '', <Text dimColor>（无输出）</Text>) : rows.map((r, i) => heldRow(el, style, `o${i}`, ' ', r.text, <Text color={r.color}>{r.text === '' ? ' ' : r.text}</Text>))}
             {hidden ? heldRow(el, style, 'more', ' ', '', <Text dimColor>{`\u2026 +${hidden} lines`}</Text>) : null}
           </Box>
         </Box>
@@ -3003,12 +3003,12 @@ export const renderToolGroup = (el: ElementTable, style: Style, calls: readonly 
   const lastFound = last ? targetOf(style, last.input, ['command', ...TARGET_FIELDS]) : {}
   const lastTarget = lastFound.target?.split('\n')[0]
   const summary = groupSummary(calls)
-  const label = `${summary}${failed ? ` · ${failed} failed` : ""}${lastTarget ? ` · last: ${lastTarget}` : ""}`
+  const label = `${summary}${failed ? ` · ${failed} 失败` : ""}${lastTarget ? ` · 最后：${lastTarget}` : ""}`
   return toolLayout(el, style, columns, label, dot, running, (
       <Text wrap="truncate-end" dimColor={toolDim(style)}>
         <Text bold={!toolDim(style)} dimColor={toolDim(style)}>{summary}</Text>
-        {failed ? <Text color={t.codeFlag}>{` · ${failed} failed`}</Text> : null}
-        {lastTarget ? <Text dimColor>{drawPieces(el, style, [{ text: ' · last: ' }, { text: lastTarget, path: toolPath(last?.tool, lastFound.path) }])}</Text> : null}
+        {failed ? <Text color={t.codeFlag}>{` · ${failed} 失败`}</Text> : null}
+        {lastTarget ? <Text dimColor>{drawPieces(el, style, [{ text: ' · 最后：' }, { text: lastTarget, path: toolPath(last?.tool, lastFound.path) }])}</Text> : null}
       </Text>
   ))
 }
@@ -3049,7 +3049,7 @@ const CHAT_SHARE = 0.75
 
 const headDot = (style: Pick<Style, 'smallDot'>): string => (style.smallDot ? '●' : '⬤')
 
-const youHead = (style: Style): string => style.bubbleLabels === 'small' ? 'You ● ' : `You  ${headDot(style)} `
+const youHead = (style: Style): string => style.bubbleLabels === 'small' ? '你 ● ' : `你  ${headDot(style)} `
 
 const claudeHead = (style: Style): string => style.bubbleLabels === 'small' ? '● Claude' : `${headDot(style)}  Claude`
 
