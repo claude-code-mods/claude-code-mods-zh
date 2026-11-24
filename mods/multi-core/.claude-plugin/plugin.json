@@ -1,0 +1,5 @@
+{
+  "name": "multi-core",
+  "description": "在一个 Claude Code 会话中使用 ChatGPT、Cursor、OpenCode 和 Antigravity 模型，用 /model 切换。",
+  "version": "0.0.0"
+}

@@ -1,0 +1,58 @@
+{
+  "name": "cache-tax",
+  "version": "2.4.2",
+  "description": "A Claude Code mod that keeps the one-hour prompt cache warm during breaks and asks before a cold send, showing its estimated rewrite cost. Warming uses model requests and costs tokens. Requires Claude Code 2.1.287+.",
+  "author": {
+    "name": "Karan Bansal",
+    "url": "https://karanbansal.in/"
+  },
+  "homepage": "https://cachetax.aidojo.si/",
+  "repository": "https://github.com/karanb192/cache-tax",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "claude-mods",
+    "prompt-caching",
+    "prompt-cache",
+    "keepwarm",
+    "cache-cost",
+    "cost-visibility"
+  ],
+  "userConfig": {
+    "headless": {
+      "type": "string",
+      "title": "Headless prompts",
+      "description": "guard (default): keep the cold-send guard for CLI and SDK prompts. send: allow non-interactive SDK prompts without asking, unless guard refuse is explicit. Remote human prompts keep the guard.",
+      "default": "guard",
+      "options": ["guard", "send"]
+    },
+    "autoWarm": {
+      "type": "string",
+      "title": "Auto keepwarm",
+      "description": "on: after you pay a cold cache write, keepwarm arms itself for three hours (the default). off: keepwarm only runs when you arm it with /keepwarm.",
+      "default": "on",
+      "options": [
+        "on",
+        "off"
+      ]
+    },
+    "pingFloor": {
+      "type": "number",
+      "title": "Ping floor",
+      "description": "Limit each idle break's ping spend to the estimated rewrite cost divided by this number, including the next estimated ping. 2 by default; 0 disables the limit. The first ping has no receipt to estimate from.",
+      "default": 2,
+      "min": 0
+    },
+    "display": {
+      "title": "Display",
+      "description": "Where cache-tax shows its state. band: the row above the prompt (the default). status: the status entry under the prompt instead, with no row.",
+      "type": "string",
+      "options": [
+        "band",
+        "status"
+      ],
+      "default": "band"
+    }
+  },
+  "types": "./types/index.d.ts"
+}

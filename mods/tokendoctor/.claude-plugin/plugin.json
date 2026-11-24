@@ -1,0 +1,34 @@
+{
+  "name": "tokendoctor",
+  "displayName": "tokendoctor",
+  "version": "0.6.1",
+  "description": "The same Claude Code for up to 38% less. Replays your own past sessions to show what each change would have saved, then changes only what you pick.",
+  "author": {
+    "name": "rsaryev"
+  },
+  "license": "MIT",
+  "keywords": [
+    "tokens",
+    "cost",
+    "context",
+    "settings",
+    "audit"
+  ],
+  "icon": "./.claude-plugin/icon.png",
+  "homepage": "https://tokendoctor.localix.ai",
+  "repository": "https://github.com/localixai/tokendoctor",
+  "userConfig": {
+    "slide": {
+      "type": "boolean",
+      "title": "Slide the window instead of compacting",
+      "description": "Where Claude Code would summarize the conversation, elide old tool outputs instead (they can be read again): no summary request, every prompt and answer kept word for word. /compact still summarizes.",
+      "default": false
+    },
+    "slideTo": {
+      "type": "number",
+      "title": "Slide down to (% of where Claude Code compacts)",
+      "description": "How far a slide frees the context, as a percent of the point where Claude Code compacts (20 to 90). Lower leaves less behind and more turns before the next slide.",
+      "default": 25
+    }
+  }
+}
