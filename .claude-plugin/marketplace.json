@@ -91,17 +91,13 @@
     },
     {
       "name": "council",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/hex/claude-council.git",
-        "sha": "f2f7f42122b288599cef8cea97dcc490acea98a5"
-      },
+      "source": "./mods/council",
       "description": "Consult several AI agents at once for diverse perspectives, with a streaming pane and an optional heads-up side check.",
-      "version": "0.0.0",
+      "version": "2026.11.2",
       "author": {
         "name": "hex"
       },
-      "homepage": "https://github.com/hex/claude-council/tree/f2f7f42122b288599cef8cea97dcc490acea98a5",
+      "homepage": "https://github.com/hex/claude-council",
       "license": "MIT",
       "category": "dashboards"
     },
@@ -299,17 +295,13 @@
     },
     {
       "name": "carbon",
-      "source": {
-        "source": "url",
-        "url": "https://github.com/gwittebolle/claude-carbon.git",
-        "sha": "9ad53f1dd07fb0e11fcdb94d294ed794d660cf4b"
-      },
+      "source": "./mods/carbon",
       "description": "Tracks the carbon footprint of your Claude Code sessions in the terminal and desktop app.",
-      "version": "0.0.0",
+      "version": "1.20.1",
       "author": {
         "name": "gwittebolle"
       },
-      "homepage": "https://github.com/gwittebolle/claude-carbon/tree/9ad53f1dd07fb0e11fcdb94d294ed794d660cf4b",
+      "homepage": "https://github.com/gwittebolle/claude-carbon",
       "license": "MIT",
       "category": "productivity"
     },
